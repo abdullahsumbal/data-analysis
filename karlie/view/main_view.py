@@ -6,50 +6,33 @@ from view.main_view_ui import Ui_MainWindow
 class MainView(QMainWindow):
     def __init__(self, model, main_controller):
         super().__init__()
-
         self._model = model
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
         # connect widgets to controllers
-        self._ui.medusa_file_button.clicked.connect(self.openFileNameDialog)
+        self._ui.medusa_file_button.clicked.connect(self.open_file_name_dialog)
 
-
-        # self._ui.spinBox_amount.valueChanged.connect(self._main_controller.change_amount)
-        # self._ui.pushButton_reset.clicked.connect(lambda: self._main_controller.change_amount(0))
-        #
-        # # listen for model event signals
-        # self._model.amount_changed.connect(self.on_amount_changed)
-        # self._model.even_odd_changed.connect(self.on_even_odd_changed)
-        # self._model.enable_reset_changed.connect(self.on_enable_reset_changed)
-        #
-        # # set a default value
-        # self._main_controller.change_amount(42)
-
-    @pyqtSlot(int)
-    def on_amount_changed(self, value):
-        self._ui.spinBox_amount.setValue(value)
+        # listen for model event signals
+        self._model.file_name_changed.connect(self.on_file_name_changed)
 
     @pyqtSlot(str)
-    def on_even_odd_changed(self, value):
-        self._ui.label_even_odd.setText(value)
+    def on_file_name_changed(self, value):
+        self._ui.label.setText("File Name: " + value)
 
-    @pyqtSlot(bool)
-    def on_enable_reset_changed(self, value):
-        self._ui.pushButton_reset.setEnabled(value)
-
-    @pyqtSlot()
-    def openFileNameDialog(self):
+    # Set one file
+    def open_file_name_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;Python Files (*.py)", options=options)
-        if fileName:
-            print(fileName)
+        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                   "All Files (*);;Python Files (*.py)", options=options)
+        if file_name:
+            print(file_name)
+            self._main_controller.file_name_changed(file_name)
 
-    @pyqtSlot()
-    def openFileNamesDialog(self):
+    # select multiple files
+    def open_file_names_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         files, _ = QFileDialog.getOpenFileNames(self, "QFileDialog.getOpenFileNames()", "",
@@ -57,11 +40,11 @@ class MainView(QMainWindow):
         if files:
             print(files)
 
-    @pyqtSlot()
-    def saveFileDialog(self):
+    # save file
+    def save_file_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
-                                                  "All Files (*);;Text Files (*.txt)", options=options)
-        if fileName:
-            print(fileName)
+        file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+                                                   "All Files (*);;Text Files (*.txt)", options=options)
+        if file_name:
+            print(file_name)
