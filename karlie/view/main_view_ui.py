@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'view/app.ui'
+# Form implementation generated from reading ui file 'app.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -55,7 +55,7 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 191, 345))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.gridLayoutWidget_2 = QtWidgets.QWidget(self.scrollAreaWidgetContents_2)
-        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(9, 29, 171, 301))
+        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(-1, -1, 191, 351))
         self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
         self.gridLayout_select_cycle = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
         self.gridLayout_select_cycle.setContentsMargins(0, 0, 0, 0)
