@@ -16,3 +16,7 @@ class MainController(QObject):
 
         # calculate button enabled state
         self._model.enable_reset = True if value else False
+
+    @pyqtSlot(str)
+    def file_name_changed(self, name):
+        self._model.file_name = name
