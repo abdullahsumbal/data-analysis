@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel
 from PyQt5.QtCore import pyqtSlot
 from view.main_view_ui import Ui_MainWindow
 
@@ -13,23 +13,33 @@ class MainView(QMainWindow):
 
         # connect widgets to controllers
         self._ui.medusa_file_button.clicked.connect(self.open_file_name_dialog)
+        self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
 
         # listen for model event signals
         self._model.file_name_changed.connect(self.on_file_name_changed)
 
     @pyqtSlot(str)
     def on_file_name_changed(self, value):
+        # things to do after the file is successfully loaded
+
+        # show file name at the bottom of the window (status bar)
         self._ui.label.setText("File Name: " + value)
+
+        # add checkbox for cycles
+        self.select_cycles()
 
     # Set one file
     def open_file_name_dialog(self):
+        self._main_controller.file_name_changed("")
+        return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                   "All Files (*);;Python Files (*.py)", options=options)
+                                                   "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
             print(file_name)
-            self._main_controller.file_name_changed(file_name)
+        self._main_controller.file_name_changed(file_name)
+
 
     # select multiple files
     def open_file_names_dialog(self):
@@ -48,3 +58,11 @@ class MainView(QMainWindow):
                                                    "All Files (*);;Text Files (*.txt)", options=options)
         if file_name:
             print(file_name)
+
+    def select_cycles(self):
+        grid = self._ui.gridLayout_select_cycle
+        print("adding checkbox")
+        for i in range(1):
+            checkBox = QCheckBox(self.gridLayoutWidget_2)
+            checkBox.setObjectName("cycle " + i)
+            self.gridLayout_select_cycle.addWidget(checkBox, i+1, 1, 1, 1)
