@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel
 from PyQt5.QtCore import pyqtSlot
 from view.main_view_ui import Ui_MainWindow
-
+from PyQt5 import QtCore
 
 class MainView(QMainWindow):
     def __init__(self, model, main_controller):
@@ -62,7 +62,11 @@ class MainView(QMainWindow):
     def select_cycles(self):
         grid = self._ui.gridLayout_select_cycle
         print("adding checkbox")
-        for i in range(1):
-            checkBox = QCheckBox(self.gridLayoutWidget_2)
-            checkBox.setObjectName("cycle " + i)
-            self.gridLayout_select_cycle.addWidget(checkBox, i+1, 1, 1, 1)
+
+        # self._ui.add_check()
+        for i in range(10):
+            name = "Cycle "+str(i + 1)
+            checkbox = QCheckBox(self._ui.gridLayoutWidget_2)
+            checkbox.setObjectName(name)
+            self._ui.gridLayout_select_cycle.addWidget(checkbox, i, 0, 3, 0)
+            checkbox.setText(QtCore.QCoreApplication.translate("MainWindow", name))

@@ -12,7 +12,7 @@ class App(QApplication):
         super(App, self).__init__(sys_argv)
 
         # covnert from ui to py for view
-        os.system("pyuic5 view/app.ui -o view/main_view_ui.py")
+        # os.system("pyuic5 view/app.ui -o view/main_view_ui.py")
         self.model = Medusa()
         self.main_controller = MainController(self.model)
         self.main_view = MainView(self.model, self.main_controller)
