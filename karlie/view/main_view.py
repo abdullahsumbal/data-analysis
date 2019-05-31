@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
 from PyQt5.QtCore import pyqtSlot
 from view.main_view_ui import Ui_MainWindow
+from view.cycle_view_ui import Ui_Cycle
 from PyQt5 import QtCore
 
 class MainView(QMainWindow):
@@ -9,6 +10,7 @@ class MainView(QMainWindow):
         self._model = model
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
+        self.cycle_view = CycleView()
         self._ui.setupUi(self)
 
         # connect widgets to controllers
@@ -26,7 +28,9 @@ class MainView(QMainWindow):
         self._ui.label.setText("File Name: " + value)
 
         # add checkbox for cycles
-        self.select_cycles()
+        # self.hide()
+
+        self.cycle_view.show()
 
     # Set one file
     def open_file_name_dialog(self):
@@ -70,3 +74,10 @@ class MainView(QMainWindow):
             checkbox.setObjectName(name)
             self._ui.gridLayout_select_cycle.addWidget(checkbox, i, 0, 3, 0)
             checkbox.setText(QtCore.QCoreApplication.translate("MainWindow", name))
+
+
+class CycleView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_Cycle()
+        self.ui.setupUi(self)
