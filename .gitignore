@@ -1,1 +1,7 @@
 .idea
+build
+dist
+*.csv
+*.pdf
+
+!karlie/sample-files/*
