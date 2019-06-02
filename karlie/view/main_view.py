@@ -24,7 +24,7 @@ class MainView(QMainWindow):
         self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
 
-        self._ui.button_select_cycle.clicked.connect(self.select_cycles)
+        # self._ui.button_select_cycle.clicked.connect(self.select_cycles)
         self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
 
         ####################################################################
