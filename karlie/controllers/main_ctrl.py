@@ -66,7 +66,7 @@ class MainController(QObject):
         # Validate if the file
 
         # load in pandas
-        name = "C:/Users/Sumbal/Documents/atom/data-analysis/matthew/KP0182A.csv"
+        # name = "C:/Users/Sumbal/Documents/atom/data-analysis/matthew/KP0182A.csv"
         data = pd.read_csv(name, skiprows=7)
         self._model.file_data = data
 
