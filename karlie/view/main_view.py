@@ -15,6 +15,7 @@ class MainView(QMainWindow):
 
         # connect widgets to controllers
         self._ui.medusa_file_button.clicked.connect(self.open_file_name_dialog)
+        self._ui.button_select_cycle.clicked.connect(self.select_cycles)
         self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
 
         # listen for model event signals
@@ -30,19 +31,17 @@ class MainView(QMainWindow):
         # add checkbox for cycles
         # self.hide()
 
-        self.cycle_view.show()
-
     # Set one file
     def open_file_name_dialog(self):
-        self._main_controller.file_name_changed("")
-        return
+        # self._main_controller.file_name_changed("")
+        # return
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                    "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
             print(file_name)
-        self._main_controller.file_name_changed(file_name)
+            self._main_controller.file_name_changed(file_name)
 
 
     # select multiple files
@@ -64,16 +63,17 @@ class MainView(QMainWindow):
             print(file_name)
 
     def select_cycles(self):
-        grid = self._ui.gridLayout_select_cycle
-        print("adding checkbox")
-
-        # self._ui.add_check()
-        for i in range(10):
-            name = "Cycle "+str(i + 1)
-            checkbox = QCheckBox(self._ui.gridLayoutWidget_2)
-            checkbox.setObjectName(name)
-            self._ui.gridLayout_select_cycle.addWidget(checkbox, i, 0, 3, 0)
-            checkbox.setText(QtCore.QCoreApplication.translate("MainWindow", name))
+        self.cycle_view.show()
+        # grid = self._ui.gridLayout_select_cycle
+        # print("adding checkbox")
+        #
+        # # self._ui.add_check()
+        # for i in range(10):
+        #     name = "Cycle "+str(i + 1)
+        #     checkbox = QCheckBox(self._ui.gridLayoutWidget_2)
+        #     checkbox.setObjectName(name)
+        #     self._ui.gridLayout_select_cycle.addWidget(checkbox, i, 0, 3, 0)
+        #     checkbox.setText(QtCore.QCoreApplication.translate("MainWindow", name))
 
 
 class CycleView(QDialog):
@@ -81,3 +81,4 @@ class CycleView(QDialog):
         super().__init__()
         self.ui = Ui_Cycle()
         self.ui.setupUi(self)
+
