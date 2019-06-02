@@ -62,19 +62,22 @@ class MainController(QObject):
         plt.close()
 
     @pyqtSlot(str)
-    def file_name_changed(self, name):
-        # Validate if the file
+    def file_name_changed(self, name, file_type):
+        # TODO: Validate if the file
 
         # load in pandas
         # name = "C:/Users/Sumbal/Documents/atom/data-analysis/matthew/KP0182A.csv"
-        data = pd.read_csv(name, skiprows=7)
-        self._model.file_data = data
-
-        resistances_header = pd.read_csv(name, header=6, nrows=0)
-        resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
-        self._model.resistances = resistances_values
+        # data = pd.read_csv(name, skiprows=7)
+        # self._model.file_data = data
+        #
+        # resistances_header = pd.read_csv(name, header=6, nrows=0)
+        # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
+        # self._model.resistances = resistances_values
         # update model
-        self._model.file_name = name
+
+        # update model
+        self._model.file_name = (name, file_type)
+
 
     def test_plot(self, data):
         cycle1 = data[data['Cycle']==1]

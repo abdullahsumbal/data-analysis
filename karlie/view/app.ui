@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>597</width>
-    <height>476</height>
+    <width>584</width>
+    <height>485</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,11 +19,25 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0,0">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
-      <item row="10" column="0">
+      <item row="4" column="0" colspan="4">
+       <widget class="QLabel" name="label_x_y_file">
+        <property name="text">
+         <string>X Y file selected: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="4">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -36,24 +50,52 @@
         </property>
        </spacer>
       </item>
-      <item row="13" column="0">
+      <item row="14" column="0">
        <widget class="QPushButton" name="plot_volt_cur_button">
         <property name="text">
          <string>Plot Voltage vs Current</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
-       <widget class="QPushButton" name="button_select_cycle">
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Select Cycles</string>
+         <string>Plots</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QPushButton" name="pushButton_6">
+        <property name="text">
+         <string>Normalized Current Vs Voltage</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="button_mass_file">
         <property name="text">
          <string>Open Mass File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Load Files</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QPushButton" name="pushButton_7">
+        <property name="text">
+         <string>Select Channels</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QPushButton" name="button_select_cycle">
+        <property name="text">
+         <string>Select Cycles</string>
         </property>
        </widget>
       </item>
@@ -67,101 +109,79 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="text">
-         <string>Open X Y File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="text">
-         <string>Open Config File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="4">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QPushButton" name="pushButton_6">
-        <property name="text">
-         <string>Normalized Current Vs Voltage</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
+      <item row="9" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Filter options</string>
         </property>
        </widget>
       </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="1" column="2">
+       <widget class="QPushButton" name="button_x_y_file">
         <property name="text">
-         <string>Plots</string>
+         <string>Open X Y File</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
+      <item row="5" column="0" colspan="4">
+       <widget class="QLabel" name="label_config_file">
         <property name="text">
-         <string>Load Files</string>
+         <string>Config file selected: </string>
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
-       <widget class="QPushButton" name="pushButton_7">
+      <item row="3" column="0" colspan="4">
+       <widget class="QLabel" name="label_mass_file">
         <property name="text">
-         <string>Select Channels</string>
+         <string>Mass file selected: </string>
         </property>
        </widget>
       </item>
-      <item row="11" column="0" colspan="4">
+      <item row="1" column="3">
+       <widget class="QPushButton" name="button_config_file">
+        <property name="text">
+         <string>Open Config File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="4">
        <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="13" column="2">
+      <item row="14" column="2">
        <widget class="QPushButton" name="pushButton">
         <property name="text">
          <string>Capacity Vs Cycle</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="4">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>File Selected:</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0" colspan="4">
-       <widget class="QLabel" name="label_7">
+       <widget class="QLabel" name="label_medusa_file">
         <property name="text">
-         <string>Mass File: </string>
+         <string>Medusa file Selected: </string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" colspan="4">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>X Y File:</string>
+      <item row="15" column="0" colspan="4">
+       <widget class="Line" name="line_3">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="4">
-       <widget class="QLabel" name="label_5">
+      <item row="16" column="0" colspan="4">
+       <widget class="QLabel" name="label_status">
         <property name="text">
-         <string>Config File:</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -174,7 +194,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>597</width>
+     <width>584</width>
      <height>20</height>
     </rect>
    </property>
