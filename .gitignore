@@ -2,6 +2,6 @@
 build
 dist
 *.csv
-(.pdf
+*.pdf
 
 !karlie/sample-files/*
