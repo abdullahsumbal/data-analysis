@@ -29,11 +29,15 @@ class Medusa(QObject):
 
         if file_type == "medusa":
             self._medusa_file_name = name
+            self._medusa_data = data
         elif file_type == "mass":
             self._mass_file_name = name
+            self._mass_data = data
         elif file_type == "x_y":
             self._x_y_file_name = name
+            self._x_y_data = data
         elif file_type == "config":
             self._config_file_name = name
+            self._config_data = data
 
         self.file_name_changed.emit(name, file_type)

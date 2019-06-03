@@ -73,7 +73,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Open File</string>
+         <string>Open Medusa File</string>
         </property>
        </widget>
       </item>
