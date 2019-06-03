@@ -44,6 +44,9 @@ class MainView(QMainWindow):
         # file name is updated
         self._model.file_name_changed.connect(self.on_file_name_changed)
 
+        # error message
+        self._main_controller.task_bar_message.connect(self.on_task_bar_message)
+
 
     ####################################################################
     #   helper functions
@@ -77,6 +80,11 @@ class MainView(QMainWindow):
 
         self._ui.label_status.setText("Successfully loaded {} file".format(file_type))
         self._ui.label_status.setStyleSheet('color: green')
+
+    @pyqtSlot(str, str)
+    def on_task_bar_message(self, color, message):
+        self._ui.label_status.setText(message)
+        self._ui.label_status.setStyleSheet('color: {}'.format(color))
 
     # Set one file
     def open_file_name_dialog(self, file_type):

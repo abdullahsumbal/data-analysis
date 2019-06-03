@@ -1,9 +1,9 @@
-from PyQt5.QtCore import QObject, pyqtSlot
-import pandas as pd
-import csv
+from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
+from controllers.validate_file import *
 
 class MainController(QObject):
+    task_bar_message = pyqtSignal(str ,str)
     def __init__(self, model):
         super().__init__()
 
@@ -67,19 +67,17 @@ class MainController(QObject):
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):
         # TODO: Validate if the file
-
-        # load in pandas
-        # name = "C:/Users/Sumbal/Documents/atom/data-analysis/matthew/KP0182A.csv"
-        data = pd.read_csv(name, skiprows=7)
-        self._model.file_data = data
-
+        data, status = validate_medusa_file(name)
         # resistances_header = pd.read_csv(name, header=6, nrows=0)
         # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
         # self._model.resistances = resistances_values
 
 
         # update model
-        self._model.file_name = (name, data, file_type)
+        if status:
+            self._model.file_name = (name, data, file_type)
+        else:
+            self.task_bar_message.emit("red", "Error: Invalidate {} file format".format(file_type))
 
 
     def test_plot(self, data):
