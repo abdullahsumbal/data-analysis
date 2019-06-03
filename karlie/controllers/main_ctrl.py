@@ -43,6 +43,8 @@ class MainController(QObject):
         # return the function
         return zoom_fun
 
+    def plot_norm_volt_cur(self):
+        print("plot norm graph")
     def plot_volt_cur(self):
         data = self._model.file_data
         cycle1_data = data[data['Cycle']==1]

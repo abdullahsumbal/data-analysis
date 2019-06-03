@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, Qt
 from view.main_view_ui import Ui_MainWindow
 from view.cycle_view_ui import Ui_Cycle
 from os import path
@@ -23,9 +23,20 @@ class MainView(QMainWindow):
         self._ui.button_x_y_file.clicked.connect(lambda: self.open_file_name_dialog("x_y"))
         self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
+        # filter
+        # select cycle
+        self._ui.checkbox_cycle.stateChanged.connect(
+            lambda checked: self._ui.lineEdit_cycle.setEnabled(not checked)
+        )
+        # select channel
+        self._ui.checkbox_channel.stateChanged.connect(
+            lambda checked: self._ui.lineEdit_channel.setEnabled(not checked)
+        )
 
+        # button listeners
         # self._ui.button_select_cycle.clicked.connect(self.select_cycles)
-        self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
+        # self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
+        self._ui.button_norm_curr_volt.clicked.connect(self._main_controller.plot_norm_volt_cur)
 
         ####################################################################
         #   listen for model event signals
@@ -34,6 +45,9 @@ class MainView(QMainWindow):
         self._model.file_name_changed.connect(self.on_file_name_changed)
 
 
+    ####################################################################
+    #   helper functions
+    ####################################################################
     @pyqtSlot(str, str)
     def on_file_name_changed(self, name, file_type):
         # update file name label
@@ -45,6 +59,9 @@ class MainView(QMainWindow):
         if file_type == "medusa":
             self._ui.label_medusa_file.setText(self._ui.label_medusa_file.text() + name)
             self._ui.label_medusa_file.setStyleSheet('color: green')
+            self._ui.checkbox_cycle.setEnabled(True)
+            self._ui.checkbox_channel.setEnabled(True)
+            self._ui.button_norm_curr_volt.setEnabled(True)
         elif file_type == "mass":
             self._ui.label_mass_file.setText(self._ui.label_mass_file.text() + name)
             self._ui.label_mass_file.setStyleSheet('color: green')
@@ -61,11 +78,6 @@ class MainView(QMainWindow):
         self._ui.label_status.setText("Successfully loaded {} file".format(file_type))
         self._ui.label_status.setStyleSheet('color: green')
 
-    @pyqtSlot(str)
-    def on_mass_file_changed(self, value):
-        # update label on ui
-        self._ui.label_medusa_file.setText("Medusa file name: " + value)
-
     # Set one file
     def open_file_name_dialog(self, file_type):
         # open window to select file
@@ -80,6 +92,12 @@ class MainView(QMainWindow):
                                                        "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
             self._main_controller.file_name_changed(file_name, file_type)
+
+
+    def toggle_line_edit(self, lineEdit, checked):
+        lineEdit.setEnabled(not lineEdit)
+
+
 
 
     # select multiple files
