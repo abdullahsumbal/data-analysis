@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
-from controllers.validate_file import *
+from controllers.helper import *
 
 class MainController(QObject):
     task_bar_message = pyqtSignal(str ,str)
@@ -43,26 +43,68 @@ class MainController(QObject):
         # return the function
         return zoom_fun
 
-    def plot_norm_volt_cur(self):
-        print("plot norm graph")
+    # plot normalized current vs voltage
+    def plot_norm_volt_cur(self, selected_cycles, selected_channels):
 
-    def plot_volt_cur(self):
-        data = self._model.file_data
-        cycle1_data = data[data['Cycle']==1]
-        cycle2_data = data[data['Cycle']==2]
-        voltage_cycle_1 = cycle1_data.loc[:,'Vavg (V)'].values
-        current_cycle_1 = cycle1_data.loc[:,'Ch.1-I (uA)'].values
-        voltage_cycle_2 = cycle2_data.loc[:,'Vavg (V)'].values
-        current_cycle_2 = cycle2_data.loc[:,'Ch.1-I (uA)'].values
-        plt.figure(1)
-        ax = plt.subplot(111)
-        chargePlot = ax.plot(voltage_cycle_1, current_cycle_1, 'b', linewidth = 2.0, label = 'Charge')
-        dischargePlot = ax.plot(voltage_cycle_2, current_cycle_2, 'r', linewidth = 2.0, label = 'Discharge')
-        # Positions the legend to the top right corner outside the plot
+        # cycle validation
+        all_cycles = get_unique_cycles(self._model.medusa_data)
+        valid, message = validate_cycles(all_cycles, selected_cycles)
+        if not valid:
+            self.task_bar_message.emit("red", message)
+            return
 
-        f = self.zoom_factory(ax, base_scale=1)
+        # channel validation
+        valid, message = validate_channels(selected_channels)
+        if not valid:
+            self.task_bar_message.emit("red", message)
+            return
+        # get data from model
+        data = self._model.medusa_data
+
+        if selected_cycles == "all":
+            selected_cycles_list = all_cycles.tolist()
+        else:
+            selected_cycles_list = get_selected_cycles_list(selected_cycles)
+
+
+        #
+        # charge_cycles = get_charge_from_selected_cycles(selected_cycles_list)
+        # discharge_cycles = get_discharge_from_selected_cycles(selected_cycles_list)
+
+        if selected_channels != "all":
+            selected_channels = [int(selected_channels.strip())]
+        else:
+            selected_channels = [i for i in range(1,65)]
+
+        for channel in selected_channels:
+
+            for cycle in selected_cycles_list:
+                cycle_data = data[data['Cycle'] == cycle]
+                voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel)].values
+                plt.figure(1)
+                ax = plt.subplot()
+                chargePlot = ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+                f = self.zoom_factory(ax, base_scale=1)
+
+
+
+        # cycle1_data = data[data['Cycle'] == 1]
+        # cycle2_data = data[data['Cycle'] == 2]
+        # voltage_cycle_1 = cycle1_data.loc[:, 'Vavg (V)'].values
+        # current_cycle_1 = cycle1_data.loc[:, 'Ch.1-I (uA)'].values
+        # voltage_cycle_2 = cycle2_data.loc[:, 'Vavg (V)'].values
+        # current_cycle_2 = cycle2_data.loc[:, 'Ch.1-I (uA)'].values
+        # plt.figure(1)
+        # ax = plt.subplot(111)
+        # chargePlot = ax.plot(voltage_cycle_1, current_cycle_1, 'b', linewidth=2.0, label='Charge')
+        # dischargePlot = ax.plot(voltage_cycle_2, current_cycle_2, 'r', linewidth=2.0, label='Discharge')
+        # # Positions the legend to the top right corner outside the plot
+        #
+        # f = self.zoom_factory(ax, base_scale=1)
         plt.show()
         plt.close()
+
 
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):
@@ -78,7 +120,6 @@ class MainController(QObject):
             self._model.file_name = (name, data, file_type)
         else:
             self.task_bar_message.emit("red", "Error: Invalidate {} file format".format(file_type))
-
 
     def test_plot(self, data):
         cycle1 = data[data['Cycle']==1]
@@ -104,3 +145,9 @@ class MainController(QObject):
         plt.show()
         plt.plot(discharge,'o')
         plt.show()
+
+    def get_unique_cycles(self, data):
+        return data.Cycle.unique()
+
+    def get_all_cycles(self):
+        return self._model.medusa_data.Cycle.unique()
