@@ -106,41 +106,6 @@ class MainController(QObject):
             plt.show()
             plt.close()
 
-
-
-        #
-        # charge_cycles = get_charge_from_selected_cycles(selected_cycles_list)
-        # discharge_cycles = get_discharge_from_selected_cycles(selected_cycles_list)
-
-        # for channel in selected_channels:
-        #
-        #     for cycle in selected_cycles_list:
-        #         cycle_data = data[data['Cycle'] == cycle]
-        #         voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-        #         current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel)].values
-        #         plt.figure(1)
-        #         ax = plt.subplot()
-        #         chargePlot = ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-        #         f = self.zoom_factory(ax, base_scale=1)
-
-
-
-        # cycle1_data = data[data['Cycle'] == 1]
-        # cycle2_data = data[data['Cycle'] == 2]
-        # voltage_cycle_1 = cycle1_data.loc[:, 'Vavg (V)'].values
-        # current_cycle_1 = cycle1_data.loc[:, 'Ch.1-I (uA)'].values
-        # voltage_cycle_2 = cycle2_data.loc[:, 'Vavg (V)'].values
-        # current_cycle_2 = cycle2_data.loc[:, 'Ch.1-I (uA)'].values
-        # plt.figure(1)
-        # ax = plt.subplot(111)
-        # chargePlot = ax.plot(voltage_cycle_1, current_cycle_1, 'b', linewidth=2.0, label='Charge')
-        # dischargePlot = ax.plot(voltage_cycle_2, current_cycle_2, 'r', linewidth=2.0, label='Discharge')
-        # # Positions the legend to the top right corner outside the plot
-        #
-        # f = self.zoom_factory(ax, base_scale=1)
-
-
-
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):
         # TODO: Validate if the file
@@ -155,31 +120,6 @@ class MainController(QObject):
             self._model.file_name = (name, data, file_type)
         else:
             self.task_bar_message.emit("red", "Error: Invalidate {} file format".format(file_type))
-
-    def test_plot(self, data):
-        cycle1 = data[data['Cycle']==1]
-        ch1_cycle1 = cycle1[['Ch.1-I (uA)']]
-        time_cycle1 = cycle1[['Time(h)']]
-
-        cycle2 = data[data['Cycle']==2]
-        ch1_cycle2 = cycle1[['Ch.1-I (uA)']]
-        time_cycle2 = cycle1[['Time(h)']]
-
-        charge = []
-        discharge = []
-        for i in range(0, len(ch1_cycle1) - 2, 2):
-            charge.append(0.5*(ch1_cycle1.iloc[i,0] + ch1_cycle1.iloc[i+1, 0]) * (time_cycle1.iloc[i+1,0] - time_cycle1.iloc[i,0]))
-
-
-        for i in range(0, len(ch1_cycle2) - 2, 2):
-            discharge.append(0.5*(ch1_cycle2.iloc[i,0] + ch1_cycle2.iloc[i+1, 0]) * (time_cycle2.iloc[i+1,0] - time_cycle2.iloc[i,0]))
-
-        print(discharge)
-
-        plt.plot(charge,'x')
-        plt.show()
-        plt.plot(discharge,'o')
-        plt.show()
 
     def get_unique_cycles(self, data):
         return data.Cycle.unique()

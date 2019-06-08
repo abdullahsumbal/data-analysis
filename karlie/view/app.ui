@@ -43,7 +43,8 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Normalized Current Vs Voltage</string>
+         <string>Normalized Current 
+Vs Voltage</string>
         </property>
        </widget>
       </item>
@@ -332,6 +333,138 @@
          <string>Medusa file Selected: </string>
         </property>
        </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Scale options</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="2">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>x-axis</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="5">
+         <widget class="Line" name="line_14">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="Line" name="line_13">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="Line" name="line_12">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_scale_x_max">
+          <property name="toolTip">
+           <string>set x-axis maximum limit</string>
+          </property>
+          <property name="placeholderText">
+           <string>max</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="5">
+         <widget class="Line" name="line_15">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_scale_x_min">
+          <property name="toolTip">
+           <string>set x-axis minimum limit</string>
+          </property>
+          <property name="placeholderText">
+           <string>min</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="10" column="3">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="1">
+         <widget class="Line" name="line_16">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="5">
+         <widget class="Line" name="line_18">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>y-axis</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="lineEdit_scale_y_max">
+          <property name="toolTip">
+           <string>set y-axis maximum limit</string>
+          </property>
+          <property name="placeholderText">
+           <string>max</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="5">
+         <widget class="Line" name="line_17">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="Line" name="line_19">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_scale_y_min">
+          <property name="toolTip">
+           <string>set y-axis minimum limit</string>
+          </property>
+          <property name="placeholderText">
+           <string>min</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
