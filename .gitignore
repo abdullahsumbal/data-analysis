@@ -4,5 +4,8 @@ dist
 *.csv
 *.pdf
 *.spec
+*.csv
+*.pdf
+*.pyc
 
 !karlie/sample-files/*
