@@ -44,7 +44,7 @@
         </property>
         <property name="text">
          <string>Normalized Current 
-Vs Voltage</string>
+vs Voltage</string>
         </property>
        </widget>
       </item>
@@ -380,6 +380,9 @@ Vs Voltage</string>
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="lineEdit_scale_x_max">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>set x-axis maximum limit</string>
           </property>
@@ -397,6 +400,9 @@ Vs Voltage</string>
         </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="lineEdit_scale_x_min">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>set x-axis minimum limit</string>
           </property>
@@ -432,6 +438,9 @@ Vs Voltage</string>
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="lineEdit_scale_y_max">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>set y-axis maximum limit</string>
           </property>
@@ -456,6 +465,9 @@ Vs Voltage</string>
         </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="lineEdit_scale_y_min">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>set y-axis minimum limit</string>
           </property>

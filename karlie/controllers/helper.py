@@ -2,6 +2,10 @@ import pandas as pd
 import re
 
 
+def scale_user_input_to_float(limit):
+    return None if limit == "" else float(limit)
+
+
 def validate_medusa_file(name):
     data = pd.read_csv(name, skiprows=7)
     return data, True

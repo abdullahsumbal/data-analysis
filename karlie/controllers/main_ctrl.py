@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 from controllers.helper import *
 
 class MainController(QObject):
-    task_bar_message = pyqtSignal(str ,str)
+    task_bar_message = pyqtSignal(str, str)
     def __init__(self, model):
         super().__init__()
-
         self._model = model
+        self.figure_number = 1
 
     def zoom_factory(self, ax, base_scale=2.):
         def zoom_fun(event):
@@ -44,7 +44,7 @@ class MainController(QObject):
         return zoom_fun
 
     # plot normalized current vs voltage
-    def plot_norm_volt_cur(self, selected_cycles, selected_channels):
+    def plot_norm_volt_cur(self, selected_cycles, selected_channels, x_limit, y_limit):
 
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
@@ -67,10 +67,21 @@ class MainController(QObject):
         else:
             selected_cycles_list = get_selected_cycles_list(selected_cycles)
 
+        # change scale x-axis user input to int
+        x_min = scale_user_input_to_float(x_limit[0])
+        x_max = scale_user_input_to_float(x_limit[1])
+        # change scale y-axis user input to int
+        y_min = scale_user_input_to_float(y_limit[0])
+        y_max = scale_user_input_to_float(y_limit[1])
+
+        # validate limits
+        if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
+            return
+
         # changing channel user input into array
         if selected_channels == "all":
-            selected_channels = [i for i in range(1, 65)]
-            plt.figure(1)
+            # selected_channels = [i for i in range(1, 65)]
+            plt.figure(self.figure_number, figsize=(20, 15))
             channel_number = 1
             for row in range(8):
                 for col in range(8):
@@ -89,11 +100,20 @@ class MainController(QObject):
 
                     # increment figure number for new plots.
                     channel_number += 1
+
+            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+            # update status bar
+            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and all channels".format(
+                self.figure_number,
+                ",".join(map(str, selected_cycles_list))
+                ))
+            self.figure_number += 1
             plt.show()
             plt.close()
         else:
             selected_channels = [int(selected_channels.strip())]
-
+            plt.figure(self.figure_number, figsize=(20, 15))
             for channel_number in selected_channels:
                 for cycle in selected_cycles_list:
                     # get selected cycle data
@@ -103,6 +123,15 @@ class MainController(QObject):
                     # get current
                     current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values
                     plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+
+            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+            # update status bar
+            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and channel {}".format(
+                self.figure_number,
+                ",".join(map(str, selected_cycles_list)),
+                *selected_channels))
+            self.figure_number += 1
             plt.show()
             plt.close()
 
@@ -126,3 +155,12 @@ class MainController(QObject):
 
     def get_all_cycles(self):
         return self._model.medusa_data.Cycle.unique()
+
+    def validate_limit(self, min, max):
+        if not (min and max):
+            return True
+        # min has to be greater than max
+        if min > max:
+            self.task_bar_message.emit("red", "maximum limit has to be greater than minimum limit")
+            return False
+        return True
