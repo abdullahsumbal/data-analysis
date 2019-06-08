@@ -41,3 +41,9 @@ class Medusa(QObject):
             self._config_data = data
 
         self.file_name_changed.emit(name, file_type)
+
+    @property
+    def medusa_data(self):
+        return self._medusa_data
+
+
