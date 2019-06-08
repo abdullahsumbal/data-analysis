@@ -61,31 +61,67 @@ class MainController(QObject):
         # get data from model
         data = self._model.medusa_data
 
+        # changing cycle user input into array
         if selected_cycles == "all":
             selected_cycles_list = all_cycles.tolist()
         else:
             selected_cycles_list = get_selected_cycles_list(selected_cycles)
+
+        # changing channel user input into array
+        if selected_channels == "all":
+            selected_channels = [i for i in range(1, 65)]
+            plt.figure(1)
+            channel_number = 1
+            for row in range(8):
+                for col in range(8):
+                    for cycle in selected_cycles_list:
+                        # get selected cycle data
+                        cycle_data = data[data['Cycle'] == cycle]
+                        # get voltage
+                        voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                        # get current
+                        current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values
+
+                        # make subplot
+                        plt.subplot(8, 8, channel_number)
+
+                        plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+
+                    # increment figure number for new plots.
+                    channel_number += 1
+            plt.show()
+            plt.close()
+        else:
+            selected_channels = [int(selected_channels.strip())]
+
+            for channel_number in selected_channels:
+                for cycle in selected_cycles_list:
+                    # get selected cycle data
+                    cycle_data = data[data['Cycle'] == cycle]
+                    # get voltage
+                    voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                    # get current
+                    current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values
+                    plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+            plt.show()
+            plt.close()
+
 
 
         #
         # charge_cycles = get_charge_from_selected_cycles(selected_cycles_list)
         # discharge_cycles = get_discharge_from_selected_cycles(selected_cycles_list)
 
-        if selected_channels != "all":
-            selected_channels = [int(selected_channels.strip())]
-        else:
-            selected_channels = [i for i in range(1,65)]
-
-        for channel in selected_channels:
-
-            for cycle in selected_cycles_list:
-                cycle_data = data[data['Cycle'] == cycle]
-                voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel)].values
-                plt.figure(1)
-                ax = plt.subplot()
-                chargePlot = ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-                f = self.zoom_factory(ax, base_scale=1)
+        # for channel in selected_channels:
+        #
+        #     for cycle in selected_cycles_list:
+        #         cycle_data = data[data['Cycle'] == cycle]
+        #         voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+        #         current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel)].values
+        #         plt.figure(1)
+        #         ax = plt.subplot()
+        #         chargePlot = ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+        #         f = self.zoom_factory(ax, base_scale=1)
 
 
 
@@ -102,8 +138,7 @@ class MainController(QObject):
         # # Positions the legend to the top right corner outside the plot
         #
         # f = self.zoom_factory(ax, base_scale=1)
-        plt.show()
-        plt.close()
+
 
 
     @pyqtSlot(str)
