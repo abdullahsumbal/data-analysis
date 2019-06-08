@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushBu
 from PyQt5.QtCore import pyqtSlot, Qt
 from view.main_view_ui import Ui_MainWindow
 from view.cycle_view_ui import Ui_Cycle
+from view.helper import *
 from os import path
 from PyQt5 import QtCore
 
@@ -34,9 +35,7 @@ class MainView(QMainWindow):
         )
 
         # button listeners
-        # self._ui.button_select_cycle.clicked.connect(self.select_cycles)
-        # self._ui.plot_volt_cur_button.clicked.connect(self._main_controller.plot_volt_cur)
-        self._ui.button_norm_curr_volt.clicked.connect(self._main_controller.plot_norm_volt_cur)
+        self._ui.button_norm_curr_volt.clicked.connect(self.plot_norm_curr_volt)
 
         ####################################################################
         #   listen for model event signals
@@ -44,12 +43,15 @@ class MainView(QMainWindow):
         # file name is updated
         self._model.file_name_changed.connect(self.on_file_name_changed)
 
-        # error message
+        ####################################################################
+        #   listen for controller event signals
+        ####################################################################
+        # status bar  message
         self._main_controller.task_bar_message.connect(self.on_task_bar_message)
 
 
     ####################################################################
-    #   helper functions
+    #   model listener functions
     ####################################################################
     @pyqtSlot(str, str)
     def on_file_name_changed(self, name, file_type):
@@ -60,19 +62,32 @@ class MainView(QMainWindow):
 
         # update label based on file type
         if file_type == "medusa":
-            self._ui.label_medusa_file.setText(self._ui.label_medusa_file.text() + name)
+            new_label = get_new_label(self._ui.label_medusa_file.text(), name)
+            self._ui.label_medusa_file.setText(new_label)
             self._ui.label_medusa_file.setStyleSheet('color: green')
+
+            # enable filter options
             self._ui.checkbox_cycle.setEnabled(True)
             self._ui.checkbox_channel.setEnabled(True)
             self._ui.button_norm_curr_volt.setEnabled(True)
+
+            # update line edit place holder for cycles
+            all_cycles = self._main_controller.get_all_cycles()
+            all_cycles = [str(i) for i in all_cycles]
+            all_cycles = ",".join(all_cycles)
+            self._ui.lineEdit_cycle.setText(all_cycles)
+
         elif file_type == "mass":
-            self._ui.label_mass_file.setText(self._ui.label_mass_file.text() + name)
+            new_label = get_new_label(self._ui.label_mass_file.text(), name)
+            self._ui.label_mass_file.setText(new_label)
             self._ui.label_mass_file.setStyleSheet('color: green')
         elif file_type == "x_y":
-            self._ui.label_x_y_file.setText(self._ui.label_x_y_file.text() + name)
+            new_label = get_new_label(self._ui.label_x_y_file.text(), name)
+            self._ui.label_x_y_file.setText(new_label)
             self._ui.label_x_y_file.setStyleSheet('color: green')
         elif file_type == "config":
-            self._ui.label_config_file.setText( self._ui.label_config_file.text() + name)
+            new_label = get_new_label(self._ui.label_config_file.text(), name)
+            self._ui.label_config_file.setText(new_label)
             self._ui.label_config_file.setStyleSheet('color: green')
         else:
             self._ui.label_status.setText("Something wrong while loading file")
@@ -81,10 +96,17 @@ class MainView(QMainWindow):
         self._ui.label_status.setText("Successfully loaded {} file".format(file_type))
         self._ui.label_status.setStyleSheet('color: green')
 
+    ####################################################################
+    #   controller listener functions
+    ####################################################################
     @pyqtSlot(str, str)
     def on_task_bar_message(self, color, message):
         self._ui.label_status.setText(message)
         self._ui.label_status.setStyleSheet('color: {}'.format(color))
+
+    ####################################################################
+    #   helper functions to send request to controller
+    ####################################################################
 
     # Set one file
     def open_file_name_dialog(self, file_type):
@@ -101,12 +123,33 @@ class MainView(QMainWindow):
         if file_name:
             self._main_controller.file_name_changed(file_name, file_type)
 
+    # send information to controller about which channels and cycles to plot
+    def plot_norm_curr_volt(self):
+        cycles = self.get_selected_cycles()
+        channels = self.get_selected_channels()
+        # request to send to controller
+        self._main_controller.plot_norm_volt_cur(cycles, channels)
+    ####################################################################
+    #   View helper methods
+    ####################################################################
 
+    # get cycles form ui
+    def get_selected_cycles(self):
+        if self._ui.checkbox_cycle.isChecked():
+            return "all"
+        else:
+            return self._ui.lineEdit_cycle.text()
+
+    # get channels form ui
+    def get_selected_channels(self):
+        if self._ui.checkbox_channel.isChecked():
+            return "all"
+        else:
+            return self._ui.lineEdit_channel.text()
+
+    # enable and disable line edit based on checkbox
     def toggle_line_edit(self, lineEdit, checked):
         lineEdit.setEnabled(not lineEdit)
-
-
-
 
     # select multiple files
     def open_file_names_dialog(self):
@@ -125,19 +168,6 @@ class MainView(QMainWindow):
                                                    "All Files (*);;Text Files (*.txt)", options=options)
         if file_name:
             print(file_name)
-
-    def select_cycles(self):
-        self.cycle_view.show()
-        # grid = self._ui.gridLayout_select_cycle
-        # print("adding checkbox")
-        #
-        # # self._ui.add_check()
-        # for i in range(10):
-        #     name = "Cycle "+str(i + 1)
-        #     checkbox = QCheckBox(self._ui.gridLayoutWidget_2)
-        #     checkbox.setObjectName(name)
-        #     self._ui.gridLayout_select_cycle.addWidget(checkbox, i, 0, 3, 0)
-        #     checkbox.setText(QtCore.QCoreApplication.translate("MainWindow", name))
 
 
 class CycleView(QDialog):
