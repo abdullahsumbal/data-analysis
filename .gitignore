@@ -3,5 +3,6 @@ build
 dist
 *.csv
 *.pdf
+*.spec
 
 !karlie/sample-files/*
