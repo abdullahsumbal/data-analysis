@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
 from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtGui import QDoubleValidator
 from view.main_view_ui import Ui_MainWindow
 from view.cycle_view_ui import Ui_Cycle
 from view.helper import *
@@ -14,6 +15,15 @@ class MainView(QMainWindow):
         self._ui = Ui_MainWindow()
         self.cycle_view = CycleView()
         self._ui.setupUi(self)
+
+        ####################################################################
+        #  Validation for line edit widget
+        ####################################################################
+        # scale limit validation
+        self._ui.lineEdit_scale_x_min.setValidator(QDoubleValidator())
+        self._ui.lineEdit_scale_x_max.setValidator(QDoubleValidator())
+        self._ui.lineEdit_scale_y_min.setValidator(QDoubleValidator())
+        self._ui.lineEdit_scale_y_max.setValidator(QDoubleValidator())
 
         ####################################################################
         #   connect widgets to controllers
@@ -71,6 +81,12 @@ class MainView(QMainWindow):
             self._ui.checkbox_channel.setEnabled(True)
             self._ui.button_norm_curr_volt.setEnabled(True)
 
+            # enable scale options
+            self._ui.lineEdit_scale_x_min.setEnabled(True)
+            self._ui.lineEdit_scale_x_max.setEnabled(True)
+            self._ui.lineEdit_scale_y_min.setEnabled(True)
+            self._ui.lineEdit_scale_y_max.setEnabled(True)
+
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
             all_cycles = [str(i) for i in all_cycles]
@@ -127,12 +143,25 @@ class MainView(QMainWindow):
     def plot_norm_curr_volt(self):
         cycles = self.get_selected_cycles()
         channels = self.get_selected_channels()
+        y_limits = self.get_y_axis_limit()
+        x_limits = self.get_x_axis_limit()
         # request to send to controller
-        self._main_controller.plot_norm_volt_cur(cycles, channels)
+        self._main_controller.plot_norm_volt_cur(cycles, channels, x_limits, y_limits)
     ####################################################################
     #   View helper methods
     ####################################################################
 
+    # get y-axis limits from ui
+    def get_y_axis_limit(self):
+        y_min = self._ui.lineEdit_scale_y_min.text()
+        y_max = self._ui.lineEdit_scale_y_max.text()
+        return y_min, y_max
+
+    # get x-axis limits from ui
+    def get_x_axis_limit(self):
+        x_min = self._ui.lineEdit_scale_x_min.text()
+        x_max = self._ui.lineEdit_scale_x_max.text()
+        return x_min, x_max
     # get cycles form ui
     def get_selected_cycles(self):
         if self._ui.checkbox_cycle.isChecked():
