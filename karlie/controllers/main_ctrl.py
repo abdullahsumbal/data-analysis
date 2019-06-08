@@ -138,14 +138,22 @@ class MainController(QObject):
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):
         # TODO: Validate if the file
-        data, status = validate_medusa_file(name)
+        valid = False
+        if file_type == "medusa":
+            data, valid = validate_medusa_file(name)
+        elif file_type == "mass":
+            data, valid = validate_mass_file(name)
+        elif file_type == "x_y":
+            data, valid = validate_x_y_file(name)
+        elif file_type == "config":
+            data, valid = validate_config_file(name)
         # resistances_header = pd.read_csv(name, header=6, nrows=0)
         # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
         # self._model.resistances = resistances_values
 
 
         # update model
-        if status:
+        if valid:
             self._model.file_name = (name, data, file_type)
         else:
             self.task_bar_message.emit("red", "Error: Invalidate {} file format".format(file_type))
