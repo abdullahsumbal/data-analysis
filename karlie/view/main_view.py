@@ -123,16 +123,18 @@ class MainView(QMainWindow):
             self._ui.label_status.setText("Something wrong while loading file")
             self._ui.label_status.setStyleSheet('color: red')
 
-        self._ui.label_status.setText("Successfully loaded {} file".format(file_type))
-        self._ui.label_status.setStyleSheet('color: green')
+        self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
     ####################################################################
     #   controller listener functions
     ####################################################################
     @pyqtSlot(str, str)
     def on_task_bar_message(self, color, message):
-        self._ui.label_status.setText(message)
-        self._ui.label_status.setStyleSheet('color: {}'.format(color))
+        # self._ui.label_status.setText(message)
+        # self._ui.label_status.setStyleSheet('color: {}'.format(color))
+        self._ui.statusbar.show()
+        self._ui.statusbar.showMessage(message)
+        self._ui.statusbar.setStyleSheet('color: {}'.format(color))
 
     ####################################################################
     #   helper functions to send request to controller
