@@ -12,14 +12,22 @@ class Medusa(QObject):
         self._config_file_name = ""
         self._file_name = ""
         self._medusa_data = None
-        self._mass_data = None
         self._x_y_data = None
         self._config_data = None
+        self._mass_data = []
 
 
     @property
     def file_name(self):
         return self._file_name
+
+    @property
+    def medusa_data(self):
+        return self._medusa_data
+
+    @property
+    def mass_data(self):
+        return self._mass_data
 
     @file_name.setter
     def file_name(self, value):
@@ -41,14 +49,5 @@ class Medusa(QObject):
             self._config_data = data
 
         self.file_name_changed.emit(name, file_type)
-
-    @property
-    def medusa_data(self):
-        return self._medusa_data
-
-    @property
-    def mass_data(self):
-        return self._mass_data
-
 
 

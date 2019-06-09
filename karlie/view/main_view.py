@@ -55,7 +55,8 @@ class MainView(QMainWindow):
         )
 
         # button listeners
-        self._ui.button_norm_curr_volt.clicked.connect(self.plot_norm_curr_volt)
+        self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
+        self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
 
         ####################################################################
         #   listen for model event signals
@@ -89,13 +90,16 @@ class MainView(QMainWindow):
             # enable filter options
             self._ui.checkbox_cycle.setEnabled(True)
             self._ui.checkbox_channel.setEnabled(True)
-            self._ui.button_norm_curr_volt.setEnabled(True)
 
             # enable scale options
             self._ui.lineEdit_scale_x_min.setEnabled(True)
             self._ui.lineEdit_scale_x_max.setEnabled(True)
             self._ui.lineEdit_scale_y_min.setEnabled(True)
             self._ui.lineEdit_scale_y_max.setEnabled(True)
+
+            # update buttons
+            self._ui.button_norm_curr_volt.setEnabled(True)
+            self._ui.button_charge_discharge.setEnabled(True)
 
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
@@ -119,16 +123,16 @@ class MainView(QMainWindow):
             self._ui.label_status.setText("Something wrong while loading file")
             self._ui.label_status.setStyleSheet('color: red')
 
-        self._ui.label_status.setText("Successfully loaded {} file".format(file_type))
-        self._ui.label_status.setStyleSheet('color: green')
+        self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
     ####################################################################
     #   controller listener functions
     ####################################################################
     @pyqtSlot(str, str)
     def on_task_bar_message(self, color, message):
-        self._ui.label_status.setText(message)
-        self._ui.label_status.setStyleSheet('color: {}'.format(color))
+        self._ui.statusbar.show()
+        self._ui.statusbar.showMessage(message)
+        self._ui.statusbar.setStyleSheet('color: {}'.format(color))
 
     ####################################################################
     #   helper functions to send request to controller
@@ -150,13 +154,14 @@ class MainView(QMainWindow):
             self._main_controller.file_name_changed(file_name, file_type)
 
     # send information to controller about which channels and cycles to plot
-    def plot_norm_curr_volt(self):
+    def plot(self, plot_name):
         cycles = self.get_selected_cycles()
         channels = self.get_selected_channels()
         y_limits = self.get_y_axis_limit()
         x_limits = self.get_x_axis_limit()
         # request to send to controller
-        self._main_controller.plot_norm_volt_cur(cycles, channels, x_limits, y_limits)
+        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name)
+
     ####################################################################
     #   View helper methods
     ####################################################################

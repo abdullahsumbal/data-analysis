@@ -6,28 +6,9 @@ def scale_user_input_to_float(limit):
     return None if limit == "" else float(limit)
 
 
-def validate_medusa_file(name):
-    try:
-        data = pd.read_csv(name, skiprows=7)
-        include = {"Cycle", "Time(h)", "VSet (V)"}
-        if bool(include.difference(set(data.columns.values))):
-            return [], False
-        return data, True
-    except Exception:
-        return [], False
-
-def validate_mass_file(name):
-    try:
-        data = pd.read_csv(name, nrows=1)
-        include = {"Cycle", "Name", "Channel 1"}
-        if bool(include.difference(set(data.columns.values))):
-            return [], False
-        return data, True
-    except Exception:
-        return [], False
-
 def validate_x_y_file(name):
     return [], True
+
 
 def validate_config_file(name):
     return [], True
@@ -118,3 +99,37 @@ def get_discharge_from_selected_cycles(selected_cycles):
             discharge_cycles.append(cycle)
 
 
+def get_medusa_columns():
+    columns = {"Cycle", "Time(h)", "VSet (V)", "Vavg (V)"}
+    for channel_number in range(1, 65):
+        columns.add("Ch.{}-I (uA)".format(channel_number))
+    return columns
+
+
+def get_mass_columns():
+    columns = {"Cycle", "Name"}
+    for channel_number in range(1, 65):
+        columns.add("Channel {}".format(channel_number))
+    return columns
+
+
+def get_charges(data, selected_cycles_list, selected_channels_list):
+    # calculate charges
+    charges = {}
+
+    for channel_number in selected_channels_list:
+        charges[channel_number] = {}
+        for cycle_number in selected_cycles_list:
+            charges[channel_number][cycle_number] = []
+            cycle_data = data[data['Cycle'] == cycle_number]
+            # print(cycle_data)
+            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+            time_h = cycle_data.loc[:, "Time(h)".format(channel_number)].values
+            for index in range(len(time_h) - 2):
+                # formula to calculate charges
+                avg_charge = (current[index] + current[index + 1]) / 2
+                time_diff = time_h[index + 1] - time_h[index]
+                charge = avg_charge * time_diff
+                charges[channel_number][cycle_number].append(charge)
+
+    return charges
