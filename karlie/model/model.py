@@ -14,10 +14,6 @@ class Medusa(QObject):
         self._medusa_data = None
         self._x_y_data = None
         self._config_data = None
-        self._charge = {}
-        self._time_h = {}
-        self._avg_voltage = {}
-        self._current = {}
         self._mass_data = []
 
 

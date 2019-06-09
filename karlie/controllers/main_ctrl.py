@@ -11,6 +11,7 @@ class MainController(QObject):
         super().__init__()
         self._model = model
         self.figure_number = 1
+        self.charges = None
 
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name):
         # cycle validation
@@ -35,6 +36,12 @@ class MainController(QObject):
         else:
             selected_cycles_list = get_selected_cycles_list(selected_cycles)
 
+        # changing channel user input into array
+        if selected_channels == "all":
+            selected_channels_list = [i for i in range(1, 65)]
+        else:
+            selected_channels_list = [int(selected_channels.strip())]
+
         # change scale x-axis user input to int
         x_min = scale_user_input_to_float(x_limit[0])
         x_max = scale_user_input_to_float(x_limit[1])
@@ -48,147 +55,82 @@ class MainController(QObject):
 
         # plot graph based on plot names
         if plot_name == "norm":
-            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data)
+            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
         elif plot_name == "charge":
-            self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data)
+            self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
 
     # plot normalized current vs voltage
-    def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data):
+    def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
+        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
+        # selected_channels = [i for i in range(1, 65)]
+        plt.figure(self.figure_number, figsize=(20, 15))
+        for channel_number in selected_channels_list:
+            for cycle_number in selected_cycles_list:
 
-        # changing channel user input into array
-        if selected_channels == "all":
-            # selected_channels = [i for i in range(1, 65)]
-            plt.figure(self.figure_number, figsize=(20, 15))
-            channel_number = 1
-            for row in range(8):
-                for col in range(8):
-                    for cycle in selected_cycles_list:
-                        # get mass data
-                        mass = 1
-                        if self._model.mass_data is not None:
-                            mass = self._model.mass_data.loc[:,"Channel {}".format(channel_number)].values[0]
+                charge = self.charges[channel_number][cycle_number]
 
-                        # get selected cycle data
-                        cycle_data = data[data['Cycle'] == cycle]
-                        # get voltage
-                        voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                        # get current
-                        current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+                # make subplot if multiple plots
+                if len(selected_channels_list) > 1:
+                    plt.subplot(8, 8, channel_number)
 
-                        # make subplot
-                        plt.subplot(8, 8, channel_number)
+                plt.plot(charge, 'b', linewidth=2.0, label='Charge')
 
-                        plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-
-                    # increment figure number for new plots.
-                    channel_number += 1
-
-            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
-            # update status bar
-            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and all channels".format(
-                self.figure_number,
-                ",".join(map(str, selected_cycles_list))
-                ))
-            self.figure_number += 1
-            plt.show()
-            plt.close()
-        else:
-            selected_channels = [int(selected_channels.strip())]
-            plt.figure(self.figure_number, figsize=(20, 15))
-            for channel_number in selected_channels:
-                for cycle in selected_cycles_list:
-                    # get mass data
-                    mass = 1
-                    if self._model.mass_data is not None:
-                        mass = self._model.mass_data.loc[:, "Channel {}".format(channel_number)].values[0]
-                    # get selected cycle data
-                    cycle_data = data[data['Cycle'] == cycle]
-                    # get voltage
-                    voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                    # get current
-                    current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
-                    plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-
-            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
-            # update status bar
-            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and channel {}".format(
-                self.figure_number,
-                ",".join(map(str, selected_cycles_list)),
-                *selected_channels))
-            self.figure_number += 1
-            plt.show()
-            plt.close()
+        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+        # update status bar
+        channel_message = "all channels"
+        if len(selected_channels_list) == 1:
+            channel_message = "channel {}".format(*selected_channels_list)
+        message = "Figure {}: Charge Vs Discharge plot for cycles {} and {}".format(
+            self.figure_number,
+            ",".join(map(str, selected_cycles_list)),
+            channel_message
+            )
+        self.task_bar_message.emit("green", message)
+        self.figure_number += 1
+        plt.show()
+        plt.close()
 
     # plot normalized current vs voltage
-    def plot_norm_volt_cur(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data):
+    def plot_norm_volt_cur(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
+        # selected_channels = [i for i in range(1, 65)]
+        plt.figure(self.figure_number, figsize=(20, 15))
+        for channel_number in selected_channels_list:
+            for cycle in selected_cycles_list:
+                # get mass data
+                mass = 1
+                if len(self._model.mass_data) > 0:
+                    mass = self._model.mass_data[channel_number - 1]
 
-        # changing channel user input into array
-        if selected_channels == "all":
-            # selected_channels = [i for i in range(1, 65)]
-            plt.figure(self.figure_number, figsize=(20, 15))
-            channel_number = 1
-            for row in range(8):
-                for col in range(8):
-                    for cycle in selected_cycles_list:
-                        # get mass data
-                        mass = 1
-                        if len(self._model.mass_data) > 0:
-                            mass = self._model.mass_data[channel_number - 1]
+                # get selected cycle data
+                cycle_data = data[data['Cycle'] == cycle]
+                # get voltage
+                voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                # get current
+                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
 
-                        # get selected cycle data
-                        cycle_data = data[data['Cycle'] == cycle]
-                        # get voltage
-                        voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                        # get current
-                        current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+                # make subplot if multiple plots
+                if len(selected_channels_list) > 1:
+                    plt.subplot(8, 8, channel_number)
 
-                        # make subplot
-                        plt.subplot(8, 8, channel_number)
+                plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
 
-                        plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+        # update status bar
+        channel_message = "all channels"
+        if len(selected_channels_list) == 1:
+            channel_message = "channel {}".format(*selected_channels_list)
+        message = "Figure {}: Normalize Current and Voltage plot for cycles {} and {}".format(
+            self.figure_number,
+            ",".join(map(str, selected_cycles_list)),
+            channel_message
+            )
+        self.task_bar_message.emit("green", message)
+        self.figure_number += 1
+        plt.show()
+        plt.close()
 
-                    # increment figure number for new plots.
-                    channel_number += 1
-
-            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
-            # update status bar
-            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and all channels".format(
-                self.figure_number,
-                ",".join(map(str, selected_cycles_list))
-                ))
-            self.figure_number += 1
-            plt.show()
-            plt.close()
-        else:
-            selected_channels = [int(selected_channels.strip())]
-            plt.figure(self.figure_number, figsize=(20, 15))
-            for channel_number in selected_channels:
-                for cycle in selected_cycles_list:
-                    # get mass data
-                    mass = 1
-                    if len(self._model.mass_data) > 0:
-                        mass = self._model.mass_data[channel_number - 1]
-                    # get selected cycle data
-                    cycle_data = data[data['Cycle'] == cycle]
-                    # get voltage
-                    voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                    # get current
-                    current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
-                    plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-
-            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
-            # update status bar
-            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and channel {}".format(
-                self.figure_number,
-                ",".join(map(str, selected_cycles_list)),
-                *selected_channels))
-            self.figure_number += 1
-            plt.show()
-            plt.close()
 
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):
