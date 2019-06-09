@@ -130,8 +130,6 @@ class MainView(QMainWindow):
     ####################################################################
     @pyqtSlot(str, str)
     def on_task_bar_message(self, color, message):
-        # self._ui.label_status.setText(message)
-        # self._ui.label_status.setStyleSheet('color: {}'.format(color))
         self._ui.statusbar.show()
         self._ui.statusbar.showMessage(message)
         self._ui.statusbar.setStyleSheet('color: {}'.format(color))

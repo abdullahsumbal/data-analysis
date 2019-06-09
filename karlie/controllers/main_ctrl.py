@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
 from controllers.helper import *
+import pandas as pd
 
 
 class MainController(QObject):
@@ -133,8 +134,8 @@ class MainController(QObject):
                     for cycle in selected_cycles_list:
                         # get mass data
                         mass = 1
-                        if len(self._model.mass) > 0:
-                            mass = self._model.mass[channel_number - 1]
+                        if len(self._model.mass_data) > 0:
+                            mass = self._model.mass_data[channel_number - 1]
 
                         # get selected cycle data
                         cycle_data = data[data['Cycle'] == cycle]
@@ -168,8 +169,8 @@ class MainController(QObject):
                 for cycle in selected_cycles_list:
                     # get mass data
                     mass = 1
-                    if len(self._model.mass) > 0:
-                        mass = self._model.mass[channel_number - 1]
+                    if len(self._model.mass_data) > 0:
+                        mass = self._model.mass_data[channel_number - 1]
                     # get selected cycle data
                     cycle_data = data[data['Cycle'] == cycle]
                     # get voltage
@@ -194,9 +195,9 @@ class MainController(QObject):
         # TODO: Validate if the file
         valid = False
         if file_type == "medusa":
-            data, valid = validate_medusa_file(name)
+            data, valid = self.validate_medusa_file(name, file_type)
         elif file_type == "mass":
-            data, valid = validate_mass_file(name)
+            data, valid = self.validate_mass_file(name)
         elif file_type == "x_y":
             data, valid = validate_x_y_file(name)
         elif file_type == "config":
@@ -205,12 +206,10 @@ class MainController(QObject):
         # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
         # self._model.resistances = resistances_values
 
-
         # update model
         if valid:
             self._model.file_name = (name, data, file_type)
-        else:
-            self.task_bar_message.emit("red", "Error: Invalidate {} file format".format(file_type))
+
 
     def get_unique_cycles(self, data):
         return data.Cycle.unique()
@@ -260,3 +259,32 @@ class MainController(QObject):
 
         # return the function
         return zoom_fun
+
+    def validate_medusa_file(self, name, file_type):
+        columns = get_medusa_columns()
+        try:
+            data = pd.read_csv(name, skiprows=7)
+            diff = columns.difference(set(data.columns.values))
+            if bool(diff):
+                message = "Error: Invalidate {} file format. Heading not found: {}".format(
+                    file_type,
+                    ",".join(diff))
+                self.task_bar_message.emit("red", message)
+                return [], False
+            else:
+                return data, True
+
+        except Exception:
+            message = "Error: Invalidate {} file format.".format(file_type)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
+    def validate_mass_file(self, name):
+        columns = get_mass_columns()
+        try:
+            data = pd.read_csv(name, nrows=1)
+            if bool(columns.difference(set(data.columns.values))):
+                return [], False
+            return data.iloc[0, 2:].values, True
+        except Exception:
+            return [], False
