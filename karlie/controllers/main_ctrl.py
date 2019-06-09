@@ -233,7 +233,7 @@ class MainController(QObject):
         if file_type == "medusa":
             data, valid = self.validate_medusa_file(name, file_type)
         elif file_type == "mass":
-            data, valid = self.validate_mass_file(name)
+            data, valid = self.validate_mass_file(name, file_type)
         elif file_type == "x_y":
             data, valid = validate_x_y_file(name)
         elif file_type == "config":
@@ -315,12 +315,19 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], False
 
-    def validate_mass_file(self, name):
+    def validate_mass_file(self, name, file_type):
         columns = get_mass_columns()
         try:
             data = pd.read_csv(name, nrows=1)
-            if bool(columns.difference(set(data.columns.values))):
+            diff = columns.difference(set(data.columns.values))
+            if bool(diff):
+                message = "Error: Invalidate {} file format. Heading not found: {}".format(
+                    file_type,
+                    ",".join(diff))
+                self.task_bar_message.emit("red", message)
                 return [], False
             return data.iloc[0, 2:].values, True
         except Exception:
+            message = "Error: Invalidate {} file format.".format(file_type)
+            self.task_bar_message.emit("red", message)
             return [], False
