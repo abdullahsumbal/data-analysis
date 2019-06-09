@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
 from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtGui import QDoubleValidator
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from view.main_view_ui import Ui_MainWindow
 from view.cycle_view_ui import Ui_Cycle
 from view.helper import *
@@ -24,6 +24,8 @@ class MainView(QMainWindow):
         self._ui.lineEdit_scale_x_max.setValidator(QDoubleValidator())
         self._ui.lineEdit_scale_y_min.setValidator(QDoubleValidator())
         self._ui.lineEdit_scale_y_max.setValidator(QDoubleValidator())
+        # filter channel validation
+        self._ui.lineEdit_channel.setValidator(QIntValidator())
 
         ####################################################################
         #   connect widgets to controllers
