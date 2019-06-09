@@ -139,13 +139,6 @@ vs Voltage</string>
         </property>
        </widget>
       </item>
-      <item row="14" column="2">
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Capacity Vs Cycle</string>
-        </property>
-       </widget>
-      </item>
       <item row="16" column="0" colspan="4">
        <widget class="QLabel" name="label_status">
         <property name="text">
@@ -486,6 +479,16 @@ vs Voltage</string>
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="14" column="1">
+       <widget class="QPushButton" name="button_charge_discharge">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Charge vs Discharge</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

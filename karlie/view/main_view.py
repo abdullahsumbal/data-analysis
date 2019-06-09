@@ -56,6 +56,7 @@ class MainView(QMainWindow):
 
         # button listeners
         self._ui.button_norm_curr_volt.clicked.connect(self.plot_norm_curr_volt)
+        self._ui.button_charge_discharge.clicked.connect(self.plot_norm_curr_volt)
 
         ####################################################################
         #   listen for model event signals
@@ -89,13 +90,16 @@ class MainView(QMainWindow):
             # enable filter options
             self._ui.checkbox_cycle.setEnabled(True)
             self._ui.checkbox_channel.setEnabled(True)
-            self._ui.button_norm_curr_volt.setEnabled(True)
 
             # enable scale options
             self._ui.lineEdit_scale_x_min.setEnabled(True)
             self._ui.lineEdit_scale_x_max.setEnabled(True)
             self._ui.lineEdit_scale_y_min.setEnabled(True)
             self._ui.lineEdit_scale_y_max.setEnabled(True)
+
+            # update buttons
+            self._ui.button_norm_curr_volt.setEnabled(True)
+            self._ui.button_charge_discharge.setEnabled(True)
 
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
