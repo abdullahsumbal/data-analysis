@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushBu
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from view.main_view_ui import Ui_MainWindow
-from view.cycle_view_ui import Ui_Cycle
+from view.about_view_ui import Ui_AboutWindow
+from view.github_view_ui import Ui_GithubWindow
 from view.helper import *
 from os import path
 from PyQt5 import QtCore
@@ -13,7 +14,8 @@ class MainView(QMainWindow):
         self._model = model
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
-        self.cycle_view = CycleView()
+        self._ui_about = AboutView()
+        self._ui_github = GithubView()
         self._ui.setupUi(self)
 
         ####################################################################
@@ -26,6 +28,12 @@ class MainView(QMainWindow):
         self._ui.lineEdit_scale_y_max.setValidator(QDoubleValidator())
         # filter channel validation
         self._ui.lineEdit_channel.setValidator(QIntValidator())
+
+        ####################################################################
+        #   trigger function for UI widgets
+        ####################################################################
+        self._ui.action_about.triggered.connect(lambda: self._ui_about.show())
+        self._ui.action_github.triggered.connect(lambda: self._ui_github.show())
 
         ####################################################################
         #   connect widgets to controllers
@@ -201,9 +209,16 @@ class MainView(QMainWindow):
             print(file_name)
 
 
-class CycleView(QDialog):
+class AboutView(QDialog):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_Cycle()
+        self.ui = Ui_AboutWindow()
+        self.ui.setupUi(self)
+
+
+class GithubView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_GithubWindow()
         self.ui.setupUi(self)
 

@@ -5,13 +5,22 @@
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>500</height>
+    <height>540</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Karlie's Application</string>
@@ -19,7 +28,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,1">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,2" columnminimumwidth="0,0,0,0">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
@@ -495,19 +504,19 @@ vs Voltage</string>
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout_application"/>
+    <addaction name="action_about"/>
     <addaction name="separator"/>
-    <addaction name="actionGitHub"/>
+    <addaction name="action_github"/>
    </widget>
    <addaction name="menuwhats_here"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionAbout_application">
+  <action name="action_about">
    <property name="text">
     <string>About application</string>
    </property>
   </action>
-  <action name="actionGitHub">
+  <action name="action_github">
    <property name="text">
     <string>GitHub</string>
    </property>
