@@ -24,6 +24,7 @@ class MainController(QObject):
         if not valid:
             self.task_bar_message.emit("red", message)
             return
+
         # get data from model
         data = self._model.medusa_data
 
@@ -44,8 +45,9 @@ class MainController(QObject):
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
 
+        # plot graph based on plot names
         if plot_name == "norm":
-            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels,data)
+            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data)
         elif plot_name == "charge":
             self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data)
 
@@ -131,8 +133,8 @@ class MainController(QObject):
                     for cycle in selected_cycles_list:
                         # get mass data
                         mass = 1
-                        if self._model.mass_data is not None:
-                            mass = self._model.mass_data.loc[:,"Channel {}".format(channel_number)].values[0]
+                        if len(self._model.mass) > 0:
+                            mass = self._model.mass[channel_number - 1]
 
                         # get selected cycle data
                         cycle_data = data[data['Cycle'] == cycle]
@@ -166,8 +168,8 @@ class MainController(QObject):
                 for cycle in selected_cycles_list:
                     # get mass data
                     mass = 1
-                    if self._model.mass_data is not None:
-                        mass = self._model.mass_data.loc[:, "Channel {}".format(channel_number)].values[0]
+                    if len(self._model.mass) > 0:
+                        mass = self._model.mass[channel_number - 1]
                     # get selected cycle data
                     cycle_data = data[data['Cycle'] == cycle]
                     # get voltage

@@ -22,7 +22,7 @@ def validate_mass_file(name):
         include = {"Cycle", "Name", "Channel 1"}
         if bool(include.difference(set(data.columns.values))):
             return [], False
-        return data, True
+        return data.iloc[0, 2:].values, True
     except Exception:
         return [], False
 
@@ -118,3 +118,5 @@ def get_discharge_from_selected_cycles(selected_cycles):
             discharge_cycles.append(cycle)
 
 
+def get_charge(data):
+    return
