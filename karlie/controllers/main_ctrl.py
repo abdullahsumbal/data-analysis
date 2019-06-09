@@ -96,14 +96,14 @@ class MainController(QObject):
         # selected_channels = [i for i in range(1, 65)]
         plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
-            for cycle in selected_cycles_list:
+            for cycle_number in selected_cycles_list:
                 # get mass data
                 mass = 1
                 if len(self._model.mass_data) > 0:
                     mass = self._model.mass_data[channel_number - 1]
 
                 # get selected cycle data
-                cycle_data = data[data['Cycle'] == cycle]
+                cycle_data = data[data['Cycle'] == cycle_number]
                 # get voltage
                 voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
                 # get current
