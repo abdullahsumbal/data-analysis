@@ -493,6 +493,16 @@ vs Voltage</string>
         </property>
        </widget>
       </item>
+      <item row="14" column="2">
+       <widget class="QPushButton" name="button_avg_volt">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Average Voltage</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>

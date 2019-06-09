@@ -14,6 +14,7 @@ class MainController(QObject):
         self._model = model
         self.figure_number = 1
         self.charges = None
+        self.avg_voltages = None
 
     # general plot function which is reponsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name):
@@ -61,6 +62,40 @@ class MainController(QObject):
             self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
         elif plot_name == "charge":
             self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+        elif plot_name == "avg_voltage":
+            self.plot_avg_voltage(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+
+    # plot normalized current vs voltage
+    def plot_avg_voltage(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
+        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
+        # selected_channels = [i for i in range(1, 65)]
+        plt.figure(self.figure_number, figsize=(20, 15))
+        for channel_number in selected_channels_list:
+            for cycle_number in selected_cycles_list:
+
+                charge = self.avg_voltages[channel_number][cycle_number]
+
+                # make subplot if multiple plots
+                if len(selected_channels_list) > 1:
+                    plt.subplot(8, 8, channel_number)
+
+                plt.plot(charge, 'b', linewidth=2.0, label='Charge')
+
+        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+        # update status bar
+        channel_message = "all channels"
+        if len(selected_channels_list) == 1:
+            channel_message = "channel {}".format(*selected_channels_list)
+        message = "Figure {}: Average voltage plot for cycles {} and {}".format(
+            self.figure_number,
+            ",".join(map(str, selected_cycles_list)),
+            channel_message
+            )
+        self.task_bar_message.emit("green", message)
+        self.figure_number += 1
+        plt.show()
+        plt.close()
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):

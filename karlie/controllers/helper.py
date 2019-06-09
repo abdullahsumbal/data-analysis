@@ -125,7 +125,7 @@ def get_charges(data, selected_cycles_list, selected_channels_list):
             # print(cycle_data)
             current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
             time_h = cycle_data.loc[:, "Time(h)".format(channel_number)].values
-            for index in range(len(time_h) - 2):
+            for index in range(len(time_h) - 1):
                 # formula to calculate charges
                 avg_charge = (current[index] + current[index + 1]) / 2
                 time_diff = time_h[index + 1] - time_h[index]
@@ -133,3 +133,24 @@ def get_charges(data, selected_cycles_list, selected_channels_list):
                 charges[channel_number][cycle_number].append(charge)
 
     return charges
+
+
+def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
+    # calculate average voltage
+    avg_voltages = {}
+
+    for channel_number in selected_channels_list:
+        avg_voltages[channel_number] = {}
+        for cycle_number in selected_cycles_list:
+            avg_voltages[channel_number][cycle_number] = []
+            cycle_data = data[data['Cycle'] == cycle_number]
+            # print(cycle_data)
+            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+            sum_current = sum(current)
+            avg_volt_from_data = cycle_data.loc[:, "Vavg (V)".format(channel_number)].values
+            for index in range(len(current)):
+                # formula to calculate charges
+                avg_voltage = (current[index] * avg_volt_from_data[index]) / sum_current
+                avg_voltages[channel_number][cycle_number].append(avg_voltage)
+
+    return avg_voltages
