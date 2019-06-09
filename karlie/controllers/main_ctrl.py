@@ -2,6 +2,8 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
 from controllers.helper import *
 import pandas as pd
+import csv
+import os
 
 
 class MainController(QObject):
@@ -13,6 +15,7 @@ class MainController(QObject):
         self.figure_number = 1
         self.charges = None
 
+    # general plot function which is reponsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name):
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
@@ -131,6 +134,62 @@ class MainController(QObject):
         plt.show()
         plt.close()
 
+    def validate_cycles_channels(self, selected_cycles, selected_channels):
+        # cycle validation
+        all_cycles = get_unique_cycles(self._model.medusa_data)
+        valid, message = validate_cycles(all_cycles, selected_cycles)
+        if not valid:
+            self.task_bar_message.emit("red", message)
+            return False
+
+        # channel validation
+        valid, message = validate_channels(selected_channels)
+        if not valid:
+            self.task_bar_message.emit("red", message)
+            return False
+
+        return True
+
+    def export_csv(self, selected_cycles, selected_channels, csv_file_name):
+        # changing cycle user input into array
+        if selected_cycles == "all":
+            all_cycles = get_unique_cycles(self._model.medusa_data)
+            selected_cycles_list = all_cycles.tolist()
+        else:
+            selected_cycles_list = get_selected_cycles_list(selected_cycles)
+
+        # changing channel user input into array
+        if selected_channels == "all":
+            selected_channels_list = [i for i in range(1, 65)]
+        else:
+            selected_channels_list = [int(selected_channels.strip())]
+
+        # get data from model
+        data = self._model.medusa_data
+        # calculate charges
+        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
+
+        if csv_file_name[-4:] != ".csv":
+            csv_file_name += ".csv"
+
+        csv_file_basename = os.path.basename(csv_file_name)
+
+        try:
+            with open(csv_file_name, mode='w') as csv_file:
+                csv_writer = csv.writer(csv_file, delimiter=',')
+                header = ["channels"]
+                for cycle_number in selected_cycles_list:
+                    temp = "x_{cycle},y_{cycle},charge_{cycle},discharge_{cycle},average_voltage_{cycle}".format(cycle=cycle_number)
+                    header += temp.split(",")
+
+                csv_writer.writerow(header)
+                for channel_number in selected_channels_list:
+                    csv_writer.writerow([str(channel_number)])
+
+            self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
+
+        except PermissionError:
+            self.task_bar_message.emit("red", "Do not have permission to open file. {} may be in use.".format(csv_file_basename))
 
     @pyqtSlot(str)
     def file_name_changed(self, name, file_type):

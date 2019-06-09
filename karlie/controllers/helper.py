@@ -54,7 +54,7 @@ def validate_cycles(all_cycles, selected_cycles):
 
             # cycle out of range.
             if int(cycle_number) not in all_cycles.tolist():
-                return False, "Error: Cycle input incorrect format. cycle number {} does not exist".format(cycle_number)
+                return False, "Error: Cycle input incorrect format. Cycle number {} does not exist".format(cycle_number)
 
         return True, ''
 
