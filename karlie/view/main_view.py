@@ -55,8 +55,8 @@ class MainView(QMainWindow):
         )
 
         # button listeners
-        self._ui.button_norm_curr_volt.clicked.connect(self.plot_norm_curr_volt)
-        self._ui.button_charge_discharge.clicked.connect(self.plot_norm_curr_volt)
+        self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
+        self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
 
         ####################################################################
         #   listen for model event signals
@@ -154,13 +154,14 @@ class MainView(QMainWindow):
             self._main_controller.file_name_changed(file_name, file_type)
 
     # send information to controller about which channels and cycles to plot
-    def plot_norm_curr_volt(self):
+    def plot(self, plot_name):
         cycles = self.get_selected_cycles()
         channels = self.get_selected_channels()
         y_limits = self.get_y_axis_limit()
         x_limits = self.get_x_axis_limit()
         # request to send to controller
-        self._main_controller.plot_norm_volt_cur(cycles, channels, x_limits, y_limits)
+        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name)
+
     ####################################################################
     #   View helper methods
     ####################################################################

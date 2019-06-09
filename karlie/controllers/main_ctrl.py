@@ -2,50 +2,16 @@ from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
 from controllers.helper import *
 
+
 class MainController(QObject):
     task_bar_message = pyqtSignal(str, str)
+
     def __init__(self, model):
         super().__init__()
         self._model = model
         self.figure_number = 1
 
-    def zoom_factory(self, ax, base_scale=2.):
-        def zoom_fun(event):
-            # get the current x and y limits
-            cur_xlim = ax.get_xlim()
-            cur_ylim = ax.get_ylim()
-            cur_xrange = (cur_xlim[1] - cur_xlim[0]) * .5
-            cur_yrange = (cur_ylim[1] - cur_ylim[0]) * .5
-            xdata = event.xdata  # get event x location
-            ydata = event.ydata  # get event y location
-            if event.button == 'up':
-                # deal with zoom in
-                scale_factor = 1 / base_scale
-            elif event.button == 'down':
-                # deal with zoom out
-                scale_factor = base_scale
-            else:
-                # deal with something that should never happen
-                scale_factor = 1
-                print
-                event.button
-            # set new limits
-            ax.set_xlim([xdata - cur_xrange * scale_factor,
-                         xdata + cur_xrange * scale_factor])
-            ax.set_ylim([ydata - cur_yrange * scale_factor,
-                         ydata + cur_yrange * scale_factor])
-            plt.draw()  # force re-draw
-
-        fig = ax.get_figure()  # get the figure of interest
-        # attach the call back
-        fig.canvas.mpl_connect('scroll_event', zoom_fun)
-
-        # return the function
-        return zoom_fun
-
-    # plot normalized current vs voltage
-    def plot_norm_volt_cur(self, selected_cycles, selected_channels, x_limit, y_limit):
-
+    def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name):
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
         valid, message = validate_cycles(all_cycles, selected_cycles)
@@ -77,6 +43,83 @@ class MainController(QObject):
         # validate limits
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
+
+        if plot_name == "norm":
+            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels,data)
+        elif plot_name == "charge":
+            self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data)
+
+    # plot normalized current vs voltage
+    def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data):
+
+        # changing channel user input into array
+        if selected_channels == "all":
+            # selected_channels = [i for i in range(1, 65)]
+            plt.figure(self.figure_number, figsize=(20, 15))
+            channel_number = 1
+            for row in range(8):
+                for col in range(8):
+                    for cycle in selected_cycles_list:
+                        # get mass data
+                        mass = 1
+                        if self._model.mass_data is not None:
+                            mass = self._model.mass_data.loc[:,"Channel {}".format(channel_number)].values[0]
+
+                        # get selected cycle data
+                        cycle_data = data[data['Cycle'] == cycle]
+                        # get voltage
+                        voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                        # get current
+                        current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+
+                        # make subplot
+                        plt.subplot(8, 8, channel_number)
+
+                        plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+
+                    # increment figure number for new plots.
+                    channel_number += 1
+
+            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+            # update status bar
+            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and all channels".format(
+                self.figure_number,
+                ",".join(map(str, selected_cycles_list))
+                ))
+            self.figure_number += 1
+            plt.show()
+            plt.close()
+        else:
+            selected_channels = [int(selected_channels.strip())]
+            plt.figure(self.figure_number, figsize=(20, 15))
+            for channel_number in selected_channels:
+                for cycle in selected_cycles_list:
+                    # get mass data
+                    mass = 1
+                    if self._model.mass_data is not None:
+                        mass = self._model.mass_data.loc[:, "Channel {}".format(channel_number)].values[0]
+                    # get selected cycle data
+                    cycle_data = data[data['Cycle'] == cycle]
+                    # get voltage
+                    voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                    # get current
+                    current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+                    plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+
+            plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+            plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+            # update status bar
+            self.task_bar_message.emit("green", "Figure {}: Plotting cycles {} and channel {}".format(
+                self.figure_number,
+                ",".join(map(str, selected_cycles_list)),
+                *selected_channels))
+            self.figure_number += 1
+            plt.show()
+            plt.close()
+
+    # plot normalized current vs voltage
+    def plot_norm_volt_cur(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels, data):
 
         # changing channel user input into array
         if selected_channels == "all":
@@ -181,3 +224,37 @@ class MainController(QObject):
             self.task_bar_message.emit("red", "maximum limit has to be greater than minimum limit")
             return False
         return True
+
+    def zoom_factory(self, ax, base_scale=2.):
+        def zoom_fun(event):
+            # get the current x and y limits
+            cur_xlim = ax.get_xlim()
+            cur_ylim = ax.get_ylim()
+            cur_xrange = (cur_xlim[1] - cur_xlim[0]) * .5
+            cur_yrange = (cur_ylim[1] - cur_ylim[0]) * .5
+            xdata = event.xdata  # get event x location
+            ydata = event.ydata  # get event y location
+            if event.button == 'up':
+                # deal with zoom in
+                scale_factor = 1 / base_scale
+            elif event.button == 'down':
+                # deal with zoom out
+                scale_factor = base_scale
+            else:
+                # deal with something that should never happen
+                scale_factor = 1
+                print
+                event.button
+            # set new limits
+            ax.set_xlim([xdata - cur_xrange * scale_factor,
+                         xdata + cur_xrange * scale_factor])
+            ax.set_ylim([ydata - cur_yrange * scale_factor,
+                         ydata + cur_yrange * scale_factor])
+            plt.draw()  # force re-draw
+
+        fig = ax.get_figure()  # get the figure of interest
+        # attach the call back
+        fig.canvas.mpl_connect('scroll_event', zoom_fun)
+
+        # return the function
+        return zoom_fun
