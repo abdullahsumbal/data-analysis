@@ -7,20 +7,30 @@ def scale_user_input_to_float(limit):
 
 
 def validate_medusa_file(name):
-    data = pd.read_csv(name, skiprows=7)
-    return data, True
+    try:
+        data = pd.read_csv(name, skiprows=7)
+        include = {"Cycle", "Time(h)", "VSet (V)"}
+        if bool(include.difference(set(data.columns.values))):
+            return [], False
+        return data, True
+    except Exception:
+        return [], False
 
+def validate_mass_file(name):
+    try:
+        data = pd.read_csv(name, nrows=1)
+        include = {"Cycle", "Name", "Channel 1"}
+        if bool(include.difference(set(data.columns.values))):
+            return [], False
+        return data, True
+    except Exception:
+        return [], False
 
-def validate_mass_file(file_name):
-    pass
+def validate_x_y_file(name):
+    return [], True
 
-
-def validate_config_file(file_name):
-    pass
-
-
-def validate_x_y_file(x_y_file):
-    pass
+def validate_config_file(name):
+    return [], True
 
 
 def get_selected_cycles_list(selected_cycles):

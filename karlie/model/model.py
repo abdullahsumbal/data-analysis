@@ -46,4 +46,9 @@ class Medusa(QObject):
     def medusa_data(self):
         return self._medusa_data
 
+    @property
+    def mass_data(self):
+        return self._mass_data
+
+
 
