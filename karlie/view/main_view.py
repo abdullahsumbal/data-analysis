@@ -57,6 +57,7 @@ class MainView(QMainWindow):
         # button listeners
         self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
         self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
+        self._ui.button_export.clicked.connect(self.export_csv)
 
         ####################################################################
         #   listen for model event signals
@@ -100,6 +101,7 @@ class MainView(QMainWindow):
             # update buttons
             self._ui.button_norm_curr_volt.setEnabled(True)
             self._ui.button_charge_discharge.setEnabled(True)
+            self._ui.button_export.setEnabled(True)
 
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
@@ -162,6 +164,16 @@ class MainView(QMainWindow):
         # request to send to controller
         self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name)
 
+    def export_csv(self):
+        # get user input for cycles and channels
+        cycles = self.get_selected_cycles()
+        channels = self.get_selected_channels()
+        # validate user input before openning save window
+        if self._main_controller.validate_cycles_channels(cycles, channels):
+            csv_file_name = self.save_file_dialog()
+            # export
+            self._main_controller.export_csv(cycles, channels, csv_file_name)
+
     ####################################################################
     #   View helper methods
     ####################################################################
@@ -209,9 +221,9 @@ class MainView(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
-                                                   "All Files (*);;Text Files (*.txt)", options=options)
+                                                   "CSV File (*.csv) ;; All Files (*)", options=options)
         if file_name:
-            print(file_name)
+            return file_name
 
 
 class AboutView(QDialog):

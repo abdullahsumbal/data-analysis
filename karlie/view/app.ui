@@ -28,7 +28,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,1">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
@@ -182,7 +182,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Load Files</string>
+         <string>Load files</string>
         </property>
        </widget>
       </item>
@@ -480,6 +480,16 @@ vs Voltage</string>
         </property>
         <property name="text">
          <string>Scale options</string>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="3">
+       <widget class="QPushButton" name="button_export">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Export</string>
         </property>
        </widget>
       </item>
