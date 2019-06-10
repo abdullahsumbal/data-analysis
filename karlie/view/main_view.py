@@ -58,6 +58,7 @@ class MainView(QMainWindow):
         self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
         self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
         self._ui.button_avg_volt.clicked.connect(lambda: self.plot("avg_voltage"))
+        self._ui.button_zoom.clicked.connect(lambda: self.plot("zoom"))
         self._ui.button_export.clicked.connect(self.export_csv)
 
         ####################################################################
