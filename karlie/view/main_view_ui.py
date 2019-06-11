@@ -261,6 +261,7 @@ class Ui_MainWindow(object):
         self.button_avg_volt.setObjectName("button_avg_volt")
         self.gridLayout.addWidget(self.button_avg_volt, 14, 2, 1, 1)
         self.button_zoom = QtWidgets.QPushButton(self.centralwidget)
+        self.button_zoom.setEnabled(False)
         self.button_zoom.setObjectName("button_zoom")
         self.gridLayout.addWidget(self.button_zoom, 14, 3, 1, 1)
         self.gridLayout.setColumnStretch(0, 1)

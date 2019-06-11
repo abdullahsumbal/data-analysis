@@ -505,6 +505,9 @@ vs Voltage</string>
       </item>
       <item row="14" column="3">
        <widget class="QPushButton" name="button_zoom">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Zoomable</string>
         </property>

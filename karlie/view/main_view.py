@@ -105,6 +105,7 @@ class MainView(QMainWindow):
             self._ui.button_charge_discharge.setEnabled(True)
             self._ui.button_avg_volt.setEnabled(True)
             self._ui.button_export.setEnabled(True)
+            self._ui.button_zoom.setEnabled(True)
 
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
