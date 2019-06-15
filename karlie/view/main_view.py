@@ -54,6 +54,9 @@ class MainView(QMainWindow):
             lambda checked: self._ui.lineEdit_channel.setEnabled(not checked)
         )
 
+        # scale default
+        self._ui.checkbox_scale_default.stateChanged.connect(lambda checked: self.enable_custom_scale(checked))
+
         # button listeners
         self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
         self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
@@ -95,10 +98,7 @@ class MainView(QMainWindow):
             self._ui.checkbox_channel.setEnabled(True)
 
             # enable scale options
-            self._ui.lineEdit_scale_x_min.setEnabled(True)
-            self._ui.lineEdit_scale_x_max.setEnabled(True)
-            self._ui.lineEdit_scale_y_min.setEnabled(True)
-            self._ui.lineEdit_scale_y_max.setEnabled(True)
+            self._ui.checkbox_scale_default.setEnabled(True)
 
             # update buttons
             self._ui.button_norm_curr_volt.setEnabled(True)
@@ -182,17 +182,33 @@ class MainView(QMainWindow):
     #   View helper methods
     ####################################################################
 
+    # enable custom scaling
+    def enable_custom_scale(self, checked):
+        self._ui.lineEdit_scale_x_min.setEnabled(not checked)
+        self._ui.lineEdit_scale_x_max.setEnabled(not checked)
+        self._ui.lineEdit_scale_y_min.setEnabled(not checked)
+        self._ui.lineEdit_scale_y_max.setEnabled(not checked)
+
     # get y-axis limits from ui
     def get_y_axis_limit(self):
-        y_min = self._ui.lineEdit_scale_y_min.text()
-        y_max = self._ui.lineEdit_scale_y_max.text()
+        if self._ui.checkbox_scale_default.isChecked():
+            y_min = ""
+            y_max = ""
+        else:
+            y_min = self._ui.lineEdit_scale_y_min.text()
+            y_max = self._ui.lineEdit_scale_y_max.text()
         return y_min, y_max
 
     # get x-axis limits from ui
     def get_x_axis_limit(self):
-        x_min = self._ui.lineEdit_scale_x_min.text()
-        x_max = self._ui.lineEdit_scale_x_max.text()
+        if self._ui.checkbox_scale_default.isChecked():
+            x_min = ""
+            x_max = ""
+        else:
+            x_min = self._ui.lineEdit_scale_x_min.text()
+            x_max = self._ui.lineEdit_scale_x_max.text()
         return x_min, x_max
+
     # get cycles form ui
     def get_selected_cycles(self):
         if self._ui.checkbox_cycle.isChecked():
