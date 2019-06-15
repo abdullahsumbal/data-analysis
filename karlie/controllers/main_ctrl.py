@@ -4,6 +4,7 @@ from controllers.helper import *
 import pandas as pd
 import csv
 import os
+import numpy as np
 
 
 class MainController(QObject):
@@ -70,24 +71,24 @@ class MainController(QObject):
     # plot normalized current vs voltage
     def plot_zoom(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
-        # selected_channels = [i for i in range(1, 65)]
         ax = None
         fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
-            if len(selected_channels_list) == 1:
-                ax = fig.add_subplot(111)
 
             for cycle_number in selected_cycles_list:
                 charge = self.avg_voltages[channel_number][cycle_number]
                 # make subplot if multiple plots
-                if len(selected_channels_list) > 1:
-                    plt.subplot(8, 8, channel_number)
-                    plt.plot(charge, 'b', linewidth=2.0, label='Charge')
+                if len(selected_channels_list) == 1:
+                    ax = fig.add_subplot(111)
+                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
                 else:
+                    ax = fig.add_subplot(8, 8, channel_number)
                     ax.plot(charge, 'b', linewidth=2.0, label='Charge')
 
-        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
+                if y_max is not None or y_min is not None:
+                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+                if x_max is not None or x_min is not None:
+                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
@@ -100,28 +101,32 @@ class MainController(QObject):
         self.task_bar_message.emit("green", message)
         self.figure_number += 1
         if len(selected_channels_list) == 1:
-            ax = fig.add_subplot(111)
             zp = ZoomPan()
-            figZoom = zp.zoom_factory(ax, base_scale=1.2)
-            figPan = zp.pan_factory(ax)
+            zp.zoom_factory(ax, base_scale=1.2)
+            zp.pan_factory(ax)
         plt.show()
         plt.close()
 
     # plot normalized current vs voltage
     def plot_avg_voltage(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
-        # selected_channels = [i for i in range(1, 65)]
-        plt.figure(self.figure_number, figsize=(20, 15))
+        ax = None
+        fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
             for cycle_number in selected_cycles_list:
-
                 charge = self.avg_voltages[channel_number][cycle_number]
-
                 # make subplot if multiple plots
-                if len(selected_channels_list) > 1:
-                    plt.subplot(8, 8, channel_number)
+                if len(selected_channels_list) == 1:
+                    ax = fig.add_subplot(111)
+                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                else:
+                    ax = fig.add_subplot(8, 8, channel_number)
+                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
 
-                plt.plot(charge, 'b', linewidth=2.0, label='Charge')
+                if y_max is not None or y_min is not None:
+                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+                if x_max is not None or x_min is not None:
+                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
         plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
         plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
@@ -136,24 +141,33 @@ class MainController(QObject):
             )
         self.task_bar_message.emit("green", message)
         self.figure_number += 1
+        if len(selected_channels_list) == 1:
+            zp = ZoomPan()
+            zp.zoom_factory(ax, base_scale=1.2)
+            zp.pan_factory(ax)
         plt.show()
         plt.close()
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
         self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
-        # selected_channels = [i for i in range(1, 65)]
-        plt.figure(self.figure_number, figsize=(20, 15))
+        ax = None
+        fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
             for cycle_number in selected_cycles_list:
-
                 charge = self.charges[channel_number][cycle_number]
-
                 # make subplot if multiple plots
-                if len(selected_channels_list) > 1:
-                    plt.subplot(8, 8, channel_number)
+                if len(selected_channels_list) == 1:
+                    ax = fig.add_subplot(111)
+                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                else:
+                    ax = fig.add_subplot(8, 8, channel_number)
+                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
 
-                plt.plot(charge, 'b', linewidth=2.0, label='Charge')
+                if y_max is not None or y_min is not None:
+                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+                if x_max is not None or x_min is not None:
+                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
         plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
         plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
@@ -168,13 +182,18 @@ class MainController(QObject):
             )
         self.task_bar_message.emit("green", message)
         self.figure_number += 1
+        if len(selected_channels_list) == 1:
+            zp = ZoomPan()
+            zp.zoom_factory(ax, base_scale=1.2)
+            zp.pan_factory(ax)
         plt.show()
         plt.close()
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-        # selected_channels = [i for i in range(1, 65)]
-        plt.figure(self.figure_number, figsize=(20, 15))
+
+        ax = None
+        fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
             for cycle_number in selected_cycles_list:
                 # get mass data
@@ -189,14 +208,18 @@ class MainController(QObject):
                 # get current
                 current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
 
-                # make subplot if multiple plots
-                if len(selected_channels_list) > 1:
-                    plt.subplot(8, 8, channel_number)
+                if len(selected_channels_list) == 1:
+                    ax = fig.add_subplot(111)
+                    ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+                else:
+                    ax = fig.add_subplot(8, 8, channel_number)
+                    ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
 
-                plt.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+                if y_max is not None or y_min is not None:
+                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+                if x_max is not None or x_min is not None:
+                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
-        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
@@ -208,6 +231,10 @@ class MainController(QObject):
             )
         self.task_bar_message.emit("green", message)
         self.figure_number += 1
+        if len(selected_channels_list) == 1:
+            zp = ZoomPan()
+            zp.zoom_factory(ax, base_scale=1.2)
+            zp.pan_factory(ax)
         plt.show()
         plt.close()
 
