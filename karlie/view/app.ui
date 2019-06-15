@@ -513,6 +513,19 @@ vs Voltage</string>
         </property>
        </widget>
       </item>
+      <item row="9" column="3">
+       <widget class="QCheckBox" name="checkBox_default_scale">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Use default scale</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
