@@ -116,21 +116,26 @@ def get_mass_columns():
 def get_charges(data, selected_cycles_list, selected_channels_list):
     # calculate charges
     charges = {}
-
     for channel_number in selected_channels_list:
         charges[channel_number] = {}
-        for cycle_number in selected_cycles_list:
-            charges[channel_number][cycle_number] = []
-            cycle_data = data[data['Cycle'] == cycle_number]
-            # print(cycle_data)
-            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
-            time_h = cycle_data.loc[:, "Time(h)".format(channel_number)].values
-            for index in range(len(time_h) - 1):
-                # formula to calculate charges
-                avg_charge = (current[index] + current[index + 1]) / 2
-                time_diff = time_h[index + 1] - time_h[index]
-                charge = avg_charge * time_diff
-                charges[channel_number][cycle_number].append(charge)
+        accumulated_charge = 0
+        current = data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+        time_h = data.loc[:, "Time(h)"].values
+        voltages = data.loc[:, "Vavg (V)"].values
+        cycle = data.loc[:, "Cycle"].values
+        for index in range(len(time_h) - 1):
+            # formula to calculate charges
+            cycle_number = cycle[index]
+            if cycle_number not in charges[channel_number]:
+                charges[channel_number][cycle_number] = {'charge': [], 'voltage': []}
+            avg_charge = (current[index] + current[index + 1]) / 2
+            time_diff = time_h[index + 1] - time_h[index]
+            charge = avg_charge * time_diff
+            accumulated_charge += charge
+            voltage = voltages[index]
+
+            charges[channel_number][cycle_number]['charge'].append(accumulated_charge)
+            charges[channel_number][cycle_number]['voltage'].append(voltage)
 
     return charges
 

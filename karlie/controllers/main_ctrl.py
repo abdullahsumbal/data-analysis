@@ -155,14 +155,17 @@ class MainController(QObject):
         fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
             for cycle_number in selected_cycles_list:
-                charge = self.charges[channel_number][cycle_number]
-                # make subplot if multiple plots
+                charge = self.charges[channel_number][cycle_number]['charge']
+                voltage = self.charges[channel_number][cycle_number]['voltage']
+                # charge = sum(charge, [])
+                # print(charge)
+                 # make subplot if multiple plots
                 if len(selected_channels_list) == 1:
                     ax = fig.add_subplot(111)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.plot(charge, voltage, linewidth=2.0, label='Charge')
                 else:
                     ax = fig.add_subplot(8, 8, channel_number)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.plot(charge, voltage, linewidth=2.0, label='Charge')
 
                 if y_max is not None or y_min is not None:
                     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
