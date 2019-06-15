@@ -29,5 +29,5 @@ python app.py
 ### Deploy Application
 Run the following command on terminal
 ```buildoutcfg
-pyinstaller app.py
+pyinstaller --noconsole -n karlie  app.py
 ```
