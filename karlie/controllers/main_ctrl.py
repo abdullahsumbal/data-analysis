@@ -107,7 +107,6 @@ class MainController(QObject):
         plt.show()
         plt.close()
 
-
     # plot normalized current vs voltage
     def plot_avg_voltage(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)

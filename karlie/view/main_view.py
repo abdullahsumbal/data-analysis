@@ -191,15 +191,24 @@ class MainView(QMainWindow):
 
     # get y-axis limits from ui
     def get_y_axis_limit(self):
-        y_min = self._ui.lineEdit_scale_y_min.text()
-        y_max = self._ui.lineEdit_scale_y_max.text()
+        if self._ui.checkbox_scale_default.isChecked():
+            y_min = ""
+            y_max = ""
+        else:
+            y_min = self._ui.lineEdit_scale_y_min.text()
+            y_max = self._ui.lineEdit_scale_y_max.text()
         return y_min, y_max
 
     # get x-axis limits from ui
     def get_x_axis_limit(self):
-        x_min = self._ui.lineEdit_scale_x_min.text()
-        x_max = self._ui.lineEdit_scale_x_max.text()
+        if self._ui.checkbox_scale_default.isChecked():
+            x_min = ""
+            x_max = ""
+        else:
+            x_min = self._ui.lineEdit_scale_x_min.text()
+            x_max = self._ui.lineEdit_scale_x_max.text()
         return x_min, x_max
+
     # get cycles form ui
     def get_selected_cycles(self):
         if self._ui.checkbox_cycle.isChecked():
