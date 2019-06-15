@@ -215,6 +215,7 @@ class MainController(QObject):
                     ax = fig.add_subplot(8, 8, channel_number)
                     ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
 
+                ax.tick_params(direction='in')
                 if y_max is not None or y_min is not None:
                     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
                 if x_max is not None or x_min is not None:
