@@ -7,10 +7,6 @@ def scale_user_input_to_float(limit):
     return None if limit == "" else float(limit)
 
 
-def validate_x_y_file(name):
-    return [], True
-
-
 def validate_config_file(name):
     return [], True
 

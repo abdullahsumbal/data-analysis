@@ -17,6 +17,8 @@ class MainView(QMainWindow):
         self._ui_about = AboutView()
         self._ui_github = GithubView()
         self._ui.setupUi(self)
+        self.has_medusa_file = False
+        self.has_x_y_file = False
 
         ####################################################################
         #  Validation for line edit widget
@@ -89,6 +91,7 @@ class MainView(QMainWindow):
 
         # update label based on file type
         if file_type == "medusa":
+            self.has_medusa_file = True
             new_label = get_new_label(self._ui.label_medusa_file.text(), name)
             self._ui.label_medusa_file.setText(new_label)
             self._ui.label_medusa_file.setStyleSheet('color: green')
@@ -104,7 +107,6 @@ class MainView(QMainWindow):
             self._ui.button_norm_curr_volt.setEnabled(True)
             self._ui.button_charge_discharge.setEnabled(True)
             self._ui.button_avg_volt.setEnabled(True)
-            self._ui.button_export.setEnabled(True)
             self._ui.button_capacity.setEnabled(True)
 
             # update line edit place holder for cycles
@@ -118,6 +120,7 @@ class MainView(QMainWindow):
             self._ui.label_mass_file.setText(new_label)
             self._ui.label_mass_file.setStyleSheet('color: green')
         elif file_type == "x_y":
+            self.has_x_y_file = True
             new_label = get_new_label(self._ui.label_x_y_file.text(), name)
             self._ui.label_x_y_file.setText(new_label)
             self._ui.label_x_y_file.setStyleSheet('color: green')
@@ -128,6 +131,9 @@ class MainView(QMainWindow):
         else:
             self._ui.label_status.setText("Something wrong while loading file")
             self._ui.label_status.setStyleSheet('color: red')
+
+        if self.has_x_y_file and self.has_medusa_file:
+            self._ui.button_export.setEnabled(True)
 
         self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
