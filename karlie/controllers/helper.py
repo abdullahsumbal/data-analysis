@@ -165,4 +165,6 @@ def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number):
     if x_y_label_checked:
         x = x_y_data.loc[channel_number, 'x']
         y = x_y_data.loc[channel_number, 'y']
-        ax.set_title('{} {}'.format(x, y))
+        ax.set_title('Channel {}: {} {}'.format(channel_number, x, y))
+    else:
+        ax.set_title('Channel {}'.format(channel_number))
