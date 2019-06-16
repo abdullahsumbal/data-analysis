@@ -171,7 +171,7 @@ class MainController(QObject):
 
                 charge = self.charges[channel_number][cycle_number]['charge']
                 voltage = self.charges[channel_number][cycle_number]['voltage']
-                ax.plot(charge, voltage, linewidth=2.0, label='Charge')
+                ax.plot(voltage, charge, linewidth=2.0, label='Charge')
 
             # axis label
             set_labels(ax, "Average Voltage (V)", "Charge/Discharge Capacity (mAh/g)", plot_one_channel, channel_index, {'fontsize': 20})
@@ -203,7 +203,8 @@ class MainController(QObject):
                 # get voltage
                 voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
                 # get current
-                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].apply(lambda x: x / (1000 * mass))
+                current_cycle = current_cycle.values
 
                 ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
 

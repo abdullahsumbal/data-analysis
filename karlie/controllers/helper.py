@@ -116,7 +116,7 @@ def get_charges(data, selected_channels_list):
     for channel_number in selected_channels_list:
         charges[channel_number] = {}
         accumulated_charge = 0
-        current = data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+        current = data.loc[:, "Ch.{}-I (uA)".format(channel_number)].apply(lambda x: x / 1000).values
         time_h = data.loc[:, "Time(h)"].values
         voltages = data.loc[:, "Vavg (V)"].values
         cycle = data.loc[:, "Cycle"].values
@@ -145,7 +145,7 @@ def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
         for cycle_number in selected_cycles_list:
             avg_voltages[channel_number][cycle_number] = 0
             cycle_data = data[data['Cycle'] == cycle_number]
-            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].apply(lambda x: x / 1000).values
             sum_current = sum(current)
             avg_volt_from_data = cycle_data.loc[:, "Vavg (V)".format(channel_number)].values
             voltage_into_current = np.sum(np.multiply(current, avg_volt_from_data))
