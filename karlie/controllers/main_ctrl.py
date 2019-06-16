@@ -57,6 +57,7 @@ class MainController(QObject):
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
 
+        # make figure and subplots according to number of channels to plot
         if len(selected_channels_list) == 1:
             fig, axs = plt.subplots(1, 1, figsize=(20, 15))
         else:
@@ -65,20 +66,25 @@ class MainController(QObject):
         # plot graph based on plot names
         if plot_name == "norm":
             self.plot_norm_volt_cur(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            plot_title_name = "Normalize Current and Voltage plot"
         elif plot_name == "charge":
             self.plot_charge_discharge(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            plot_title_name = "Voltage vs Charge"
         elif plot_name == "avg_voltage":
             self.plot_avg_voltage(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            plot_title_name = "Average Voltage vs Cycle"
         elif plot_name == "capacity":
             self.plot_capacity(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            plot_title_name = "Capacity vs Cycle"
 
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Normalize Current and Voltage plot for {} {} and {}".format(
+        message = "Figure {}: {} plot for {} {} and {}".format(
             self.figure_number,
-            "cycles" if len(selected_channels_list) > 1 else "cycle",
+            plot_title_name,
+            "cycles" if len(selected_cycles_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
