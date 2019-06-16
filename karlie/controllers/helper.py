@@ -110,7 +110,7 @@ def get_mass_columns():
     return columns
 
 
-def get_charges(data, selected_cycles_list, selected_channels_list):
+def get_charges(data, selected_channels_list):
     # calculate charges
     charges = {}
     for channel_number in selected_channels_list:
@@ -152,3 +152,17 @@ def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
             avg_voltages[channel_number][cycle_number] = voltage_into_current / sum_current
 
     return avg_voltages
+
+
+def set_plot_limits(ax, x_min, x_max, y_min, y_max):
+    if y_max is not None or y_min is not None:
+        ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+    if x_max is not None or x_min is not None:
+        ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
+
+
+def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number):
+    if x_y_label_checked:
+        x = x_y_data.loc[channel_number, 'x']
+        y = x_y_data.loc[channel_number, 'y']
+        ax.set_title('{} {}'.format(x, y))

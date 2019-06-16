@@ -4,7 +4,6 @@ from controllers.helper import *
 import pandas as pd
 import csv
 import os
-import numpy as np
 
 
 class MainController(QObject):
@@ -18,7 +17,7 @@ class MainController(QObject):
         self.avg_voltages = None
 
     # general plot function which is reponsible for calling other plot functions.
-    def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name):
+    def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
         valid, message = validate_cycles(all_cycles, selected_cycles)
@@ -58,176 +57,20 @@ class MainController(QObject):
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
 
+        if len(selected_channels_list) == 1:
+            fig, axs = plt.subplots(1, 1, figsize=(20, 15))
+        else:
+            fig, axs = plt.subplots(8, 8, figsize=(20, 15))
+
         # plot graph based on plot names
         if plot_name == "norm":
-            self.plot_norm_volt_cur(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+            self.plot_norm_volt_cur(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
         elif plot_name == "charge":
-            self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+            self.plot_charge_discharge(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
         elif plot_name == "avg_voltage":
-            self.plot_avg_voltage(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+            self.plot_avg_voltage(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
         elif plot_name == "capacity":
-            self.plot_capacity(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
-
-    # plot normalized current vs voltage
-    def plot_capacity(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
-        ax = None
-        fig = plt.figure(self.figure_number, figsize=(20, 15))
-        for channel_number in selected_channels_list:
-            for cycle_number in selected_cycles_list:
-                charge = self.charges[channel_number][cycle_number]['charge']
-                # charge = sum(charge, [])
-                # print(charge)
-                 # make subplot if multiple plots
-                if len(selected_channels_list) == 1:
-                    ax = fig.add_subplot(111)
-                    ax.scatter(charge[-1], cycle_number)
-                else:
-                    ax = fig.add_subplot(8, 8, channel_number)
-                    ax.scatter(charge[-1], cycle_number)
-
-                if y_max is not None or y_min is not None:
-                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-                if x_max is not None or x_min is not None:
-                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
-
-        # update status bar
-        channel_message = "all channels"
-        if len(selected_channels_list) == 1:
-            channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Charge Vs Discharge plot for {} {} and {}".format(
-            self.figure_number,
-            "cycles" if len(selected_channels_list) > 1 else "cycle",
-            ",".join(map(str, selected_cycles_list)),
-            channel_message
-            )
-        self.task_bar_message.emit("green", message)
-        self.figure_number += 1
-        if len(selected_channels_list) == 1:
-            zp = ZoomPan()
-            zp.zoom_factory(ax, base_scale=1.2)
-            zp.pan_factory(ax)
-
-        plt.title(message)
-        plt.show()
-        plt.close()
-
-    # plot normalized current vs voltage
-    def plot_avg_voltage(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
-        ax = None
-        fig = plt.figure(self.figure_number, figsize=(20, 15))
-        for channel_number in selected_channels_list:
-            for cycle_number in selected_cycles_list:
-                charge = self.avg_voltages[channel_number][cycle_number]
-                # make subplot if multiple plots
-                if len(selected_channels_list) == 1:
-                    ax = fig.add_subplot(111)
-                    ax.scatter(cycle_number, charge)
-                else:
-                    ax = fig.add_subplot(8, 8, channel_number)
-                    ax.scatter(cycle_number, charge)
-
-                if y_max is not None or y_min is not None:
-                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-                if x_max is not None or x_min is not None:
-                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
-
-        # update status bar
-        channel_message = "all channels"
-        if len(selected_channels_list) == 1:
-            channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Average voltage plot for {} {} and {}".format(
-            self.figure_number,
-            "cycles" if len(selected_channels_list) > 1 else "cycle",
-            ",".join(map(str, selected_cycles_list)),
-            channel_message
-            )
-        self.task_bar_message.emit("green", message)
-        self.figure_number += 1
-        if len(selected_channels_list) == 1:
-            zp = ZoomPan()
-            zp.zoom_factory(ax, base_scale=1.2)
-            zp.pan_factory(ax)
-        plt.title(message)
-        plt.show()
-        plt.close()
-
-    # plot normalized current vs voltage
-    def plot_charge_discharge(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
-        ax = None
-        fig = plt.figure(self.figure_number, figsize=(20, 15))
-        for channel_number in selected_channels_list:
-            for cycle_number in selected_cycles_list:
-                charge = self.charges[channel_number][cycle_number]['charge']
-                voltage = self.charges[channel_number][cycle_number]['voltage']
-                # charge = sum(charge, [])
-                # print(charge)
-                 # make subplot if multiple plots
-                if len(selected_channels_list) == 1:
-                    ax = fig.add_subplot(111)
-                    ax.plot(charge, voltage, linewidth=2.0, label='Charge')
-                else:
-                    ax = fig.add_subplot(8, 8, channel_number)
-                    ax.plot(charge, voltage, linewidth=2.0, label='Charge')
-
-                if y_max is not None or y_min is not None:
-                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-                if x_max is not None or x_min is not None:
-                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
-
-        # update status bar
-        channel_message = "all channels"
-        if len(selected_channels_list) == 1:
-            channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Charge Vs Discharge plot for {} {} and {}".format(
-            self.figure_number,
-            "cycles" if len(selected_channels_list) > 1 else "cycle",
-            ",".join(map(str, selected_cycles_list)),
-            channel_message
-            )
-        self.task_bar_message.emit("green", message)
-        self.figure_number += 1
-        if len(selected_channels_list) == 1:
-            zp = ZoomPan()
-            zp.zoom_factory(ax, base_scale=1.2)
-            zp.pan_factory(ax)
-        plt.title(message)
-        plt.show()
-        plt.close()
-
-    # plot normalized current vs voltage
-    def plot_norm_volt_cur(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-
-        ax = None
-        fig = plt.figure(self.figure_number, figsize=(20, 15))
-        for channel_number in selected_channels_list:
-            for cycle_number in selected_cycles_list:
-                # get mass data
-                mass = 1
-                if len(self._model.mass_data) > 0:
-                    mass = self._model.mass_data[channel_number - 1]
-
-                # get selected cycle data
-                cycle_data = data[data['Cycle'] == cycle_number]
-                # get voltage
-                voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
-                # get current
-                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
-
-                if len(selected_channels_list) == 1:
-                    ax = fig.add_subplot(111)
-                    ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-                else:
-                    ax = fig.add_subplot(8, 8, channel_number)
-                    ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
-
-                ax.tick_params(direction='in')
-                if y_max is not None or y_min is not None:
-                    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-                if x_max is not None or x_min is not None:
-                    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
+            self.plot_capacity(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
 
         # update status bar
         channel_message = "all channels"
@@ -243,11 +86,111 @@ class MainController(QObject):
         self.figure_number += 1
         if len(selected_channels_list) == 1:
             zp = ZoomPan()
-            zp.zoom_factory(ax, base_scale=1.2)
-            zp.pan_factory(ax)
+            zp.zoom_factory(axs, base_scale=1.2)
+            zp.pan_factory(axs)
         fig.suptitle(message, fontsize=25)
+        plt.subplots_adjust(hspace=0.5, wspace=0.5)
         plt.show()
         plt.close()
+
+    # plot normalized current vs voltage
+    def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        self.charges = get_charges(data, selected_channels_list)
+        for channel_index in range(len(selected_channels_list)):
+            channel_number = selected_channels_list[channel_index]
+            for cycle_number in selected_cycles_list:
+
+                # get subplot
+                if len(selected_channels_list) == 1:
+                    ax = axs
+                else:
+                    ax = axs[int(channel_index / 8)][channel_index % 8]
+
+                charge = self.charges[channel_number][cycle_number]['charge']
+                ax.scatter(charge[-1], cycle_number)
+
+                # put ticks inside
+                ax.tick_params(direction='in')
+                # set subplot limits
+                set_plot_limits(ax, x_min, x_max, y_min, y_max)
+                # set subplot title
+                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+
+    # plot normalized current vs voltage
+    def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
+        for channel_index in range(len(selected_channels_list)):
+            channel_number = selected_channels_list[channel_index]
+            for cycle_number in selected_cycles_list:
+                # get subplot
+                if len(selected_channels_list) == 1:
+                    ax = axs
+                else:
+                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                charge = self.avg_voltages[channel_number][cycle_number]
+                ax.scatter(cycle_number, charge)
+
+                # put ticks inside
+                ax.tick_params(direction='in')
+                # set subplot limits
+                set_plot_limits(ax, x_min, x_max, y_min, y_max)
+                # set subplot title
+                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+
+    # plot normalized current vs voltage
+    def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        self.charges = get_charges(data, selected_channels_list)
+        for channel_index in range(len(selected_channels_list)):
+            channel_number = selected_channels_list[channel_index]
+            for cycle_number in selected_cycles_list:
+                # get subplot
+                if len(selected_channels_list) == 1:
+                    ax = axs
+                else:
+                    ax = axs[int(channel_index / 8)][channel_index % 8]
+
+                charge = self.charges[channel_number][cycle_number]['charge']
+                voltage = self.charges[channel_number][cycle_number]['voltage']
+                ax.plot(charge, voltage, linewidth=2.0, label='Charge')
+
+                # put ticks inside
+                ax.tick_params(direction='in')
+                # set subplot limits
+                set_plot_limits(ax, x_min, x_max, y_min, y_max)
+                # set subplot title
+                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+
+    # plot normalized current vs voltage
+    def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+
+        for channel_index in range(len(selected_channels_list)):
+            channel_number = selected_channels_list[channel_index]
+            for cycle_number in selected_cycles_list:
+                # get subplot
+                if len(selected_channels_list) == 1:
+                    ax = axs
+                else:
+                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                # get mass data
+                mass = 1
+                if len(self._model.mass_data) > 0:
+                    mass = self._model.mass_data[channel_number - 1]
+
+                # get selected cycle data
+                cycle_data = data[data['Cycle'] == cycle_number]
+                # get voltage
+                voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+                # get current
+                current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].values/mass
+
+                ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
+
+                # put ticks inside
+                ax.tick_params(direction='in')
+                # set subplot limits
+                set_plot_limits(ax, x_min, x_max, y_min, y_max)
+                # set subplot title
+                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
 
     def validate_cycles_channels(self, selected_cycles, selected_channels):
         # cycle validation
@@ -358,6 +301,7 @@ class MainController(QObject):
                 y_count = data['y'].count()
                 channel_count = data['channel'].count()
                 if x_count == 64 and y_count == 64 and channel_count == 64 and data.isnull().sum().sum() == 0:
+                    data = data.set_index('channel')
                     return data, True
                 else:
                     message = "Error: Invalidate {} file format. There should be 64 channels, 64 x values and 64 y values".format(
