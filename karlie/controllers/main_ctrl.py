@@ -16,7 +16,7 @@ class MainController(QObject):
         self.charges = None
         self.avg_voltages = None
 
-    # general plot function which is reponsible for calling other plot functions.
+    # general plot function which is responsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
@@ -314,7 +314,6 @@ class MainController(QObject):
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
-
 
     def validate_medusa_file(self, name, file_type):
         columns = get_medusa_columns()
