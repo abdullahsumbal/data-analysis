@@ -312,7 +312,7 @@ class MainController(QObject):
         elif file_type == "mass":
             data, valid = self.validate_mass_file(name, file_type)
         elif file_type == "x_y":
-            data, valid = validate_x_y_file(name)
+            data, valid = self.validate_x_y_file(name, file_type)
         elif file_type == "config":
             data, valid = validate_config_file(name)
         # resistances_header = pd.read_csv(name, header=6, nrows=0)
@@ -338,6 +338,36 @@ class MainController(QObject):
             self.task_bar_message.emit("red", "maximum limit has to be greater than minimum limit")
             return False
         return True
+
+    def validate_x_y_file(self, name, file_type):
+        columns = {'channel', 'x', 'y'}
+        try:
+            data = pd.read_csv(name, nrows=64)
+            diff = columns.difference(set(data.columns.values))
+            if bool(diff):
+                message = "Error: Invalidate {} file format. Heading not found: {}".format(
+                    file_type,
+                    ",".join(diff))
+                self.task_bar_message.emit("red", message)
+                return [], False
+            else:
+                x_count = data['x'].count()
+                y_count = data['y'].count()
+                channel_count = data['channel'].count()
+                if x_count == 64 and y_count == 64 and channel_count == 64 and data.isnull().sum().sum() == 0:
+                    return data, True
+                else:
+                    message = "Error: Invalidate {} file format. There should be 64 channels, 64 x values and 64 y values".format(
+                        file_type,
+                        ",".join(diff))
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
 
     def validate_medusa_file(self, name, file_type):
         columns = get_medusa_columns()

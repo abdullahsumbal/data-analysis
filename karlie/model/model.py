@@ -29,6 +29,10 @@ class Medusa(QObject):
     def mass_data(self):
         return self._mass_data
 
+    @property
+    def x_y_data(self):
+        return self._x_y
+
     @file_name.setter
     def file_name(self, value):
         name = value[0]
