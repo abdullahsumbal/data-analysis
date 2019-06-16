@@ -5,6 +5,7 @@ from controllers.helper import *
 import pandas as pd
 import csv
 import os
+import json
 
 
 class MainController(QObject):
@@ -288,7 +289,7 @@ class MainController(QObject):
         elif file_type == "x_y":
             data, valid = self.validate_x_y_file(name, file_type)
         elif file_type == "config":
-            data, valid = validate_config_file(name)
+            data, valid = self.validate_config_file(name, file_type)
         # resistances_header = pd.read_csv(name, header=6, nrows=0)
         # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
         # self._model.resistances = resistances_values
@@ -376,6 +377,16 @@ class MainController(QObject):
             return data.iloc[0, 2:].values, True
         except Exception:
             message = "Error: Invalidate {} file format.".format(file_type)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
+    def validate_config_file(self, name, file_type):
+        try:
+            loaded_json = json.loads(name)
+            print(loaded_json)
+            return loaded_json, True
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
 
