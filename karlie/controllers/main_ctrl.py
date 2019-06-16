@@ -65,35 +65,39 @@ class MainController(QObject):
             self.plot_charge_discharge(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
         elif plot_name == "avg_voltage":
             self.plot_avg_voltage(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
-        elif plot_name == "zoom":
-            self.plot_zoom(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
+        elif plot_name == "capacity":
+            self.plot_capacity(x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data)
 
     # plot normalized current vs voltage
-    def plot_zoom(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
-        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
+    def plot_capacity(self, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, data):
+        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
         ax = None
         fig = plt.figure(self.figure_number, figsize=(20, 15))
         for channel_number in selected_channels_list:
-
             for cycle_number in selected_cycles_list:
-                charge = self.avg_voltages[channel_number][cycle_number]
-                # make subplot if multiple plots
+                charge = self.charges[channel_number][cycle_number]['charge']
+                # charge = sum(charge, [])
+                # print(charge)
+                 # make subplot if multiple plots
                 if len(selected_channels_list) == 1:
                     ax = fig.add_subplot(111)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.scatter(charge[-1], cycle_number)
                 else:
                     ax = fig.add_subplot(8, 8, channel_number)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.scatter(charge[-1], cycle_number)
 
                 if y_max is not None or y_min is not None:
                     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
                 if x_max is not None or x_min is not None:
                     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
+
+        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Average voltage plot for cycles {} and {}".format(
+        message = "Figure {}: Charge Vs Discharge plot for cycles {} and {}".format(
             self.figure_number,
             ",".join(map(str, selected_cycles_list)),
             channel_message

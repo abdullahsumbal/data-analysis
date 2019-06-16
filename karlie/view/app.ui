@@ -499,17 +499,17 @@ vs Voltage</string>
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Average Voltage</string>
+         <string>Average Voltage vs Cycle</string>
         </property>
        </widget>
       </item>
       <item row="14" column="3">
-       <widget class="QPushButton" name="button_zoom">
+       <widget class="QPushButton" name="button_capacity">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Zoomable</string>
+         <string>Capacity vs Cycle</string>
         </property>
        </widget>
       </item>
