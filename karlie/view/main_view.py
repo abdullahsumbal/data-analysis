@@ -188,7 +188,8 @@ class MainView(QMainWindow):
         if self._main_controller.validate_cycles_channels(cycles, channels):
             csv_file_name = self.save_file_dialog()
             # export
-            self._main_controller.export_csv(cycles, channels, csv_file_name)
+            if csv_file_name:
+                self._main_controller.export_csv(cycles, channels, csv_file_name)
 
     ####################################################################
     #   View helper methods
@@ -256,6 +257,9 @@ class MainView(QMainWindow):
                                                    "CSV File (*.csv) ;; All Files (*)", options=options)
         if file_name:
             return file_name
+        else:
+            return False
+
 
 
 class AboutView(QDialog):
