@@ -7,5 +7,7 @@ dist
 *.csv
 *.pdf
 *.pyc
+karlie/template.json
+
 
 !karlie/sample-files/*

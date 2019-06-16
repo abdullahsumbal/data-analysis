@@ -46,6 +46,10 @@ class MainView(QMainWindow):
         self._ui.button_x_y_file.clicked.connect(lambda: self.open_file_name_dialog("x_y"))
         self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
+        # reset buttons
+        self._ui.button_reset_config.clicked.connect(self.reset_config)
+        self._ui.button_reset_mass.clicked.connect(self.reset_mass)
+
         # filter
         # select cycle
         self._ui.checkbox_cycle.stateChanged.connect(
@@ -84,7 +88,16 @@ class MainView(QMainWindow):
     ####################################################################
     @pyqtSlot(str, str)
     def on_file_name_changed(self, name, file_type):
-        # update file name label
+        # label color based on file_name
+        # if the file name is empty them it means file is reseted
+        if name == '':
+            file_label_color = 'black'
+            self.on_task_bar_message("green", "Successfully removed {} file".format(file_type))
+        else:
+            file_label_color = "green"
+            self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
+
+
 
         # only show basename
         name = path.basename(name)
@@ -94,7 +107,7 @@ class MainView(QMainWindow):
             self.has_medusa_file = True
             new_label = get_new_label(self._ui.label_medusa_file.text(), name)
             self._ui.label_medusa_file.setText(new_label)
-            self._ui.label_medusa_file.setStyleSheet('color: green')
+            self._ui.label_medusa_file.setStyleSheet('color: '+file_label_color)
 
             # enable filter options
             self._ui.checkbox_cycle.setEnabled(True)
@@ -118,18 +131,18 @@ class MainView(QMainWindow):
         elif file_type == "mass":
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
             self._ui.label_mass_file.setText(new_label)
-            self._ui.label_mass_file.setStyleSheet('color: green')
+            self._ui.label_mass_file.setStyleSheet('color: '+file_label_color)
             # update plot control
             self._ui.button_reset_mass.setEnabled(True)
         elif file_type == "x_y":
             self.has_x_y_file = True
             new_label = get_new_label(self._ui.label_x_y_file.text(), name)
             self._ui.label_x_y_file.setText(new_label)
-            self._ui.label_x_y_file.setStyleSheet('color: green')
+            self._ui.label_x_y_file.setStyleSheet('color: '+file_label_color)
         elif file_type == "config":
             new_label = get_new_label(self._ui.label_config_file.text(), name)
             self._ui.label_config_file.setText(new_label)
-            self._ui.label_config_file.setStyleSheet('color: green')
+            self._ui.label_config_file.setStyleSheet('color: '+file_label_color)
             # update plot control
             self._ui.button_reset_config.setEnabled(True)
         else:
@@ -139,8 +152,6 @@ class MainView(QMainWindow):
         if self.has_x_y_file and self.has_medusa_file:
             self._ui.button_export.setEnabled(True)
             self._ui.checkbox_x_y_plot_label.setEnabled(True)
-
-        self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
     ####################################################################
     #   controller listener functions
@@ -194,6 +205,18 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+
+    # reset config
+    def reset_config(self):
+        data = ['', None, 'config']
+        self._model.file_name = data
+        self._ui.button_reset_config.setEnabled(False)
+
+    # reset config
+    def reset_mass(self):
+        data = ['', [], 'mass']
+        self._model.file_name = data
+        self._ui.button_reset_mass.setEnabled(False)
 
     # enable custom scaling
     def enable_custom_scale(self, checked):
