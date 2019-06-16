@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import numpy as np
 
 
 def scale_user_input_to_float(limit):
@@ -143,19 +144,15 @@ def get_charges(data, selected_cycles_list, selected_channels_list):
 def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
     # calculate average voltage
     avg_voltages = {}
-
     for channel_number in selected_channels_list:
         avg_voltages[channel_number] = {}
         for cycle_number in selected_cycles_list:
-            avg_voltages[channel_number][cycle_number] = []
+            avg_voltages[channel_number][cycle_number] = 0
             cycle_data = data[data['Cycle'] == cycle_number]
-            # print(cycle_data)
             current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
             sum_current = sum(current)
             avg_volt_from_data = cycle_data.loc[:, "Vavg (V)".format(channel_number)].values
-            for index in range(len(current)):
-                # formula to calculate charges
-                avg_voltage = (current[index] * avg_volt_from_data[index]) / sum_current
-                avg_voltages[channel_number][cycle_number].append(avg_voltage)
+            voltage_into_current = np.sum(np.multiply(current, avg_volt_from_data))
+            avg_voltages[channel_number][cycle_number] = voltage_into_current / sum_current
 
     return avg_voltages

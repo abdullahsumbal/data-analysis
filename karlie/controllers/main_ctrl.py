@@ -118,10 +118,10 @@ class MainController(QObject):
                 # make subplot if multiple plots
                 if len(selected_channels_list) == 1:
                     ax = fig.add_subplot(111)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.scatter(cycle_number, charge)
                 else:
                     ax = fig.add_subplot(8, 8, channel_number)
-                    ax.plot(charge, 'b', linewidth=2.0, label='Charge')
+                    ax.scatter(cycle_number, charge)
 
                 if y_max is not None or y_min is not None:
                     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
