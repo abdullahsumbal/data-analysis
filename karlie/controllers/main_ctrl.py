@@ -91,14 +91,13 @@ class MainController(QObject):
                 if x_max is not None or x_min is not None:
                     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
-        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Charge Vs Discharge plot for cycles {} and {}".format(
+        message = "Figure {}: Charge Vs Discharge plot for {} {} and {}".format(
             self.figure_number,
+            "cycles" if len(selected_channels_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
@@ -108,6 +107,8 @@ class MainController(QObject):
             zp = ZoomPan()
             zp.zoom_factory(ax, base_scale=1.2)
             zp.pan_factory(ax)
+
+        plt.title(message)
         plt.show()
         plt.close()
 
@@ -132,14 +133,13 @@ class MainController(QObject):
                 if x_max is not None or x_min is not None:
                     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
-        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Average voltage plot for cycles {} and {}".format(
+        message = "Figure {}: Average voltage plot for {} {} and {}".format(
             self.figure_number,
+            "cycles" if len(selected_channels_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
@@ -149,6 +149,7 @@ class MainController(QObject):
             zp = ZoomPan()
             zp.zoom_factory(ax, base_scale=1.2)
             zp.pan_factory(ax)
+        plt.title(message)
         plt.show()
         plt.close()
 
@@ -176,14 +177,13 @@ class MainController(QObject):
                 if x_max is not None or x_min is not None:
                     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
-        plt.ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-        plt.xlim(left=x_min, right=x_max)  # set the x-axis limits
         # update status bar
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Charge Vs Discharge plot for cycles {} and {}".format(
+        message = "Figure {}: Charge Vs Discharge plot for {} {} and {}".format(
             self.figure_number,
+            "cycles" if len(selected_channels_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
@@ -193,6 +193,7 @@ class MainController(QObject):
             zp = ZoomPan()
             zp.zoom_factory(ax, base_scale=1.2)
             zp.pan_factory(ax)
+        plt.title(message)
         plt.show()
         plt.close()
 
@@ -232,8 +233,9 @@ class MainController(QObject):
         channel_message = "all channels"
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
-        message = "Figure {}: Normalize Current and Voltage plot for cycles {} and {}".format(
+        message = "Figure {}: Normalize Current and Voltage plot for {} {} and {}".format(
             self.figure_number,
+            "cycles" if len(selected_channels_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
@@ -243,6 +245,7 @@ class MainController(QObject):
             zp = ZoomPan()
             zp.zoom_factory(ax, base_scale=1.2)
             zp.pan_factory(ax)
+        fig.suptitle(message, fontsize=25)
         plt.show()
         plt.close()
 
