@@ -119,6 +119,8 @@ class MainView(QMainWindow):
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
             self._ui.label_mass_file.setText(new_label)
             self._ui.label_mass_file.setStyleSheet('color: green')
+            # update plot control
+            self._ui.button_reset_mass.setEnabled(True)
         elif file_type == "x_y":
             self.has_x_y_file = True
             new_label = get_new_label(self._ui.label_x_y_file.text(), name)
@@ -128,12 +130,15 @@ class MainView(QMainWindow):
             new_label = get_new_label(self._ui.label_config_file.text(), name)
             self._ui.label_config_file.setText(new_label)
             self._ui.label_config_file.setStyleSheet('color: green')
+            # update plot control
+            self._ui.button_reset_config.setEnabled(True)
         else:
             self._ui.label_status.setText("Something wrong while loading file")
             self._ui.label_status.setStyleSheet('color: red')
 
         if self.has_x_y_file and self.has_medusa_file:
             self._ui.button_export.setEnabled(True)
+            self._ui.checkbox_x_y_plot_label.setEnabled(True)
 
         self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
@@ -171,8 +176,9 @@ class MainView(QMainWindow):
         channels = self.get_selected_channels()
         y_limits = self.get_y_axis_limit()
         x_limits = self.get_x_axis_limit()
+        x_y_label_checked = self._ui.checkbox_x_y_plot_label.isChecked() and self._ui.checkbox_x_y_plot_label.isEnabled()
         # request to send to controller
-        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name)
+        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name, x_y_label_checked)
 
     def export_csv(self):
         # get user input for cycles and channels
