@@ -168,3 +168,23 @@ def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number):
         ax.set_title('Channel {}: {} {}'.format(channel_number, x, y))
     else:
         ax.set_title('Channel {}'.format(channel_number))
+
+
+def set_labels(ax, x_label, y_label, plot_one_channel, channel_index, config):
+    # show axis only on the left and bottom
+    if plot_one_channel:
+        ax.set_xlabel(x_label, **config)
+        ax.set_ylabel(y_label, **config)
+    elif channel_index == 24:
+        ax.set_ylabel(y_label, **config)
+        ax.set_xticklabels([])
+    elif channel_index == 59:
+        ax.set_xlabel(x_label, **config)
+        ax.set_yticklabels([])
+    elif channel_index in [0, 8, 16, 24, 32, 40, 48]:
+        ax.set_xticklabels([])
+    elif channel_index in range(57, 64):
+        ax.set_yticklabels([])
+    elif channel_index != 56:
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])

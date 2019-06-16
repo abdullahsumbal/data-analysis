@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
 from controllers.helper import *
 import pandas as pd
 import csv
@@ -101,56 +102,69 @@ class MainController(QObject):
 
     # plot normalized current vs voltage
     def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        plot_one_channel = len(selected_channels_list) == 1
         self.charges = get_charges(data, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
 
                 # get subplot
-                if len(selected_channels_list) == 1:
+                if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
                 charge = self.charges[channel_number][cycle_number]['charge']
-                ax.scatter(charge[-1], cycle_number)
+                ax.scatter(cycle_number, charge[-1])
 
-                # put ticks inside
-                ax.tick_params(direction='in')
-                # set subplot limits
-                set_plot_limits(ax, x_min, x_max, y_min, y_max)
-                # set subplot title
-                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            # axis label
+            set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_index, {'fontsize': 20})
+            # integer x axis
+            loc = MultipleLocator(base=1)
+            ax.xaxis.set_major_locator(loc)
+            # put ticks inside
+            ax.tick_params(direction='in')
+            # set subplot limits
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            # set subplot title
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
 
     # plot normalized current vs voltage
     def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        plot_one_channel = len(selected_channels_list) == 1
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
                 # get subplot
-                if len(selected_channels_list) == 1:
+                if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
                 charge = self.avg_voltages[channel_number][cycle_number]
                 ax.scatter(cycle_number, charge)
 
-                # put ticks inside
-                ax.tick_params(direction='in')
-                # set subplot limits
-                set_plot_limits(ax, x_min, x_max, y_min, y_max)
-                # set subplot title
-                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            # axis label
+            set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_index, {'fontsize': 20})
+            # integer x axis
+            loc = MultipleLocator(base=1)
+            ax.xaxis.set_major_locator(loc)
+            # put ticks inside
+            ax.tick_params(direction='in')
+            # set subplot limits
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            # set subplot title
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        plot_one_channel = len(selected_channels_list) == 1
         self.charges = get_charges(data, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
                 # get subplot
-                if len(selected_channels_list) == 1:
+                if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
@@ -159,21 +173,23 @@ class MainController(QObject):
                 voltage = self.charges[channel_number][cycle_number]['voltage']
                 ax.plot(charge, voltage, linewidth=2.0, label='Charge')
 
-                # put ticks inside
-                ax.tick_params(direction='in')
-                # set subplot limits
-                set_plot_limits(ax, x_min, x_max, y_min, y_max)
-                # set subplot title
-                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            # axis label
+            set_labels(ax, "Average Voltage (V)", "Charge/Discharge Capacity (mAh/g)", plot_one_channel, channel_index, {'fontsize': 20})
+            # put ticks inside
+            ax.tick_params(direction='in')
+            # set subplot limits
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            # set subplot title
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
-
+        plot_one_channel = len(selected_channels_list) == 1
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
                 # get subplot
-                if len(selected_channels_list) == 1:
+                if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
@@ -191,12 +207,17 @@ class MainController(QObject):
 
                 ax.plot(voltage_cycle, current_cycle, 'b', linewidth=2.0, label='Charge')
 
-                # put ticks inside
-                ax.tick_params(direction='in')
-                # set subplot limits
-                set_plot_limits(ax, x_min, x_max, y_min, y_max)
-                # set subplot title
-                set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            # axis label
+            set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_index, {'fontsize': 20})
+            # tick interval for x axis
+            loc = MultipleLocator(base=0.5)  # this locator puts ticks at regular intervals
+            ax.xaxis.set_major_locator(loc)
+            # put ticks inside
+            ax.tick_params(direction='in')
+            # set subplot limits
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            # set subplot title
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
 
     def validate_cycles_channels(self, selected_cycles, selected_channels):
         # cycle validation
