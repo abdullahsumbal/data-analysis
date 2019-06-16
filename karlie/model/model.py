@@ -31,7 +31,7 @@ class Medusa(QObject):
 
     @property
     def x_y_data(self):
-        return self._x_y
+        return self._x_y_data
 
     @file_name.setter
     def file_name(self, value):
