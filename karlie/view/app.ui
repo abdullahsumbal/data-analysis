@@ -28,20 +28,10 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,1">
+     <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,1,1,1">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
-      <item row="14" column="1">
-       <widget class="QPushButton" name="button_charge_discharge">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Charge vs Discharge</string>
-        </property>
-       </widget>
-      </item>
       <item row="10" column="3">
        <layout class="QGridLayout" name="gridLayout_5">
         <item row="0" column="1">
@@ -106,6 +96,98 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="16" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Plots</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Filter options</string>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="0" colspan="4">
+       <widget class="Line" name="line_3">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="17" column="1">
+       <widget class="QPushButton" name="button_charge_discharge">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Charge vs Discharge</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load files</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="button_config_file">
+        <property name="text">
+         <string>Open Config File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="4">
+       <widget class="QLabel" name="label_x_y_file">
+        <property name="text">
+         <string>X Y file selected: </string>
+        </property>
+       </widget>
       </item>
       <item row="10" column="2">
        <layout class="QGridLayout" name="gridLayout_4">
@@ -172,21 +254,7 @@
         </item>
        </layout>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Load files</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
+      <item row="17" column="0">
        <widget class="QPushButton" name="button_norm_curr_volt">
         <property name="enabled">
          <bool>false</bool>
@@ -196,19 +264,6 @@
 vs Voltage</string>
         </property>
        </widget>
-      </item>
-      <item row="11" column="0">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="1" column="0">
        <widget class="QPushButton" name="medusa_file_button">
@@ -223,8 +278,22 @@ vs Voltage</string>
         </property>
        </widget>
       </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_4">
+      <item row="2" column="0" colspan="4">
+       <widget class="QLabel" name="label_medusa_file">
+        <property name="text">
+         <string>Medusa file Selected: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="button_mass_file">
+        <property name="text">
+         <string>Open Mass File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QLabel" name="label_6">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -233,48 +302,14 @@ vs Voltage</string>
          </font>
         </property>
         <property name="text">
-         <string>Plots</string>
+         <string>Scale options</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QPushButton" name="button_config_file">
+      <item row="1" column="2">
+       <widget class="QPushButton" name="button_x_y_file">
         <property name="text">
-         <string>Open Config File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Filter options</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="0" colspan="4">
-       <widget class="Line" name="line_3">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="lineWidth">
-         <number>1</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0" colspan="4">
-       <widget class="QLabel" name="label_x_y_file">
-        <property name="text">
-         <string>X Y file selected: </string>
+         <string>Open X Y File</string>
         </property>
        </widget>
       </item>
@@ -349,6 +384,77 @@ vs Voltage</string>
         </item>
        </layout>
       </item>
+      <item row="3" column="0" colspan="4">
+       <widget class="QLabel" name="label_mass_file">
+        <property name="text">
+         <string>Mass file selected: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="3">
+       <widget class="QPushButton" name="button_capacity">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Capacity vs Cycle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0" colspan="4">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="4">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="19" column="3">
+       <widget class="QPushButton" name="button_export">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Export</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="4">
+       <widget class="QLabel" name="label_config_file">
+        <property name="text">
+         <string>Config file selected: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="2">
+       <widget class="QPushButton" name="button_avg_volt">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Average Voltage vs Cycle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="3">
+       <widget class="QCheckBox" name="checkbox_scale_default">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Use default scale</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="10" column="1">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
@@ -420,57 +526,8 @@ vs Voltage</string>
         </item>
        </layout>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="button_mass_file">
-        <property name="text">
-         <string>Open Mass File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="4">
-       <widget class="QLabel" name="label_mass_file">
-        <property name="text">
-         <string>Mass file selected: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="0" colspan="4">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="4">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="4">
-       <widget class="QLabel" name="label_config_file">
-        <property name="text">
-         <string>Config file selected: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="4">
-       <widget class="QLabel" name="label_medusa_file">
-        <property name="text">
-         <string>Medusa file Selected: </string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="button_x_y_file">
-        <property name="text">
-         <string>Open X Y File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="2">
-       <widget class="QLabel" name="label_6">
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_9">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -479,50 +536,47 @@ vs Voltage</string>
          </font>
         </property>
         <property name="text">
-         <string>Scale options</string>
+         <string>Plot Control</string>
         </property>
        </widget>
       </item>
-      <item row="16" column="3">
-       <widget class="QPushButton" name="button_export">
+      <item row="15" column="0" colspan="4">
+       <widget class="Line" name="line_20">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
+       <widget class="QPushButton" name="button_reset_mass">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Export</string>
+         <string>Reset Mass</string>
         </property>
        </widget>
       </item>
       <item row="14" column="2">
-       <widget class="QPushButton" name="button_avg_volt">
+       <widget class="QCheckBox" name="checkbox_x_y_plot_label">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Average Voltage vs Cycle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="3">
-       <widget class="QPushButton" name="button_capacity">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Capacity vs Cycle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="3">
-       <widget class="QCheckBox" name="checkbox_scale_default">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Use default scale</string>
+         <string>Show x y values on subplot</string>
         </property>
         <property name="checked">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QPushButton" name="button_reset_config">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Reset Config</string>
         </property>
        </widget>
       </item>
