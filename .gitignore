@@ -1,0 +1,13 @@
+.idea
+build
+dist
+*.csv
+*.pdf
+*.spec
+*.csv
+*.pdf
+*.pyc
+*json
+
+
+!karlie/sample-files/*
