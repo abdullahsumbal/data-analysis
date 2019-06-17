@@ -51,6 +51,8 @@ class MainController(QObject):
         # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.plot.html
         # colors
         # https://matplotlib.org/3.1.0/gallery/color/named_colors.html
+        # axis_label
+        # https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
 
     # general plot function which is responsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
