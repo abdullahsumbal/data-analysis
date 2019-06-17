@@ -11,3 +11,4 @@ dist
 
 
 !karlie/sample-files/*
+!karlie/config-template.json

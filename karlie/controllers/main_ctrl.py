@@ -19,7 +19,7 @@ class MainController(QObject):
         self.avg_voltages = None
         self.config_data_default = \
             {
-                "tick": {
+                "tick_params": {
                     "axis": "both",
                     "which": "major",
                     "labelsize": 10,
@@ -42,6 +42,15 @@ class MainController(QObject):
                     "capacity": {"x": 1, "y": 0.5}
                 }
             }
+
+        # tick_params
+        # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.axes.Axes.tick_params.html
+        # scatter
+        # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.scatter.html
+        # plot
+        # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.pyplot.plot.html
+        # colors
+        # https://matplotlib.org/3.1.0/gallery/color/named_colors.html
 
     # general plot function which is responsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
@@ -162,7 +171,7 @@ class MainController(QObject):
             loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["y"])
             ax.yaxis.set_major_locator(loc)
             # apply tick config
-            ax.tick_params(**self.config["tick"])
+            ax.tick_params(**self.config["tick_params"])
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
@@ -196,7 +205,7 @@ class MainController(QObject):
             loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["y"])
             ax.yaxis.set_major_locator(loc)
             # apply tick config
-            ax.tick_params(**self.config["tick"])
+            ax.tick_params(**self.config["tick_params"])
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
@@ -233,7 +242,7 @@ class MainController(QObject):
             loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["y"])
             ax.yaxis.set_major_locator(loc)
             # apply tick config
-            ax.tick_params(**self.config["tick"])
+            ax.tick_params(**self.config["tick_params"])
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
@@ -278,7 +287,7 @@ class MainController(QObject):
             loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["y"])
             ax.yaxis.set_major_locator(loc)
             # apply tick config
-            ax.tick_params(**self.config["tick"])
+            ax.tick_params(**self.config["tick_params"])
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
