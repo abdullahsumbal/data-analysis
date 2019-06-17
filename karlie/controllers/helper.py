@@ -171,10 +171,18 @@ def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
 
 
 def set_plot_limits(ax, x_min, x_max, y_min, y_max):
-    if y_max is not None or y_min is not None:
-        ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
-    if x_max is not None or x_min is not None:
-        ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
+    # get default limits
+    y_bottom, y_top = ax.get_ylim()
+    x_left, x_right = ax.get_xlim()
+
+    y_min = y_bottom if y_min is None else y_min
+    y_max = y_top if y_min is None else y_max
+    x_min = x_left if x_min is None else x_min
+    x_max = x_right if x_max is None else x_max
+
+    # assign limits
+    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
 
 def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number, config):
