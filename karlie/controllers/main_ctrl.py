@@ -259,11 +259,11 @@ class MainController(QObject):
                 charge = self.charges[channel_number][cycle_number]['charge']
                 charge = np.array(charge)/mass
                 voltage = self.charges[channel_number][cycle_number]['voltage']
-                ax.plot(charge,voltage, c=colors[color_index % len(colors)], **self.config["plot"])
+                ax.plot(charge, voltage, c=colors[color_index % len(colors)], **self.config["plot"])
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Average Voltage (V)", "Charge/Discharge Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
+            set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["charge"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])

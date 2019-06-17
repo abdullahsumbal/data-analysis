@@ -161,7 +161,7 @@ def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number, config):
     if x_y_label_checked:
         x = x_y_data.loc[channel_number, 'x']
         y = x_y_data.loc[channel_number, 'y']
-        ax.set_title('{}: {} {}'.format(channel_number, x, y), **config)
+        ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
     else:
         ax.set_title('Channel {}'.format(channel_number), **config)
 
