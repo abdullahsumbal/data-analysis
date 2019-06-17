@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 from controllers.helper import *
 import pandas as pd
+import numpy as np
 import csv
 import os
 import json
@@ -459,7 +460,11 @@ class MainController(QObject):
                         file_type)
                     self.task_bar_message.emit("red", message)
                     return [], False
-                print(pd.Series([x for x in range(1,65)]).isin(data['channel'].values))
+                elif not all(isinstance(x, np.int64) for x in data["channel"].values):
+                    message = "Error: Invalidate {} file format. Channel should be integers".format(
+                        file_type)
+                    self.task_bar_message.emit("red", message)
+                    return [], False
                 data = data.set_index('channel')
                 return data, True
 
