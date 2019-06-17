@@ -9,19 +9,19 @@
     "fontsize": 30
   },
   "plot": {
-    "linewidth": 2
+
   },
   "scatter": {
     "marker": "o"
   },
-  "colors": ["r", "b", "c", "m"],
+  "colors": ["r", "b"],
   "tick_locator": {
-    "norm": {"x": 0.5 , "y": 0.1},
-    "charge":  {"x": 0.5 , "y": 0.1},
-    "avg_voltage":  {"x": 1 , "y": 0.5},
-    "capacity":  {"x": 1 , "y": 0.5}
+    "norm": { },
+    "charge":  {},
+    "avg_voltage":  {},
+    "capacity":  {}
   },
   "figure": {
-    "figsize": [20, 30]
+    "figsize": [20, 25]
   }
 }

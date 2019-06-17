@@ -34,7 +34,7 @@ class MainController(QObject):
                 "scatter": {
                     "marker": "o"
                 },
-                "colors": ["r", "b", "c", "m"],
+                "colors": ["r", "b"],
                 "tick_locator": {
                     "norm": {"x": 0.5, "y": 0.1},
                     "charge": {"x": 0.5, "y": 0.1},
@@ -144,7 +144,7 @@ class MainController(QObject):
             zp.zoom_factory(axs, base_scale=1.2)
             zp.pan_factory(axs)
         fig.suptitle(message, fontsize=25)
-        plt.subplots_adjust(hspace=0.5, wspace=0.5)
+        plt.subplots_adjust(hspace=0.05, wspace=0.05)
         plt.show()
         plt.close()
 
@@ -158,25 +158,30 @@ class MainController(QObject):
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
-
+                # get mass data
+                mass = 1
+                if len(self._model.mass_data) > 0:
+                    mass = self._model.mass_data[channel_number - 1]
                 # get subplot
                 if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
-                charge = self.charges[channel_number][cycle_number]['charge']
+                charge = self.charges[channel_number][cycle_number]['charge']/mass
                 ax.scatter(cycle_number, charge[-1], c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
             # axis label
             set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["x"])
-            ax.xaxis.set_major_locator(loc)
+            if "x" in self.config["tick_locator"]["capacity"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["x"])
+                ax.xaxis.set_major_locator(loc)
             # y axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["y"])
-            ax.yaxis.set_major_locator(loc)
+            if "y" in self.config["tick_locator"]["capacity"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["y"])
+                ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
@@ -194,6 +199,7 @@ class MainController(QObject):
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
+
                 # get subplot
                 if plot_one_channel:
                     ax = axs
@@ -206,11 +212,13 @@ class MainController(QObject):
             # axis label
             set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["x"])
-            ax.xaxis.set_major_locator(loc)
+            if "x" in self.config["tick_locator"]["avg_voltage"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["x"])
+                ax.xaxis.set_major_locator(loc)
             # y axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["y"])
-            ax.yaxis.set_major_locator(loc)
+            if "y" in self.config["tick_locator"]["avg_voltage"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["y"])
+                ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
@@ -228,6 +236,12 @@ class MainController(QObject):
         self.charges = get_charges(data, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+
+            # get mass data
+            mass = 1
+            if len(self._model.mass_data) > 0:
+                mass = self._model.mass_data[channel_number - 1]
+
             for cycle_number in selected_cycles_list:
                 # get subplot
                 if plot_one_channel:
@@ -236,18 +250,21 @@ class MainController(QObject):
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
                 charge = self.charges[channel_number][cycle_number]['charge']
+                charge = np.array(charge)/mass
                 voltage = self.charges[channel_number][cycle_number]['voltage']
-                ax.plot(voltage, charge, c=colors[color_index % len(colors)], **self.config["plot"])
+                ax.plot(charge,voltage, c=colors[color_index % len(colors)], **self.config["plot"])
                 color_index += 1
 
             # axis label
             set_labels(ax, "Average Voltage (V)", "Charge/Discharge Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])
-            ax.xaxis.set_major_locator(loc)
+            if "x" in self.config["tick_locator"]["charge"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])
+                ax.xaxis.set_major_locator(loc)
             # y axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["y"])
-            ax.yaxis.set_major_locator(loc)
+            if "y" in self.config["tick_locator"]["charge"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["y"])
+                ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
@@ -288,11 +305,13 @@ class MainController(QObject):
             # axis label
             set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["x"])
-            ax.xaxis.set_major_locator(loc)
+            if "x" in self.config["tick_locator"]["norm"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["x"])
+                ax.xaxis.set_major_locator(loc)
             # y axis tick spacing
-            loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["y"])
-            ax.yaxis.set_major_locator(loc)
+            if "y" in self.config["tick_locator"]["norm"]:
+                loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["y"])
+                ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
