@@ -22,17 +22,17 @@ class MainController(QObject):
                 "tick_params": {
                     "axis": "both",
                     "which": "major",
-                    "labelsize": 10,
+                    "labelsize": 20,
                     "direction": "in"
                 },
                 "axis_label": {
-                    "fontsize": 20
+                    "fontsize": 30
                 },
                 "plot": {
                     "linewidth": 2
                 },
                 "scatter": {
-                    "marker": "v"
+                    "marker": "o"
                 },
                 "colors": ["r", "b", "c", "m"],
                 "tick_locator": {
@@ -40,6 +40,9 @@ class MainController(QObject):
                     "charge": {"x": 0.5, "y": 0.1},
                     "avg_voltage": {"x": 1, "y": 0.5},
                     "capacity": {"x": 1, "y": 0.5}
+                },
+                "figure": {
+                    "figsize": [20, 15]
                 }
             }
 
@@ -53,6 +56,8 @@ class MainController(QObject):
         # https://matplotlib.org/3.1.0/gallery/color/named_colors.html
         # axis_label
         # https://matplotlib.org/3.1.0/api/text_api.html#matplotlib.text.Text
+        # figure
+        # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure
 
     # general plot function which is responsible for calling other plot functions.
     def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
@@ -95,17 +100,17 @@ class MainController(QObject):
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
 
-        # make figure and subplots according to number of channels to plot
-        if len(selected_channels_list) == 1:
-            fig, axs = plt.subplots(1, 1, figsize=(20, 15))
-        else:
-            fig, axs = plt.subplots(8, 8, figsize=(20, 15))
-
         # get config
         if self._model.config_data is not None:
             self.config = self._model.config_data
         else:
             self.config = self.config_data_default
+
+        # make figure and subplots according to number of channels to plot
+        if len(selected_channels_list) == 1:
+            fig, axs = plt.subplots(1, 1, **self.config["figure"])
+        else:
+            fig, axs = plt.subplots(8, 8, **self.config["figure"])
 
         # plot graph based on plot names
         if plot_name == "norm":

@@ -20,5 +20,8 @@
     "charge":  {"x": 0.5 , "y": 0.1},
     "avg_voltage":  {"x": 1 , "y": 0.5},
     "capacity":  {"x": 1 , "y": 0.5}
+  },
+  "figure": {
+    "figsize": [20, 30]
   }
 }
