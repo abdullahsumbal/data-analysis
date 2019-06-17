@@ -161,7 +161,7 @@ class MainController(QObject):
         # get colors from config
         color_index = 0
         colors = self.config["colors"]
-        self.charges = get_charges(data, selected_channels_list)
+        capacities = get_capacity(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             for cycle_number in selected_cycles_list:
@@ -175,8 +175,8 @@ class MainController(QObject):
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
-                charge = self.charges[channel_number][cycle_number]['charge']/mass
-                ax.scatter(cycle_number, charge[-1], c=colors[color_index % len(colors)], **self.config["scatter"])
+                capacity = capacities[channel_number][cycle_number]/mass
+                ax.scatter(cycle_number, abs(capacity), c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
             # axis label
@@ -359,8 +359,8 @@ class MainController(QObject):
         # get data from model
         data = self._model.medusa_data
         # calculate charges
-        self.charges = get_charges(data, selected_channels_list)
-        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
+        capacities = get_capacity(data, selected_cycles_list, selected_channels_list)
+        avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
 
         if csv_file_name[-4:] != ".csv":
             csv_file_name += ".csv"
@@ -382,9 +382,9 @@ class MainController(QObject):
                     y = x_y_data.loc[channel_number, 'y']
                     row = [str(channel_number), str(x), str(y)]
                     for cycle_number in selected_cycles_list:
-                        charge = self.charges[channel_number][cycle_number]['charge'][-1]
-                        avg_voltage = self.avg_voltages[channel_number][cycle_number]
-                        row += [str(charge), str(avg_voltage)]
+                        capacity = capacities[channel_number][cycle_number]
+                        avg_voltage = avg_voltages[channel_number][cycle_number]
+                        row += [str(abs(capacity)), str(avg_voltage)]
                     csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))

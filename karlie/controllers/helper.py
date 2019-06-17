@@ -133,6 +133,26 @@ def get_charges(data, selected_channels_list):
     return charges
 
 
+def get_capacity(data, selected_cycles_list, selected_channels_list):
+    # calculate charges
+    charges = {}
+    for channel_number in selected_channels_list:
+        charges[channel_number] = {}
+        for cycle_number in selected_cycles_list:
+            charges[channel_number][cycle_number] = 0
+            cycle_data = data[data['Cycle'] == cycle_number]
+            current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+            time_h = cycle_data.loc[:, "Time(h)".format(channel_number)].values
+            charge = 0
+            for index in range(len(time_h) - 2):
+                # formula to calculate charges
+                avg_charge = (current[index] + current[index + 1]) / 2
+                time_diff = time_h[index + 1] - time_h[index]
+                charge += avg_charge * time_diff
+            charges[channel_number][cycle_number] = charge
+
+    return charges
+
 def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
     # calculate average voltage
     avg_voltages = {}
