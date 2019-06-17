@@ -436,15 +436,27 @@ class MainController(QObject):
                 x_count = data['x'].count()
                 y_count = data['y'].count()
                 channel_count = data['channel'].count()
-                if x_count == 64 and y_count == 64 and channel_count == 64 and data.isnull().sum().sum() == 0:
-                    data = data.set_index('channel')
-                    return data, True
-                else:
+                # There should be 64 values for x and y and no missing data
+                if x_count != 64 or y_count != 64 or channel_count != 64 or data.isnull().sum().sum() != 0:
                     message = "Error: Invalidate {} file format. There should be 64 channels, 64 x values and 64 y values".format(
                         file_type,
                         ",".join(diff))
                     self.task_bar_message.emit("red", message)
                     return [], False
+                elif not (data['x'].between(0,1).all() and data['y'].between(0,1).all()):
+                    message = "Error: Invalidate {} file format. x and/or y values are not between 0 and 1".format(
+                        file_type)
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+                elif not pd.Series([x for x in range(1, 65)]).isin(data['channel'].values).all():
+                    message = "Error: Invalidate {} file format. Channel number is not a range between 1 and 64".format(
+                        file_type)
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+                print(pd.Series([x for x in range(1,65)]).isin(data['channel'].values))
+                data = data.set_index('channel')
+                return data, True
+
 
         except Exception as error:
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
