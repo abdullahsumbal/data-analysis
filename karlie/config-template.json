@@ -1,27 +1,33 @@
 {
-  "tick_params" : {
-    "axis":"both",
-    "which": "major",
-    "labelsize": 20,
-    "direction": "in"
-  },
-  "axis_label": {
-    "fontsize": 30
-  },
-  "plot": {
-
-  },
-  "scatter": {
-    "marker": "o"
-  },
-  "colors": ["r", "b"],
-  "tick_locator": {
-    "norm": { },
-    "charge":  {},
-    "avg_voltage":  {},
-    "capacity":  {}
-  },
-  "figure": {
-    "figsize": [20, 25]
-  }
+    "tick_params": {
+        "axis": "both",
+        "which": "major",
+        "labelsize": 20,
+        "direction": "in",
+        "top": true,
+        "right": true
+    },
+    "axis_label": {
+        "fontsize": 30
+    },
+    "plot": {
+        "linewidth": 2
+    },
+    "scatter": {
+        "marker": "o"
+    },
+    "colors": ["r", "b"],
+    "tick_locator": {
+        "norm": {},
+        "charge": {},
+        "avg_voltage": {},
+        "capacity": {}
+    },
+    "figure": {
+        "figsize": [20, 15]
+    },
+    "subplot_title": {
+        "fontsize": 10,
+        "position": [0.5, 0.8]
+    }
 }

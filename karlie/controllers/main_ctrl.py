@@ -23,7 +23,9 @@ class MainController(QObject):
                     "axis": "both",
                     "which": "major",
                     "labelsize": 20,
-                    "direction": "in"
+                    "direction": "in",
+                    "top": True,
+                    "right": True
                 },
                 "axis_label": {
                     "fontsize": 30
@@ -36,13 +38,17 @@ class MainController(QObject):
                 },
                 "colors": ["r", "b"],
                 "tick_locator": {
-                    "norm": {"x": 0.5, "y": 0.1},
-                    "charge": {"x": 0.5, "y": 0.1},
-                    "avg_voltage": {"x": 1, "y": 0.5},
-                    "capacity": {"x": 1, "y": 0.5}
+                    "norm": {},
+                    "charge": {},
+                    "avg_voltage": {},
+                    "capacity": {}
                 },
                 "figure": {
                     "figsize": [20, 15]
+                },
+                "subplot_title": {
+                    "fontsize": 10,
+                    "position": [0.5, 0.8]
                 }
             }
 
@@ -187,7 +193,7 @@ class MainController(QObject):
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
@@ -224,7 +230,7 @@ class MainController(QObject):
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
@@ -270,7 +276,7 @@ class MainController(QObject):
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
@@ -317,7 +323,7 @@ class MainController(QObject):
             # set subplot limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number)
+            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     def validate_cycles_channels(self, selected_cycles, selected_channels):
         # cycle validation
