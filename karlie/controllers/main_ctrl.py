@@ -22,7 +22,7 @@ class MainController(QObject):
                 "tick": {
                     "axis": "both",
                     "which": "major",
-                    "labelsize": 20,
+                    "labelsize": 10,
                     "direction": "in"
                 },
                 "axis_label": {
@@ -34,7 +34,13 @@ class MainController(QObject):
                 "scatter": {
                     "marker": "v"
                 },
-                "colors": ["r", "b", "c", "m"]
+                "colors": ["r", "b", "c", "m"],
+                "tick_locator": {
+                    "norm": {"x": 0.5, "y": 0.1},
+                    "charge": {"x": 0.5, "y": 0.1},
+                    "avg_voltage": {"x": 1, "y": 0.5},
+                    "capacity": {"x": 1, "y": 0.5}
+                }
             }
 
     # general plot function which is responsible for calling other plot functions.
@@ -149,9 +155,12 @@ class MainController(QObject):
 
             # axis label
             set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
-            # integer x axis
-            loc = MultipleLocator(base=1)
+            # x axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["x"])
             ax.xaxis.set_major_locator(loc)
+            # y axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["y"])
+            ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick"])
             # set subplot limits
@@ -180,9 +189,12 @@ class MainController(QObject):
 
             # axis label
             set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
-            # integer x axis
-            loc = MultipleLocator(base=1)
+            # x axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["x"])
             ax.xaxis.set_major_locator(loc)
+            # y axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["y"])
+            ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick"])
             # set subplot limits
@@ -214,6 +226,12 @@ class MainController(QObject):
 
             # axis label
             set_labels(ax, "Average Voltage (V)", "Charge/Discharge Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
+            # x axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])
+            ax.xaxis.set_major_locator(loc)
+            # y axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["y"])
+            ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick"])
             # set subplot limits
@@ -253,9 +271,12 @@ class MainController(QObject):
 
             # axis label
             set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_index, self.config["axis_label"])
-            # tick interval for x axis
-            loc = MultipleLocator(base=0.5)  # this locator puts ticks at regular intervals
+            # x axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["x"])
             ax.xaxis.set_major_locator(loc)
+            # y axis tick spacing
+            loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["y"])
+            ax.yaxis.set_major_locator(loc)
             # apply tick config
             ax.tick_params(**self.config["tick"])
             # set subplot limits
@@ -435,7 +456,6 @@ class MainController(QObject):
         try:
             with open(name) as json_file:
                 data = json.load(json_file)
-                print(data)
                 return data, True
         except Exception as error:
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
