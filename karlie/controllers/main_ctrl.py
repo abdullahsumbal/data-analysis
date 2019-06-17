@@ -5,6 +5,7 @@ from controllers.helper import *
 import pandas as pd
 import csv
 import os
+import json
 
 
 class MainController(QObject):
@@ -253,7 +254,8 @@ class MainController(QObject):
         # get data from model
         data = self._model.medusa_data
         # calculate charges
-        self.charges = get_charges(data, selected_cycles_list, selected_channels_list)
+        self.charges = get_charges(data, selected_channels_list)
+        self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
 
         if csv_file_name[-4:] != ".csv":
             csv_file_name += ".csv"
@@ -261,16 +263,24 @@ class MainController(QObject):
         csv_file_basename = os.path.basename(csv_file_name)
 
         try:
-            with open(csv_file_name, mode='w') as csv_file:
+            with open(csv_file_name, mode='w', newline="") as csv_file:
                 csv_writer = csv.writer(csv_file, delimiter=',')
-                header = ["channels"]
+                header = ["channels", "x", "y"]
                 for cycle_number in selected_cycles_list:
-                    temp = "x_{cycle},y_{cycle},charge_{cycle},discharge_{cycle},average_voltage_{cycle}".format(cycle=cycle_number)
+                    temp = "charge_{cycle},average_voltage_{cycle}".format(cycle=cycle_number)
                     header += temp.split(",")
 
                 csv_writer.writerow(header)
                 for channel_number in selected_channels_list:
-                    csv_writer.writerow([str(channel_number)])
+                    x_y_data = self._model.x_y_data
+                    x = x_y_data.loc[channel_number, 'x']
+                    y = x_y_data.loc[channel_number, 'y']
+                    row = [str(channel_number), str(x), str(y)]
+                    for cycle_number in selected_cycles_list:
+                        charge = self.charges[channel_number][cycle_number]['charge'][-1]
+                        avg_voltage = self.avg_voltages[channel_number][cycle_number]
+                        row += [str(charge), str(avg_voltage)]
+                    csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
 
@@ -288,7 +298,7 @@ class MainController(QObject):
         elif file_type == "x_y":
             data, valid = self.validate_x_y_file(name, file_type)
         elif file_type == "config":
-            data, valid = validate_config_file(name)
+            data, valid = self.validate_config_file(name, file_type)
         # resistances_header = pd.read_csv(name, header=6, nrows=0)
         # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
         # self._model.resistances = resistances_values
@@ -376,6 +386,17 @@ class MainController(QObject):
             return data.iloc[0, 2:].values, True
         except Exception:
             message = "Error: Invalidate {} file format.".format(file_type)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
+    def validate_config_file(self, name, file_type):
+        try:
+            with open(name) as json_file:
+                data = json.load(json_file)
+                print(data)
+                return data, True
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
 

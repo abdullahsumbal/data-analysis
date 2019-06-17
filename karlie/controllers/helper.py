@@ -7,10 +7,6 @@ def scale_user_input_to_float(limit):
     return None if limit == "" else float(limit)
 
 
-def validate_config_file(name):
-    return [], True
-
-
 def get_selected_cycles_list(selected_cycles):
     # change from string to list of integers
     selected_cycles_list = selected_cycles.split(',')
