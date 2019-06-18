@@ -157,6 +157,7 @@ class MainController(QObject):
 
     # plot normalized current vs voltage
     def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
         color_index = 0
@@ -175,7 +176,7 @@ class MainController(QObject):
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
-                capacity = capacities[channel_number][cycle_number]/mass
+                capacity = capacities[channel_number][cycle_number]/(mass * 1000)
                 ax.scatter(cycle_number, abs(capacity), c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
@@ -192,12 +193,16 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
         color_index = 0
@@ -229,12 +234,16 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
         color_index = 0
@@ -261,6 +270,7 @@ class MainController(QObject):
                 ax.plot(charge, voltage, c=colors[color_index % len(colors)], **self.config["plot"])
                 color_index += 1
 
+
             # axis label
             set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
@@ -274,12 +284,16 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
         color_index = 0
@@ -321,7 +335,10 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
