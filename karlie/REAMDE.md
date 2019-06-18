@@ -12,6 +12,8 @@
 3. activate environment
     ```buildoutcfg
     conda activate data-analysis
+    or 
+    source activate data-analysis
     ```
 
 ### Installation
