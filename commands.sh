@@ -1,4 +1,4 @@
 git stash
 git pull origin master
-cd karlie
-pyinstaller --noconsole -n karlie --distpath ~/Desktop app.py
+source activate data-analysis
+pyinstaller --noconsole -n karlie --distpath ~/Desktop karlie/app.py
