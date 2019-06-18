@@ -160,16 +160,16 @@ class MainController(QObject):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         capacities = get_capacity(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
+            # get mass data
+            mass = 1
+            if len(self._model.mass_data) > 0:
+                mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
-                # get mass data
-                mass = 1
-                if len(self._model.mass_data) > 0:
-                    mass = self._model.mass_data[channel_number - 1]
                 # get subplot
                 if plot_one_channel:
                     ax = axs
@@ -205,11 +205,11 @@ class MainController(QObject):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
             for cycle_number in selected_cycles_list:
 
                 # get subplot
@@ -246,13 +246,13 @@ class MainController(QObject):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         # get charge calculation
         self.charges = get_charges(data, selected_channels_list)
 
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
             # get mass data
             mass = 1
             if len(self._model.mass_data) > 0:
@@ -296,21 +296,20 @@ class MainController(QObject):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
+            # get mass data
+            mass = 1
+            if len(self._model.mass_data) > 0:
+                mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
                 # get subplot
                 if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
-                # get mass data
-                mass = 1
-                if len(self._model.mass_data) > 0:
-                    mass = self._model.mass_data[channel_number - 1]
-
                 # get selected cycle data
                 cycle_data = data[data['Cycle'] == cycle_number]
                 # get voltage
