@@ -241,13 +241,13 @@ class MainController(QObject):
         colors = self.config["colors"]
         # get charge calculation
         self.charges = get_charges(data, selected_channels_list)
+
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             # get mass data
             mass = 1
             if len(self._model.mass_data) > 0:
                 mass = self._model.mass_data[channel_number - 1]
-
             for cycle_number in selected_cycles_list:
                 # get subplot
                 if plot_one_channel:
