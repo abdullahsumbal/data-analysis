@@ -397,10 +397,13 @@ class MainController(QObject):
                     x = x_y_data.loc[channel_number, 'x']
                     y = x_y_data.loc[channel_number, 'y']
                     row = [str(channel_number), str(x), str(y)]
+                    mass = 1
+                    if len(self._model.mass_data) > 0:
+                        mass = self._model.mass_data[channel_number - 1]
                     for cycle_number in selected_cycles_list:
                         capacity = capacities[channel_number][cycle_number]
                         avg_voltage = avg_voltages[channel_number][cycle_number]
-                        row += [str(abs(capacity)), str(avg_voltage)]
+                        row += [str(abs(capacity/(mass * 1000))), str(avg_voltage)]
                     csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
