@@ -157,25 +157,26 @@ class MainController(QObject):
 
     # plot normalized current vs voltage
     def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         capacities = get_capacity(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
+            # get mass data
+            mass = 1
+            if len(self._model.mass_data) > 0:
+                mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
-                # get mass data
-                mass = 1
-                if len(self._model.mass_data) > 0:
-                    mass = self._model.mass_data[channel_number - 1]
                 # get subplot
                 if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
 
-                capacity = capacities[channel_number][cycle_number]/mass
+                capacity = capacities[channel_number][cycle_number]/(mass * 1000)
                 ax.scatter(cycle_number, abs(capacity), c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
@@ -192,19 +193,23 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         self.avg_voltages = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
             for cycle_number in selected_cycles_list:
 
                 # get subplot
@@ -229,21 +234,25 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         # get charge calculation
         self.charges = get_charges(data, selected_channels_list)
 
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
             # get mass data
             mass = 1
             if len(self._model.mass_data) > 0:
@@ -261,6 +270,7 @@ class MainController(QObject):
                 ax.plot(charge, voltage, c=colors[color_index % len(colors)], **self.config["plot"])
                 color_index += 1
 
+
             # axis label
             set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
             # x axis tick spacing
@@ -274,29 +284,32 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+        y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
-        color_index = 0
         colors = self.config["colors"]
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
+            color_index = 0
+            # get mass data
+            mass = 1
+            if len(self._model.mass_data) > 0:
+                mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
                 # get subplot
                 if plot_one_channel:
                     ax = axs
                 else:
                     ax = axs[int(channel_index / 8)][channel_index % 8]
-                # get mass data
-                mass = 1
-                if len(self._model.mass_data) > 0:
-                    mass = self._model.mass_data[channel_number - 1]
-
                 # get selected cycle data
                 cycle_data = data[data['Cycle'] == cycle_number]
                 # get voltage
@@ -321,7 +334,10 @@ class MainController(QObject):
             # apply tick config
             ax.tick_params(**self.config["tick_params"])
             # set subplot limits
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            if channel_index == 0:
+                y_bottom, y_top = ax.get_ylim()
+                x_left, x_right = ax.get_xlim()
+            set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
             set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
@@ -380,10 +396,13 @@ class MainController(QObject):
                     x = x_y_data.loc[channel_number, 'x']
                     y = x_y_data.loc[channel_number, 'y']
                     row = [str(channel_number), str(x), str(y)]
+                    mass = 1
+                    if len(self._model.mass_data) > 0:
+                        mass = self._model.mass_data[channel_number - 1]
                     for cycle_number in selected_cycles_list:
                         capacity = capacities[channel_number][cycle_number]
                         avg_voltage = avg_voltages[channel_number][cycle_number]
-                        row += [str(abs(capacity)), str(avg_voltage)]
+                        row += [str(abs(capacity/(mass * 1000))), str(avg_voltage)]
                     csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))

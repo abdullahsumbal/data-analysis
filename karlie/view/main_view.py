@@ -8,6 +8,7 @@ from view.helper import *
 from os import path
 from PyQt5 import QtCore
 
+
 class MainView(QMainWindow):
     def __init__(self, model, main_controller):
         super().__init__()
@@ -82,7 +83,6 @@ class MainView(QMainWindow):
         # status bar  message
         self._main_controller.task_bar_message.connect(self.on_task_bar_message)
 
-
     ####################################################################
     #   model listener functions
     ####################################################################
@@ -97,8 +97,6 @@ class MainView(QMainWindow):
             file_label_color = "green"
             self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
 
-
-
         # only show basename
         name = path.basename(name)
 
@@ -107,7 +105,7 @@ class MainView(QMainWindow):
             self.has_medusa_file = True
             new_label = get_new_label(self._ui.label_medusa_file.text(), name)
             self._ui.label_medusa_file.setText(new_label)
-            self._ui.label_medusa_file.setStyleSheet('color: '+file_label_color)
+            self._ui.label_medusa_file.setStyleSheet('color: ' + file_label_color)
 
             # enable filter options
             self._ui.checkbox_cycle.setEnabled(True)
@@ -131,18 +129,18 @@ class MainView(QMainWindow):
         elif file_type == "mass":
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
             self._ui.label_mass_file.setText(new_label)
-            self._ui.label_mass_file.setStyleSheet('color: '+file_label_color)
+            self._ui.label_mass_file.setStyleSheet('color: ' + file_label_color)
             # update plot control
             self._ui.button_reset_mass.setEnabled(True)
         elif file_type == "x_y":
             self.has_x_y_file = True
             new_label = get_new_label(self._ui.label_x_y_file.text(), name)
             self._ui.label_x_y_file.setText(new_label)
-            self._ui.label_x_y_file.setStyleSheet('color: '+file_label_color)
+            self._ui.label_x_y_file.setStyleSheet('color: ' + file_label_color)
         elif file_type == "config":
             new_label = get_new_label(self._ui.label_config_file.text(), name)
             self._ui.label_config_file.setText(new_label)
-            self._ui.label_config_file.setStyleSheet('color: '+file_label_color)
+            self._ui.label_config_file.setStyleSheet('color: ' + file_label_color)
             # update plot control
             self._ui.button_reset_config.setEnabled(True)
         else:
@@ -174,7 +172,7 @@ class MainView(QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
         if file_type == "config":
             file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                   "JSON File (*.json);;All Files (*)", options=options)
+                                                       "JSON File (*.json);;All Files (*)", options=options)
         else:
             file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                        "CSV File (*.csv);;All Files (*)", options=options)
@@ -284,7 +282,6 @@ class MainView(QMainWindow):
             return False
 
 
-
 class AboutView(QDialog):
     def __init__(self):
         super().__init__()
@@ -297,4 +294,3 @@ class GithubView(QDialog):
         super().__init__()
         self.ui = Ui_GithubWindow()
         self.ui.setupUi(self)
-

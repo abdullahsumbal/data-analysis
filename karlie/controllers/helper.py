@@ -170,13 +170,12 @@ def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
     return avg_voltages
 
 
-def set_plot_limits(ax, x_min, x_max, y_min, y_max):
+def set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right):
     # get default limits
-    y_bottom, y_top = ax.get_ylim()
-    x_left, x_right = ax.get_xlim()
-
+    # y_bottom, y_top = ax.get_ylim()
+    # x_left, x_right = ax.get_xlim()
     y_min = y_bottom if y_min is None else y_min
-    y_max = y_top if y_min is None else y_max
+    y_max = y_top if y_max is None else y_max
     x_min = x_left if x_min is None else x_min
     x_max = x_right if x_max is None else x_max
 
