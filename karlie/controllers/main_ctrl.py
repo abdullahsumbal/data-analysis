@@ -174,14 +174,14 @@ class MainController(QObject):
                 if plot_one_channel:
                     ax = axs
                 else:
-                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                    ax = axs[channel_index % 8][int(channel_index / 8)]
 
                 capacity = capacities[channel_number][cycle_number]/(mass * 1000)
                 ax.scatter(cycle_number, abs(capacity), c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_index, self.config["axis_label"])
+            set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["capacity"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["x"])
@@ -216,13 +216,13 @@ class MainController(QObject):
                 if plot_one_channel:
                     ax = axs
                 else:
-                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                    ax = axs[channel_index % 8][int(channel_index / 8)]
                 charge = self.avg_voltages[channel_number][cycle_number]
                 ax.scatter(cycle_number, charge, c=colors[color_index % len(colors)], **self.config["scatter"])
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
+            set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["avg_voltage"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["x"])
@@ -262,7 +262,7 @@ class MainController(QObject):
                 if plot_one_channel:
                     ax = axs
                 else:
-                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                    ax = axs[channel_index % 8][int(channel_index / 8)]
 
                 charge = self.charges[channel_number][cycle_number]['charge']
                 charge = np.array(charge)/mass
@@ -272,7 +272,7 @@ class MainController(QObject):
 
 
             # axis label
-            set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_index, self.config["axis_label"])
+            set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["charge"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])
@@ -309,7 +309,7 @@ class MainController(QObject):
                 if plot_one_channel:
                     ax = axs
                 else:
-                    ax = axs[int(channel_index / 8)][channel_index % 8]
+                    ax = axs[channel_index % 8][int(channel_index / 8)]
                 # get selected cycle data
                 cycle_data = data[data['Cycle'] == cycle_number]
                 # get voltage
@@ -322,7 +322,7 @@ class MainController(QObject):
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_index, self.config["axis_label"])
+            set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["norm"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["x"])

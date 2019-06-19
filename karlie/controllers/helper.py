@@ -194,21 +194,27 @@ def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number, config):
 
 
 
-def set_labels(ax, x_label, y_label, plot_one_channel, channel_index, config):
+def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
     # show axis only on the left and bottom
     if plot_one_channel:
         ax.set_xlabel(x_label, **config)
         ax.set_ylabel(y_label, **config)
-    elif channel_index == 24:
+    # there are more than one plot
+    # y axis label on channel 3 plot
+    elif channel_number == 4:
         ax.set_ylabel(y_label, **config)
         ax.set_xticklabels([])
-    elif channel_index == 59:
+    #  x axis label on channel
+    elif channel_number == 32:
         ax.set_xlabel(x_label, **config)
         ax.set_yticklabels([])
-    elif channel_index in [0, 8, 16, 24, 32, 40, 48]:
+    # only y axis label
+    elif channel_number in range(0, 8):
         ax.set_xticklabels([])
-    elif channel_index in range(57, 64):
+    # only show x axis label
+    elif channel_number in [16, 24, 32, 40, 48, 56, 64]:
         ax.set_yticklabels([])
-    elif channel_index != 56:
+    # everything else no label
+    elif channel_number != 8:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
