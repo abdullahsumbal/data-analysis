@@ -1,2 +1,5 @@
+pandas==0.24.2
 pyqt5==5.12.2
+matplotlib==3.0.3
 pyinstaller==3.4
+python-ternary==1.0.6

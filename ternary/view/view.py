@@ -16,7 +16,7 @@ class MainView(QMainWindow):
         #   connect widgets to controllers
         ####################################################################
         # open file buttons
-        self._ui.pushButton.clicked.connect(self.open_file_name_dialog)
+        self._ui.button_x_y_file.clicked.connect(self.open_file_name_dialog)
 
         ####################################################################
         #   listen for model event signals
@@ -44,7 +44,7 @@ class MainView(QMainWindow):
         options |= QFileDialog.DontUseNativeDialog
 
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                       "All Files (*)", options=options)
+                                                       "CSV File (*.csv) ;;All Files (*)", options=options)
 
         if file_name:
             self._main_controller.file_name_changed(file_name)
