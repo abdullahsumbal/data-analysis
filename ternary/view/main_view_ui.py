@@ -23,9 +23,9 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
-        self.button_x_y_file = QtWidgets.QPushButton(self.gridLayoutWidget)
-        self.button_x_y_file.setObjectName("button_x_y_file")
-        self.gridLayout.addWidget(self.button_x_y_file, 0, 1, 1, 1)
+        self.button_ternary_file = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.button_ternary_file.setObjectName("button_ternary_file")
+        self.gridLayout.addWidget(self.button_ternary_file, 0, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem1, 0, 2, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -43,6 +43,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Template"))
-        self.button_x_y_file.setText(_translate("MainWindow", "open x y file"))
+        self.button_ternary_file.setText(_translate("MainWindow", "open ternary file"))
 
 

@@ -38,9 +38,9 @@
       </spacer>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="button_x_y_file">
+      <widget class="QPushButton" name="button_ternary_file">
        <property name="text">
-        <string>open x y file</string>
+        <string>open ternary file</string>
        </property>
       </widget>
      </item>

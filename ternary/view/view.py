@@ -16,13 +16,19 @@ class MainView(QMainWindow):
         #   connect widgets to controllers
         ####################################################################
         # open file buttons
-        self._ui.button_x_y_file.clicked.connect(self.open_file_name_dialog)
+        self._ui.button_ternary_file.clicked.connect(self.open_file_name_dialog)
 
         ####################################################################
         #   listen for model event signals
         ####################################################################
         # file name is updated
         self._model.file_name_changed.connect(self.on_file_name_changed)
+
+        ####################################################################
+        #   listen for controller event signals
+        ####################################################################
+        # status bar  message
+        self._main_controller.task_bar_message.connect(self.on_task_bar_message)
 
     def on_file_name_changed(self, name):
         # label color based on file_name
