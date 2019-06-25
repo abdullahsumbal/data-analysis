@@ -154,11 +154,7 @@ class MainView(QMainWindow):
     ####################################################################
     #   controller listener functions
     ####################################################################
-    @pyqtSlot(str, str)
-    def on_task_bar_message(self, color, message):
-        self._ui.statusbar.show()
-        self._ui.statusbar.showMessage(message)
-        self._ui.statusbar.setStyleSheet('color: {}'.format(color))
+
 
     ####################################################################
     #   helper functions to send request to controller
