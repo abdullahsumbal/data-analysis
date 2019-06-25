@@ -97,7 +97,7 @@ def plotDiagram():
         if(min(data) != max(data)):
             colors.append((((cap-min(data))/(max(data)-min(data))), 0.0, 0.0))
         else:
-            colors.append((1,0,0))
+            colors.append((1, 0, 0))
 
     # Creates a ternary set of axes to plot the diagram from python-ternary
     figure, tax = ternary.figure(scale = 1.0)
