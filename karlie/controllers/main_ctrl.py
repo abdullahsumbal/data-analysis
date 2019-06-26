@@ -167,7 +167,7 @@ class MainController(QObject):
             color_index = 0
             # get mass data
             mass = 1
-            if len(self._model.mass_data) > 0:
+            if self._model.mass_data is not None:
                 mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
                 # get subplot
@@ -255,7 +255,7 @@ class MainController(QObject):
             color_index = 0
             # get mass data
             mass = 1
-            if len(self._model.mass_data) > 0:
+            if self._model.mass_data is not None:
                 mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
                 # get subplot
@@ -302,7 +302,7 @@ class MainController(QObject):
             color_index = 0
             # get mass data
             mass = 1
-            if len(self._model.mass_data) > 0:
+            if self._model.mass_data is not None:
                 mass = self._model.mass_data[channel_number - 1]
             for cycle_number in selected_cycles_list:
                 # get subplot
@@ -397,7 +397,7 @@ class MainController(QObject):
                     y = x_y_data.loc[channel_number, 'y']
                     row = [str(channel_number), str(x), str(y)]
                     mass = 1
-                    if len(self._model.mass_data) > 0:
+                    if self._model.mass_data is not None:
                         mass = self._model.mass_data[channel_number - 1]
                     for cycle_number in selected_cycles_list:
                         capacity = capacities[channel_number][cycle_number]
