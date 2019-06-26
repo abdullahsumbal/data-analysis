@@ -18,6 +18,9 @@ class MainView(QMainWindow):
         # open file buttons
         self._ui.button_ternary_file.clicked.connect(self.open_file_name_dialog)
 
+        # plot button
+        self._ui.button_plot.clicked.connect(self._main_controller.plot)
+
         ####################################################################
         #   listen for model event signals
         ####################################################################
@@ -31,8 +34,9 @@ class MainView(QMainWindow):
         self._main_controller.task_bar_message.connect(self.on_task_bar_message)
 
     def on_file_name_changed(self, name):
-        # label color based on file_name
-        # if the file name is empty them it means file is reseted
+
+        # unable button
+        self._ui.button_plot.setEnabled(True)
         name = path.basename(name)
         file_label_color = "green"
         self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(name))
