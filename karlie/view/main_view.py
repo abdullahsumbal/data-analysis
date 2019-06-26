@@ -212,7 +212,7 @@ class MainView(QMainWindow):
 
     # reset config
     def reset_mass(self):
-        data = ['', [], 'mass']
+        data = ['', None, 'mass']
         self._model.file_name = data
         self._ui.button_reset_mass.setEnabled(False)
 
