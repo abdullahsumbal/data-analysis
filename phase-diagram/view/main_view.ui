@@ -24,6 +24,13 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="button_ternary_file">
+       <property name="text">
+        <string>open ternary file</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -37,13 +44,6 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="button_ternary_file">
-       <property name="text">
-        <string>open ternary file</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="2">
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
@@ -56,6 +56,16 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="button_plot">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>plot</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
