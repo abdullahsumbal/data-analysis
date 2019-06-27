@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QDialog
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from view.main_view_ui import Ui_MainWindow
 from view.about_view_ui import Ui_AboutWindow
 from view.github_view_ui import Ui_GithubWindow
 from view.helper import *
 from os import path
-from PyQt5 import QtCore
 
 
 class MainView(QMainWindow):
@@ -168,15 +167,16 @@ class MainView(QMainWindow):
         id = self._ui.slider_mapping.value()
         # reset buttons and other ui elements
         self.reset_application()
+
+        # make changes based on slider
         if "karlie" == self.mapping_id[id]:
             self._ui.label_karlie_mapping.setStyleSheet('color: green; font: bold')
             self._ui.label_eloi_mapping.setStyleSheet('color: black; font: regular')
+            self.setWindowTitle("Karlie's Application")
         elif "eloi" == self.mapping_id[id]:
             self._ui.label_eloi_mapping.setStyleSheet('color: green; font: bold')
             self._ui.label_karlie_mapping.setStyleSheet('color: black; font: regular')
-
-
-
+            self.setWindowTitle("Eloi's Application")
 
 
     ####################################################################
@@ -188,12 +188,12 @@ class MainView(QMainWindow):
         # open window to select file
 
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        # options |= QFileDialog.DontUseNativeDialog
         if file_type == "config":
-            file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+            file_name, _ = QFileDialog.getOpenFileName(self, "Select {} file".format(file_type), "",
                                                        "JSON File (*.json);;All Files (*)", options=options)
         else:
-            file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+            file_name, _ = QFileDialog.getOpenFileName(self,"Select {} file".format(file_type), "",
                                                        "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
             self._main_controller.file_name_changed(file_name, file_type)
@@ -296,7 +296,7 @@ class MainView(QMainWindow):
     # select multiple files
     def open_file_names_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        # options |= QFileDialog.DontUseNativeDialog
         files, _ = QFileDialog.getOpenFileNames(self, "QFileDialog.getOpenFileNames()", "",
                                                 "All Files (*);;Python Files (*.py)", options=options)
         if files:
@@ -305,7 +305,7 @@ class MainView(QMainWindow):
     # save file
     def save_file_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        # options |= QFileDialog.DontUseNativeDialog
         file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
                                                    "CSV File (*.csv) ;; All Files (*)", options=options)
         if file_name:
