@@ -14,7 +14,7 @@ class Medusa(QObject):
         self._medusa_data = None
         self._x_y_data = None
         self._config_data = None
-        self._mass_data = []
+        self._mass_data = None
 
 
     @property

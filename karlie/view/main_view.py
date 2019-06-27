@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QCheckBox, QLabel, QPushButton, QDialog
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QDialog
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QDoubleValidator, QIntValidator
 from view.main_view_ui import Ui_MainWindow
 from view.about_view_ui import Ui_AboutWindow
 from view.github_view_ui import Ui_GithubWindow
 from view.helper import *
 from os import path
-from PyQt5 import QtCore
 
 
 class MainView(QMainWindow):
@@ -18,8 +17,7 @@ class MainView(QMainWindow):
         self._ui_about = AboutView()
         self._ui_github = GithubView()
         self._ui.setupUi(self)
-        self.has_medusa_file = False
-        self.has_x_y_file = False
+        self.mapping_id = {0: "karlie", 1: "eloi"}
 
         ####################################################################
         #  Validation for line edit widget
@@ -41,6 +39,9 @@ class MainView(QMainWindow):
         ####################################################################
         #   connect widgets to controllers
         ####################################################################
+        # mapping
+        self._ui.slider_mapping.valueChanged.connect(self.mapping_change)
+
         # open file buttons
         self._ui.medusa_file_button.clicked.connect(lambda: self.open_file_name_dialog("medusa"))
         self._ui.button_mass_file.clicked.connect(lambda: self.open_file_name_dialog("mass"))
@@ -48,8 +49,8 @@ class MainView(QMainWindow):
         self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
         # reset buttons
-        self._ui.button_reset_config.clicked.connect(self.reset_config)
-        self._ui.button_reset_mass.clicked.connect(self.reset_mass)
+        self._ui.button_reset_config.clicked.connect(lambda: self.reset_file("config"))
+        self._ui.button_reset_mass.clicked.connect(lambda: self.reset_file("mass"))
 
         # filter
         # select cycle
@@ -90,35 +91,37 @@ class MainView(QMainWindow):
     def on_file_name_changed(self, name, file_type):
         # label color based on file_name
         # if the file name is empty them it means file is reseted
-        if name == '':
-            file_label_color = 'black'
-            self.on_task_bar_message("green", "Successfully removed {} file".format(file_type))
-        else:
+        enable = not(name == "")
+        if enable:
             file_label_color = "green"
             self.on_task_bar_message("green", "Successfully loaded {} file".format(file_type))
+        else:
+            file_label_color = 'black'
+            self.on_task_bar_message("green", "Successfully removed {} file".format(file_type))
 
         # only show basename
         name = path.basename(name)
 
         # update label based on file type
         if file_type == "medusa":
-            self.has_medusa_file = True
             new_label = get_new_label(self._ui.label_medusa_file.text(), name)
             self._ui.label_medusa_file.setText(new_label)
             self._ui.label_medusa_file.setStyleSheet('color: ' + file_label_color)
 
+            # if the there is no name then its a reset signal
+            # no need to enable button on reset signal
             # enable filter options
-            self._ui.checkbox_cycle.setEnabled(True)
-            self._ui.checkbox_channel.setEnabled(True)
+            self._ui.checkbox_cycle.setEnabled(enable)
+            self._ui.checkbox_channel.setEnabled(enable)
 
             # enable scale options
-            self._ui.checkbox_scale_default.setEnabled(True)
+            self._ui.checkbox_scale_default.setEnabled(enable)
 
             # update buttons
-            self._ui.button_norm_curr_volt.setEnabled(True)
-            self._ui.button_charge_discharge.setEnabled(True)
-            self._ui.button_avg_volt.setEnabled(True)
-            self._ui.button_capacity.setEnabled(True)
+            self._ui.button_norm_curr_volt.setEnabled(enable)
+            self._ui.button_charge_discharge.setEnabled(enable)
+            self._ui.button_avg_volt.setEnabled(enable)
+            self._ui.button_capacity.setEnabled(enable)
 
             # update line edit place holder for cycles
             all_cycles = self._main_controller.get_all_cycles()
@@ -131,9 +134,8 @@ class MainView(QMainWindow):
             self._ui.label_mass_file.setText(new_label)
             self._ui.label_mass_file.setStyleSheet('color: ' + file_label_color)
             # update plot control
-            self._ui.button_reset_mass.setEnabled(True)
+            self._ui.button_reset_mass.setEnabled(enable)
         elif file_type == "x_y":
-            self.has_x_y_file = True
             new_label = get_new_label(self._ui.label_x_y_file.text(), name)
             self._ui.label_x_y_file.setText(new_label)
             self._ui.label_x_y_file.setStyleSheet('color: ' + file_label_color)
@@ -142,14 +144,15 @@ class MainView(QMainWindow):
             self._ui.label_config_file.setText(new_label)
             self._ui.label_config_file.setStyleSheet('color: ' + file_label_color)
             # update plot control
-            self._ui.button_reset_config.setEnabled(True)
+            self._ui.button_reset_config.setEnabled(enable)
         else:
             self._ui.label_status.setText("Something wrong while loading file")
             self._ui.label_status.setStyleSheet('color: red')
 
-        if self.has_x_y_file and self.has_medusa_file:
-            self._ui.button_export.setEnabled(True)
-            self._ui.checkbox_x_y_plot_label.setEnabled(True)
+        if self._model.medusa_data is not None and self._model.x_y_data is not None:
+            self._ui.button_export.setEnabled(enable)
+            self._ui.checkbox_x_y_plot_label.setEnabled(enable)
+
 
     ####################################################################
     #   controller listener functions
@@ -160,6 +163,22 @@ class MainView(QMainWindow):
         self._ui.statusbar.showMessage(message)
         self._ui.statusbar.setStyleSheet('color: {}'.format(color))
 
+    def mapping_change(self):
+        id = self._ui.slider_mapping.value()
+        # reset buttons and other ui elements
+        self.reset_application()
+
+        # make changes based on slider
+        if "karlie" == self.mapping_id[id]:
+            self._ui.label_karlie_mapping.setStyleSheet('color: green; font: bold')
+            self._ui.label_eloi_mapping.setStyleSheet('color: black; font: regular')
+            self.setWindowTitle("Karlie's Application")
+        elif "eloi" == self.mapping_id[id]:
+            self._ui.label_eloi_mapping.setStyleSheet('color: green; font: bold')
+            self._ui.label_karlie_mapping.setStyleSheet('color: black; font: regular')
+            self.setWindowTitle("Eloi's Application")
+
+
     ####################################################################
     #   helper functions to send request to controller
     ####################################################################
@@ -169,12 +188,12 @@ class MainView(QMainWindow):
         # open window to select file
 
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        # options |= QFileDialog.DontUseNativeDialog
         if file_type == "config":
-            file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+            file_name, _ = QFileDialog.getOpenFileName(self, "Select {} file".format(file_type), "",
                                                        "JSON File (*.json);;All Files (*)", options=options)
         else:
-            file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+            file_name, _ = QFileDialog.getOpenFileName(self,"Select {} file".format(file_type), "",
                                                        "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
             self._main_controller.file_name_changed(file_name, file_type)
@@ -203,18 +222,31 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+    def reset_application(self):
+        # reset checkbox
+        self._ui.checkbox_cycle.setChecked(True)
+        self._ui.checkbox_channel.setChecked(True)
+        self._ui.checkbox_scale_default.setChecked(True)
+        self._ui.checkbox_x_y_plot_label.setChecked(True)
 
-    # reset config
-    def reset_config(self):
-        data = ['', None, 'config']
-        self._model.file_name = data
-        self._ui.button_reset_config.setEnabled(False)
+        # rest linedit for scale
+        self._ui.lineEdit_scale_x_min.clear()
+        self._ui.lineEdit_scale_x_max.clear()
+        self._ui.lineEdit_scale_y_min.clear()
+        self._ui.lineEdit_scale_y_max.clear()
 
-    # reset config
-    def reset_mass(self):
-        data = ['', [], 'mass']
+        # reset all files
+        file_types = ["mass", "medusa", "x_y", "config"]
+        self.reset_all_files(file_types)
+
+    def reset_all_files(self, file_types):
+        for file_type in file_types:
+            self.reset_file(file_type)
+        self.on_task_bar_message("green", "Mapping switched to Eloi. Application Reset".format(file_type))
+
+    def reset_file(self, file_type):
+        data = ['', None, file_type]
         self._model.file_name = data
-        self._ui.button_reset_mass.setEnabled(False)
 
     # enable custom scaling
     def enable_custom_scale(self, checked):
@@ -264,8 +296,8 @@ class MainView(QMainWindow):
     # select multiple files
     def open_file_names_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(self, "QFileDialog.getOpenFileNames()", "",
+        # options |= QFileDialog.DontUseNativeDialog
+        files, _ = QFileDialog.getOpenFileNames(self, "Select multiple files", "",
                                                 "All Files (*);;Python Files (*.py)", options=options)
         if files:
             print(files)
@@ -273,8 +305,8 @@ class MainView(QMainWindow):
     # save file
     def save_file_dialog(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+        # options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save to file", "",
                                                    "CSV File (*.csv) ;; All Files (*)", options=options)
         if file_name:
             return file_name
