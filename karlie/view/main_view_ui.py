@@ -298,6 +298,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6 = QtWidgets.QGridLayout()
         self.gridLayout_6.setObjectName("gridLayout_6")
         self.label_karlie_mapping = QtWidgets.QLabel(self.centralwidget)
+        self.label_karlie_mapping.setStyleSheet("color: green; font: bold")
         self.label_karlie_mapping.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_karlie_mapping.setObjectName("label_karlie_mapping")
         self.gridLayout_6.addWidget(self.label_karlie_mapping, 0, 2, 1, 1)
@@ -309,6 +310,10 @@ class Ui_MainWindow(object):
         self.label_10.setObjectName("label_10")
         self.gridLayout_6.addWidget(self.label_10, 0, 1, 1, 1)
         self.slider_mapping = QtWidgets.QSlider(self.centralwidget)
+        self.slider_mapping.setStyleSheet("\n"
+"QSlider::handle:horizontal {\n"
+"    background-color: green;\n"
+"    }")
         self.slider_mapping.setMaximum(1)
         self.slider_mapping.setOrientation(QtCore.Qt.Horizontal)
         self.slider_mapping.setObjectName("slider_mapping")
@@ -398,6 +403,7 @@ class Ui_MainWindow(object):
         self.label_karlie_mapping.setText(_translate("MainWindow", "Karlie"))
         self.label_eloi_mapping.setText(_translate("MainWindow", "Eloi"))
         self.label_10.setText(_translate("MainWindow", "Select mapping:"))
+        self.slider_mapping.setToolTip(_translate("MainWindow", "mapping slider"))
         self.menuwhats_here.setTitle(_translate("MainWindow", "Help"))
         self.action_about.setText(_translate("MainWindow", "About application"))
         self.action_github.setText(_translate("MainWindow", "GitHub"))

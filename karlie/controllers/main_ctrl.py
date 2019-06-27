@@ -435,7 +435,10 @@ class MainController(QObject):
         return data.Cycle.unique()
 
     def get_all_cycles(self):
-        return self._model.medusa_data.Cycle.unique()
+        if self._model.medusa_data is not None:
+            return self._model.medusa_data.Cycle.unique()
+        else:
+            return [1, 2]
 
     def validate_limit(self, min, max):
         if not (min and max):

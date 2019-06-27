@@ -584,6 +584,9 @@ vs Voltage</string>
        <layout class="QGridLayout" name="gridLayout_6" columnstretch="2,1,1,1,1">
         <item row="0" column="2">
          <widget class="QLabel" name="label_karlie_mapping">
+          <property name="styleSheet">
+           <string notr="true">color: green; font: bold</string>
+          </property>
           <property name="text">
            <string>Karlie</string>
           </property>
@@ -611,6 +614,15 @@ vs Voltage</string>
         </item>
         <item row="0" column="3">
          <widget class="QSlider" name="slider_mapping">
+          <property name="toolTip">
+           <string>mapping slider</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">
+QSlider::handle:horizontal {
+    background-color: green;
+    }</string>
+          </property>
           <property name="maximum">
            <number>1</number>
           </property>
