@@ -297,7 +297,7 @@ class MainView(QMainWindow):
     def open_file_names_dialog(self):
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
-        files, _ = QFileDialog.getOpenFileNames(self, "QFileDialog.getOpenFileNames()", "",
+        files, _ = QFileDialog.getOpenFileNames(self, "Select multiple files", "",
                                                 "All Files (*);;Python Files (*.py)", options=options)
         if files:
             print(files)
@@ -306,7 +306,7 @@ class MainView(QMainWindow):
     def save_file_dialog(self):
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save to file", "",
                                                    "CSV File (*.csv) ;; All Files (*)", options=options)
         if file_name:
             return file_name
