@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>540</height>
+    <width>513</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -614,6 +614,12 @@ vs Voltage</string>
         </item>
         <item row="0" column="3">
          <widget class="QSlider" name="slider_mapping">
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
           <property name="toolTip">
            <string>mapping slider</string>
           </property>
@@ -625,6 +631,9 @@ QSlider::handle:horizontal {
           </property>
           <property name="maximum">
            <number>1</number>
+          </property>
+          <property name="tracking">
+           <bool>true</bool>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -655,7 +664,7 @@ QSlider::handle:horizontal {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>513</width>
      <height>20</height>
     </rect>
    </property>
