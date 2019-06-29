@@ -18,7 +18,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout" columnstretch="1,0,1">
       <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="button_master_file">
         <property name="text">
          <string>Open Master File</string>
         </property>
@@ -66,7 +66,7 @@
        </widget>
       </item>
       <item row="5" column="2">
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="button_reset_config">
         <property name="enabled">
          <bool>false</bool>
         </property>
@@ -93,7 +93,7 @@
         <item row="2" column="1">
          <widget class="QLabel" name="label_9">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Min:</string>
@@ -108,7 +108,7 @@
          </widget>
         </item>
         <item row="1" column="1" colspan="2">
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="checkbox_default_color">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -121,7 +121,7 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QLineEdit" name="lineEdit_4">
+         <widget class="QLineEdit" name="lineEdit_max_color">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -130,7 +130,7 @@
         <item row="3" column="1">
          <widget class="QLabel" name="label_10">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Max:</string>
@@ -138,7 +138,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLineEdit" name="lineEdit_3">
+         <widget class="QLineEdit" name="lineEdit_min_color">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -224,7 +224,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="button_config_file">
         <property name="text">
          <string>Open Config File</string>
         </property>
@@ -233,7 +233,7 @@
       <item row="8" column="0" colspan="3">
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="2" column="7">
-         <widget class="QLineEdit" name="lineEdit_2">
+         <widget class="QLineEdit" name="lineEdit_cycle_2">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -243,7 +243,7 @@
          </widget>
         </item>
         <item row="1" column="7">
-         <widget class="QComboBox" name="comboBox_3">
+         <widget class="QComboBox" name="comboBox_type_2">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -260,7 +260,7 @@
          </widget>
         </item>
         <item row="2" column="4">
-         <widget class="QComboBox" name="comboBox_2">
+         <widget class="QComboBox" name="comboBox_operation">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -279,7 +279,7 @@
         <item row="2" column="1">
          <widget class="QLabel" name="label_5">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Select Cycle:</string>
@@ -287,7 +287,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="lineEdit_cycle_1">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -302,7 +302,7 @@
         <item row="1" column="1">
          <widget class="QLabel" name="label_4">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Select Type:</string>
@@ -310,7 +310,7 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QComboBox" name="comboBox">
+         <widget class="QComboBox" name="comboBox_type_1">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -343,7 +343,7 @@
         <item row="1" column="6">
          <widget class="QLabel" name="label_6">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Select Type:</string>
@@ -353,7 +353,7 @@
         <item row="2" column="6">
          <widget class="QLabel" name="label_7">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Select Cycle:</string>
@@ -363,10 +363,10 @@
         <item row="1" column="4">
          <widget class="QLabel" name="label_8">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
-           <string>Sign</string>
+           <string>Operation</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignBottom|Qt::AlignHCenter</set>
@@ -418,7 +418,7 @@
        </layout>
       </item>
       <item row="7" column="1" alignment="Qt::AlignHCenter">
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="checkbox_compare">
         <property name="enabled">
          <bool>false</bool>
         </property>
