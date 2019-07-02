@@ -56,6 +56,20 @@ class MainController(QObject):
         if valid:
             self._model.file_name = {"name": name, "data": data}
 
+    def file_name_changed(self, file_name, file_type):
+        # TODO: Validate if the file
+        valid = False
+        if file_type == "master":
+            data, valid = self.validate_master_file(file_name, file_type)
+        elif file_type == "one":
+            data, valid = self.validate_one_file(file_name, file_type)
+        elif file_type == "config":
+            data, valid = self.validate_config_file(file_name, file_type)
+
+        # update model
+        if valid:
+            self._model.file_name = (file_name, data, file_type)
+
 
     def validate_ternary_file(self, name, file_type):
         columns = {"channels", "x", "y"}

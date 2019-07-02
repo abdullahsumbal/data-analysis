@@ -19,9 +19,21 @@ class Model(QObject):
 
     @file_name.setter
     def file_name(self, value):
-        name = value["name"]
-        data = value["data"]
-        self._ternary_file_name = name
-        self._ternary_file_data = data
-        # update in model is reflected in view by sending a signal to view
-        self.file_name_changed.emit(name)
+        name = value[0]
+        data = value[1]
+        file_type = value[2]
+
+        if file_type == "master":
+            self._medusa_file_name = name
+            self._medusa_data = data
+        elif file_type == "mass":
+            self._mass_file_name = name
+            self._mass_data = data
+        elif file_type == "x_y":
+            self._x_y_file_name = name
+            self._x_y_data = data
+        elif file_type == "config":
+            self._config_file_name = name
+            self._config_data = data
+
+        self.file_name_changed.emit(name, file_type)
