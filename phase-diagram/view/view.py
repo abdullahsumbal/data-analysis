@@ -16,8 +16,8 @@ class MainView(QMainWindow):
         #   connect widgets to controllers
         ####################################################################
         # open file buttons
-        self._ui.button_ternary_file.clicked.connect(lambda: self.open_file_name_dialog("one"))
-        self._ui.button_master_file.clicked.connect(lambda: self.open_master_file("master"))
+        self._ui.button_ternary_file.clicked.connect(lambda: self.open_file_name_dialog("ternary"))
+        self._ui.button_master_file.clicked.connect(lambda: self.open_file_name_dialog("master"))
 
         # plot button
         self._ui.button_plot.clicked.connect(self._main_controller.plot)
@@ -37,13 +37,10 @@ class MainView(QMainWindow):
     ####################################################################
     #   model listener functions
     ####################################################################
-    def on_file_name_changed(self, name):
-
-        # unable button
-        self._ui.button_plot.setEnabled(True)
-        name = path.basename(name)
+    @pyqtSlot(str)
+    def on_file_name_changed(self, file_type):
         file_label_color = "green"
-        self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(name))
+        self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(file_type))
 
     ####################################################################
     #   controller listener functions
@@ -70,7 +67,8 @@ class MainView(QMainWindow):
             file_name, _ = QFileDialog.getOpenFileName(self,"Select {} file".format(file_type), "",
                                                        "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
-            self._main_controller.file_name_changed(file_name, file_type)
+            exclude_channels = self._ui.lineEdit_outlier.text()
+            self._main_controller.file_name_changed(file_name, file_type, exclude_channels=exclude_channels)
 
     ####################################################################
     #   View helper methods
