@@ -58,23 +58,52 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="1">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="lineEdit_outlier">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Enter Outlier</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="Line" name="line_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="button_ternary_file">
+          <property name="text">
+           <string>Open Ternary File</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="4">
+         <widget class="Line" name="line_16">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="4">
+         <widget class="Line" name="line_17">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="6" column="0" colspan="3">
        <widget class="Line" name="line_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
-       <widget class="QPushButton" name="button_reset_config">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string>Reset Config</string>
         </property>
        </widget>
       </item>
@@ -144,21 +173,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" rowspan="5">
+        <item row="0" column="0" rowspan="4">
          <widget class="Line" name="line_10">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
-        <item row="4" column="1" colspan="2">
-         <widget class="Line" name="line_11">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3" rowspan="5">
+        <item row="0" column="3" rowspan="4">
          <widget class="Line" name="line_9">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -166,6 +188,19 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="7" column="1" alignment="Qt::AlignHCenter">
+       <widget class="QCheckBox" name="checkbox_compare">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Compare</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="4" column="2">
        <widget class="QLabel" name="label_11">
@@ -185,48 +220,6 @@
        <widget class="Line" name="line_3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Plot Control</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Load Files</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="button_ternary_file">
-        <property name="text">
-         <string>Open Ternary File</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QPushButton" name="button_config_file">
-        <property name="text">
-         <string>Open Config File</string>
         </property>
        </widget>
       </item>
@@ -373,13 +366,6 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1" colspan="2">
-         <widget class="Line" name="line_14">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="3" rowspan="4">
          <widget class="Line" name="line_6">
           <property name="orientation">
@@ -391,13 +377,6 @@
          <widget class="Line" name="line_7">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="6" colspan="2">
-         <widget class="Line" name="line_15">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -417,18 +396,88 @@
         </item>
        </layout>
       </item>
-      <item row="7" column="1" alignment="Qt::AlignHCenter">
-       <widget class="QCheckBox" name="checkbox_compare">
-        <property name="enabled">
-         <bool>false</bool>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
-         <string>Compare</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>Plot Control</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Load Files</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="button_config_file">
+        <property name="text">
+         <string>Open Config File</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="Line" name="line_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="button_reset_config">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="text">
+           <string>Reset Config</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0" rowspan="4">
+         <widget class="Line" name="line_14">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2" rowspan="4">
+         <widget class="Line" name="line_15">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="button_reset_ternary">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Reset Input</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
