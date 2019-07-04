@@ -2,7 +2,6 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 import pandas as pd
 import ternary
 from controller.helper import *
-from os import path
 
 
 class MainController(QObject):

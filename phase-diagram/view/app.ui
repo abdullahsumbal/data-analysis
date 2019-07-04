@@ -225,16 +225,6 @@
       </item>
       <item row="8" column="0" colspan="3">
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="2" column="7">
-         <widget class="QLineEdit" name="lineEdit_cycle_2">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>1</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="7">
          <widget class="QComboBox" name="comboBox_type_2">
           <property name="enabled">
@@ -276,19 +266,6 @@
           </property>
           <property name="text">
            <string>Select Cycle:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLineEdit" name="lineEdit_cycle_1">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="inputMask">
-           <string/>
-          </property>
-          <property name="text">
-           <string>1</string>
           </property>
          </widget>
         </item>
@@ -391,6 +368,23 @@
          <widget class="Line" name="line_4">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="comboBox_cycle_1">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="currentText">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="7">
+         <widget class="QComboBox" name="comboBox_cycle_2">
+          <property name="enabled">
+           <bool>false</bool>
           </property>
          </widget>
         </item>

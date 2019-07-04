@@ -22,6 +22,12 @@ class MainView(QMainWindow):
         # plot button
         self._ui.button_plot.clicked.connect(self._main_controller.plot)
 
+        # color scaling
+        self._ui.checkbox_default_color.stateChanged.connect(lambda checked: self.enable_color_scale(checked))
+
+        # compare option
+        self._ui.checkbox_compare.stateChanged.connect(lambda checked: self.enable_compare(checked))
+
         ####################################################################
         #   listen for model event signals
         ####################################################################
@@ -41,6 +47,24 @@ class MainView(QMainWindow):
     def on_file_name_changed(self, file_type):
         file_label_color = "green"
         self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(file_type))
+
+        # enable buttons in UI
+        if file_type == "master" or "ternary":
+            self._ui.checkbox_default_color.setEnabled(True)
+            self._ui.button_reset_ternary.setEnabled(True)
+            self._ui.comboBox_cycle_1.setEnabled(True)
+            self._ui.comboBox_type_1.setEnabled(True)
+            self._ui.button_plot.setEnabled(True)
+            self._ui.checkbox_compare.setEnabled(True)
+
+            # populate combo box cycles
+            cycles_list = self.get_cycle_list()
+            self._ui.comboBox_cycle_1.clear()
+            self._ui.comboBox_cycle_1.addItems(cycles_list)
+            self._ui.comboBox_cycle_2.clear()
+            self._ui.comboBox_cycle_2.addItems(cycles_list)
+
+
 
     ####################################################################
     #   controller listener functions
@@ -73,4 +97,31 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+
+    def get_cycle_list(self):
+        data = self._model.ternary_file_data
+        columns = data.columns
+        # get all the columns names with charge in it
+        charges = []
+        for column in columns:
+            if "charge_" in column:
+                charges.append(column)
+
+        # get cycles
+        cycles = []
+        for charge in charges:
+            cycles.append(charge[len("charge_"):])
+
+        return cycles
+
+    def enable_color_scale(self, checked):
+        self._ui.lineEdit_min_color.setEnabled(not checked)
+        self._ui.lineEdit_max_color.setEnabled(not checked)
+
+    def enable_compare(self, checked):
+        self._ui.comboBox_operation.setEnabled(checked)
+        self._ui.comboBox_cycle_2.setEnabled(checked)
+        self._ui.comboBox_type_2.setEnabled(checked)
+
+
 
