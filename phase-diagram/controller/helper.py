@@ -3,8 +3,19 @@ import math
 import pandas as pd
 
 
-def remove_exclude(data, exclude):
-    pass
+def remove_exclude(data, exclude_channels):
+    for channel in exclude_channels:
+        # Get names of indexes for which column Age has value 30
+        indexNames = data[data['channels'] == channel].index
+
+        # Delete these row indexes from dataFrame
+        data.drop(indexNames, inplace=True)
+    return data
+
+
+def remove_duplicate(data):
+    data = data.groupby(['x', "y"], as_index=False).mean()
+    return data
 
 
 def validate_exclude_channels(channels):

@@ -94,8 +94,10 @@ class MainController(QObject):
             else:  # all checks are done , we gucci to update model
                 if self._model.ternary_file_data is not None:
                     data = pd.concat([self._model.ternary_file_data, data], sort=True)
-                # print(data.shape)
-                print("Removing", exclude_channels)
+                # remove exclude channels (outliers)
+                data = remove_exclude(data, exclude_channels)
+                # remove duplicate and average them
+                data = remove_duplicate(data)
                 return data, True
         except Exception as e:
             message = "Error: Invalidate {} file format. {}".format(file_type, e)
