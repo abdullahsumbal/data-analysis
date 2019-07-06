@@ -112,7 +112,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.gridLayout_6, 5, 0, 1, 1)
         self.checkbox_compare = QtWidgets.QCheckBox(self.centralwidget)
         self.checkbox_compare.setEnabled(False)
-        self.checkbox_compare.setChecked(True)
+        self.checkbox_compare.setChecked(False)
         self.checkbox_compare.setObjectName("checkbox_compare")
         self.gridLayout.addWidget(self.checkbox_compare, 7, 1, 1, 1, QtCore.Qt.AlignHCenter)
         self.label_11 = QtWidgets.QLabel(self.centralwidget)

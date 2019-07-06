@@ -20,7 +20,7 @@ class MainView(QMainWindow):
         self._ui.button_master_file.clicked.connect(lambda: self.open_file_name_dialog("master"))
 
         # plot button
-        self._ui.button_plot.clicked.connect(self._main_controller.plot)
+        self._ui.button_plot.clicked.connect(self.plot_ternary)
 
         # color scaling
         self._ui.checkbox_default_color.stateChanged.connect(lambda checked: self.enable_color_scale(checked))
@@ -78,6 +78,27 @@ class MainView(QMainWindow):
     ####################################################################
     #   helper functions to send request to controller
     ####################################################################
+
+    def plot_ternary(self):
+        selected_type_1 = self._ui.comboBox_type_1.currentText()
+        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
+        selected_type_2 = None
+        selected_cycle_2 = None
+        selected_operation = None
+        min_color_scale = None
+        max_color_scale = None
+
+        if self._ui.checkbox_compare.isChecked():
+            selected_type_2 = self._ui.comboBox_type_2.currentText()
+            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
+            selected_operation = self._ui.comboBox_operation.currentText()
+
+        if not self._ui.checkbox_default_color.isChecked():
+            min_color_scale = self._ui.lineEdit_min_color.text()
+            max_color_scale = self._ui.lineEdit_max_color.text()
+
+        self._main_controller.plot(selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+                                   selected_operation, min_color_scale, max_color_scale)
 
     # Set one file
     def open_file_name_dialog(self, file_type):

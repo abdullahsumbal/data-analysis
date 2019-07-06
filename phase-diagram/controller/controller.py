@@ -1,6 +1,9 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 import pandas as pd
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+import matplotlib.pyplot as plt
 import ternary
+import numpy as np
 from controller.helper import *
 
 
@@ -11,43 +14,44 @@ class MainController(QObject):
         super().__init__()
         self._model = model
 
-    def plot(self):
+    def plot(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+             selected_operation, min_color_scale, max_color_scale):
+
         data = self._model.ternary_file_data
-        scale = 1
-        figure, tax = ternary.figure(scale=scale)
+        # perform calculation
+        data = calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation)
+        points = np.array([data["x"].values, data["y"].values]).transpose()
 
-        # Draw Boundary and Gridlines
-        tax.boundary(linewidth=2.0)
-        tax.gridlines(color="blue", multiple=5)
+        # colors map
+        # c = mcolors.ColorConverter().to_rgb
+        # reds = plt.get_cmap("Reds")
+        # norm = plt.Normalize(0, 1)
+        # rvb = make_colormap(
+        #     [c('red'), c('violet'), 0.33, c('violet'), c('blue'), 0.66, c('blue')])
+        cm = LinearSegmentedColormap.from_list('Capacities', ['blue', 'red'], N=1024)
+        if min_color_scale is None:
+            min_color_scale = min(data["calculated"])
+        if max_color_scale is None:
+            max_color_scale = max(data["calculated"])
 
-        # Set Axis labels and Title
-        fontsize = 12
-        offset = 0.14
-        tax.set_title("Various Lines\n", fontsize=fontsize)
-        tax.right_corner_label("X", fontsize=fontsize)
-        tax.top_corner_label("Y", fontsize=fontsize)
-        tax.left_corner_label("Z", fontsize=fontsize)
-        tax.left_axis_label("Left label $\\alpha^2$", fontsize=fontsize, offset=offset)
-        tax.right_axis_label("Right label $\\beta^2$", fontsize=fontsize, offset=offset)
-        tax.bottom_axis_label("Bottom label $\\Gamma - \\Omega$", fontsize=fontsize, offset=offset)
+        # normalize data
+        norm = Normalize(vmin=max_color_scale, vmax=max_color_scale)
 
-        # Draw lines parallel to the axes
-        tax.horizontal_line(0.1)
-        tax.left_parallel_line(10, linewidth=2., color='red', linestyle="--")
-        tax.right_parallel_line(20, linewidth=3., color='blue')
+        # get color based on color map
+        data["calculated"] = data["calculated"].apply(lambda x: cm(norm(x)))
+        colors = data["calculated"].values
 
-        # Draw an arbitrary line, ternary will project the points for you
-        points = []
-        for channel in range(64):
-            points.append((data["x"].values, data["y"].values))
-        p1 = (22, 8, 10)
-        p2 = (2, 22, 16)
-        tax.scatter(points, marker='o', color='green')
-
-        tax.ticks(axis='lbr', multiple=5, linewidth=1, offset=0.025)
-        tax.get_axes().axis('off')
-        tax.clear_matplotlib_ticks()
+        # Creates a ternary set of axes to plot the diagram from python-ternary
+        fig, ax = plt.subplots(figsize=(15, 10))
+        tax = ternary.TernaryAxesSubplot(ax=ax, scale=1.0)
+        tax.boundary()
+        tax.gridlines(multiple=0.1, color='blue')
+        tax.scatter(points, marker = 'o', c = colors, s=64,colorbar = True, colormap = cm, vmin=min_color_scale, vmax=max_color_scale)
+        tax.ticks(axis='blr', linewidth=1.0, multiple=0.1, tick_formats='%.1f', offset=0.02)
+        plt.axis('off')
         tax.show()
+
+
 
     @pyqtSlot(str)
     def file_name_changed(self, name):
