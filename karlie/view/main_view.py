@@ -65,6 +65,11 @@ class MainView(QMainWindow):
         # scale default
         self._ui.checkbox_scale_default.stateChanged.connect(lambda checked: self.enable_custom_scale(checked))
 
+        # tile option
+        self._ui.checkbox_show_title.stateChanged.connect(
+            lambda checked: self.enable_show_x_y_tile(checked)
+        )
+
         # button listeners
         self._ui.button_norm_curr_volt.clicked.connect(lambda: self.plot("norm"))
         self._ui.button_charge_discharge.clicked.connect(lambda: self.plot("charge"))
@@ -129,6 +134,9 @@ class MainView(QMainWindow):
             all_cycles = ",".join(all_cycles)
             self._ui.lineEdit_cycle.setText(all_cycles)
 
+            # title optiom
+            self._ui.checkbox_show_title.setEnabled(True)
+
         elif file_type == "mass":
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
             self._ui.label_mass_file.setText(new_label)
@@ -151,7 +159,9 @@ class MainView(QMainWindow):
 
         if self._model.medusa_data is not None and self._model.x_y_data is not None:
             self._ui.button_export.setEnabled(enable)
-            self._ui.checkbox_x_y_plot_label.setEnabled(enable)
+            # need to have x and y file, medusa and checked should be checked
+            if self._ui.checkbox_show_title.isChecked():
+                self._ui.checkbox_x_y_plot_label.setEnabled(enable)
 
 
     ####################################################################
@@ -204,9 +214,10 @@ class MainView(QMainWindow):
         channels = self.get_selected_channels()
         y_limits = self.get_y_axis_limit()
         x_limits = self.get_x_axis_limit()
+        show_tile = self._ui.checkbox_show_title.isChecked()
         x_y_label_checked = self._ui.checkbox_x_y_plot_label.isChecked() and self._ui.checkbox_x_y_plot_label.isEnabled()
         # request to send to controller
-        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name, x_y_label_checked)
+        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name, x_y_label_checked, show_tile)
 
     def export_csv(self):
         # get user input for cycles and channels
@@ -222,6 +233,11 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+
+    def enable_show_x_y_tile(self, checked):
+        if self._model.medusa_data is not None and self._model.x_y_data is not None:
+            self._ui.checkbox_x_y_plot_label.setEnabled(checked)
+
     def reset_application(self):
         # reset checkbox
         self._ui.checkbox_cycle.setChecked(True)

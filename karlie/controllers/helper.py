@@ -184,13 +184,15 @@ def set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_r
     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
 
-def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number, config):
-    if x_y_label_checked:
-        x = x_y_data.loc[channel_number, 'x']
-        y = x_y_data.loc[channel_number, 'y']
-        ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
-    else:
-        ax.set_title('Channel {}'.format(channel_number), **config)
+def set_subplot_tile(ax, show_tile, x_y_label_checked, x_y_data, channel_number, config):
+
+    if show_tile:
+        if x_y_label_checked:
+            x = x_y_data.loc[channel_number, 'x']
+            y = x_y_data.loc[channel_number, 'y']
+            ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
+        else:
+            ax.set_title('Channel {}'.format(channel_number), **config)
 
 
 
