@@ -149,7 +149,7 @@ class MainView(QMainWindow):
             self._ui.lineEdit_cycle.setText(all_cycles)
 
             # title option
-            self._ui.checkbox_show_title.setEnabled(True)
+            self._ui.checkbox_show_title.setEnabled(enable)
 
             # update min and max voltage
             if "karlie" == self.get_mapping() and self._model.medusa_data is not None:
