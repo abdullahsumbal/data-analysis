@@ -23,9 +23,19 @@ class MainController(QObject):
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
         print("bad indexes:", inf_nan_indexes)
-        data.drop(inf_nan_indexes)
-        points = np.array([data["x"].values, data["y"].values]).transpose()
+        data = data.drop(inf_nan_indexes)
 
+        # get default min and max color scale if values are not defined
+        if min_color_scale is None:
+            min_color_scale = min(data["calculated"].values)
+        if max_color_scale is None:
+            max_color_scale = max(data["calculated"].values)
+
+        # remove data that is out of range
+        data = data.loc[data.loc[:, 'calculated'] >= min_color_scale, :]
+        data = data.loc[data.loc[:, 'calculated'] <= max_color_scale, :]
+
+        points = np.array([data["x"].values, data["y"].values]).transpose()
         # colors map
         # c = mcolors.ColorConverter().to_rgb
         # reds = plt.get_cmap("Reds")
@@ -33,10 +43,6 @@ class MainController(QObject):
         # rvb = make_colormap(
         #     [c('red'), c('violet'), 0.33, c('violet'), c('blue'), 0.66, c('blue')])
         cm = LinearSegmentedColormap.from_list('Capacities', ['blue', 'red'], N=1024)
-        if min_color_scale is None:
-            min_color_scale = min(data["calculated"])
-        if max_color_scale is None:
-            max_color_scale = max(data["calculated"])
 
         # normalize data
         norm = Normalize(vmin=max_color_scale, vmax=max_color_scale)
@@ -54,8 +60,7 @@ class MainController(QObject):
         tax.ticks(axis='blr', linewidth=1.0, multiple=0.1, tick_formats='%.1f', offset=0.02)
         plt.axis('off')
         tax.show()
-
-
+        tax.close()
 
     @pyqtSlot(str)
     def file_name_changed(self, name):
@@ -71,7 +76,7 @@ class MainController(QObject):
         if file_type == "master":
             data, valid = self.validate_master_file(file_name, file_type)
         elif file_type == "ternary":
-            data, valid = self.validate_ternary_file(file_name, file_type, exclude_channels)
+            data, valid = self.validate_ternary_file(file_name, file_type, exclude_channels, self._model.ternary_file_data)
         elif file_type == "config":
             data, valid = self.validate_config_file(file_name, file_type)
 
@@ -79,7 +84,7 @@ class MainController(QObject):
         if valid:
             self._model.add_data(data, file_type)
 
-    def validate_ternary_file(self, name, file_type, exclude_channels):
+    def validate_ternary_file(self, name, file_type, exclude_channels, master_data):
         # validate exclude channel
         exclude_channels = validate_exclude_channels(exclude_channels)
         if exclude_channels is None:
@@ -99,10 +104,11 @@ class MainController(QObject):
                 self.task_bar_message.emit("red", message)
                 return [], False
             else:  # all checks are done , we gucci to update model
-                if self._model.ternary_file_data is not None:
-                    data = pd.concat([self._model.ternary_file_data, data], sort=True)
                 # remove exclude channels (outliers)
                 data = remove_exclude(data, exclude_channels)
+                if master_data is not None:
+                    data = pd.concat([master_data, data], sort=True)
+
                 # remove duplicate and average them
                 data = remove_duplicate(data)
                 return data, True
@@ -119,15 +125,15 @@ class MainController(QObject):
             for index, row in data.iterrows():
                 file_path = row[0]
                 exclude_channels = row[1]
-                ternary_data, valid = self.validate_ternary_file(file_path, "ternary", exclude_channels)
+                ternary_data, valid = self.validate_ternary_file(file_path, "ternary", exclude_channels, master_data)
                 if not valid:
                     message = "Error: Invalidate file format. Error in row {}".format(index+1)
                     self.task_bar_message.emit("red", message)
                     return [], False
-                if master_data is not None:
-                    master_data = pd.concat([master_data, ternary_data], sort=False)
-                else:
-                    master_data = ternary_data
+                # if master_data is not None:
+                #     master_data = pd.concat([master_data, ternary_data], sort=False)
+                # else:
+                master_data = ternary_data
 
             # everything is fine return file
             return master_data, True
