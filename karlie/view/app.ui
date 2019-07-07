@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>540</height>
+    <width>513</width>
+    <height>481</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -772,7 +772,7 @@ vs Voltage</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>513</width>
      <height>20</height>
     </rect>
    </property>

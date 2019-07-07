@@ -6,22 +6,27 @@ class Model(QObject):
 
     def __init__(self):
         super().__init__()
-        self._ternary_file_name = ''
-        self._ternary_file_data = []
+        self._ternary_file_data = None
+        self._config_data = None
 
-    @property
-    def file_name(self):
-        return self._file_name
 
     @property
     def ternary_file_data(self):
         return self._ternary_file_data
 
-    @file_name.setter
-    def file_name(self, value):
-        name = value["name"]
-        data = value["data"]
-        self._ternary_file_name = name
-        self._ternary_file_data = data
-        # update in model is reflected in view by sending a signal to view
-        self.file_name_changed.emit(name)
+    @ternary_file_data.setter
+    def ternary_file_data(self, value):
+        self._ternary_file_data = value
+        self.file_name_changed.emit("master")
+
+
+    def add_data(self, data, file_type):
+
+        if file_type == "ternary":
+            self._ternary_file_data = data
+        if file_type == "master":
+            self._ternary_file_data = data
+        elif file_type == "config":
+            self._config_data = data
+
+        self.file_name_changed.emit(file_type)
