@@ -67,7 +67,9 @@ class MainController(QObject):
         # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure
 
     # general plot function which is responsible for calling other plot functions.
-    def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked, show_tile):
+    def plot(self, selected_cycles, selected_channels, x_y_scale_limit, plot_name, voltage_range, x_y_label_checked, show_tile):
+
+        x_limit, y_limit = x_y_scale_limit
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
         valid, message = validate_cycles(all_cycles, selected_cycles)
@@ -83,6 +85,9 @@ class MainController(QObject):
 
         # get data from model
         data = self._model.medusa_data
+
+        # get data within the range of voltage
+        data = get_data_in_voltage_range(data, voltage_range)
 
         # changing cycle user input into array
         if selected_cycles == "all":
@@ -540,6 +545,11 @@ class MainController(QObject):
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
+
+    def get_voltage_range(self):
+        data = self._model.medusa_data["Vavg (V)"].values
+        return min(data), max(data)
+
 
 
 class ZoomPan:

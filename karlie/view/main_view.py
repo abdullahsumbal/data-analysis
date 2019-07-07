@@ -27,6 +27,11 @@ class MainView(QMainWindow):
         self._ui.lineEdit_scale_x_max.setValidator(QDoubleValidator())
         self._ui.lineEdit_scale_y_min.setValidator(QDoubleValidator())
         self._ui.lineEdit_scale_y_max.setValidator(QDoubleValidator())
+
+        # voltage range validation
+        self._ui.lineEdit_min_voltage.setValidator(QDoubleValidator())
+        self._ui.lineEdit_max_voltage.setValidator(QDoubleValidator())
+
         # filter channel validation
         self._ui.lineEdit_channel.setValidator(QIntValidator())
 
@@ -68,6 +73,12 @@ class MainView(QMainWindow):
         # tile option
         self._ui.checkbox_show_title.stateChanged.connect(
             lambda checked: self.enable_show_x_y_tile(checked)
+        )
+
+        # show range
+        self._ui.checkbox_default_voltage_range.stateChanged.connect(
+            lambda checked: (self._ui.lineEdit_min_voltage.setEnabled(not checked),
+                            self._ui.lineEdit_max_voltage.setEnabled(not checked))
         )
 
         # button listeners
@@ -122,6 +133,9 @@ class MainView(QMainWindow):
             # enable scale options
             self._ui.checkbox_scale_default.setEnabled(enable)
 
+            # enable integration range
+            self._ui.checkbox_default_voltage_range.setEnabled(enable)
+
             # update buttons
             self._ui.button_norm_curr_volt.setEnabled(enable)
             self._ui.button_charge_discharge.setEnabled(enable)
@@ -134,8 +148,14 @@ class MainView(QMainWindow):
             all_cycles = ",".join(all_cycles)
             self._ui.lineEdit_cycle.setText(all_cycles)
 
-            # title optiom
+            # title option
             self._ui.checkbox_show_title.setEnabled(True)
+
+            # update min and max voltage
+            min_voltage, max_voltage = self._main_controller.get_voltage_range()
+            self._ui.lineEdit_min_voltage.setText(str(min_voltage))
+            self._ui.lineEdit_max_voltage.setText(str(max_voltage))
+
 
         elif file_type == "mass":
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
@@ -214,10 +234,12 @@ class MainView(QMainWindow):
         channels = self.get_selected_channels()
         y_limits = self.get_y_axis_limit()
         x_limits = self.get_x_axis_limit()
+        x_y_scale_limit = (x_limits, y_limits)
         show_tile = self._ui.checkbox_show_title.isChecked()
         x_y_label_checked = self._ui.checkbox_x_y_plot_label.isChecked() and self._ui.checkbox_x_y_plot_label.isEnabled()
+        voltage_range = self.get_voltage_range()
         # request to send to controller
-        self._main_controller.plot(cycles, channels, x_limits, y_limits, plot_name, x_y_label_checked, show_tile)
+        self._main_controller.plot(cycles, channels, x_y_scale_limit, plot_name, voltage_range, x_y_label_checked, show_tile)
 
     def export_csv(self):
         # get user input for cycles and channels
@@ -290,6 +312,15 @@ class MainView(QMainWindow):
             x_min = self._ui.lineEdit_scale_x_min.text()
             x_max = self._ui.lineEdit_scale_x_max.text()
         return x_min, x_max
+
+    # get voltage limits from ui
+    def get_voltage_range(self):
+        if self._ui.checkbox_default_voltage_range.isChecked():
+            min_voltage, max_voltage = self._main_controller.get_voltage_range()
+        else:
+            min_voltage = float(self._ui.lineEdit_min_voltage.text())
+            max_voltage = float(self._ui.lineEdit_max_voltage.text())
+        return min_voltage, max_voltage
 
     # get cycles form ui
     def get_selected_cycles(self):

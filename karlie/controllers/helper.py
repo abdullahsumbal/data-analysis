@@ -220,3 +220,9 @@ def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
     elif channel_number != 8:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
+
+def get_data_in_voltage_range(data, voltage_range):
+    min_voltage, max_voltage = voltage_range
+    data = data.loc[data.loc[:, 'Vavg (V)'] >= min_voltage, :]
+    data = data.loc[data.loc[:, 'Vavg (V)'] <= max_voltage, :]
+    return data
