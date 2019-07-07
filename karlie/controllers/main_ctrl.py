@@ -67,7 +67,9 @@ class MainController(QObject):
         # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure
 
     # general plot function which is responsible for calling other plot functions.
-    def plot(self, selected_cycles, selected_channels, x_limit, y_limit, plot_name, x_y_label_checked):
+    def plot(self, selected_cycles, selected_channels, x_y_scale_limit, plot_name, voltage_range, x_y_label_checked, show_tile):
+
+        x_limit, y_limit = x_y_scale_limit
         # cycle validation
         all_cycles = get_unique_cycles(self._model.medusa_data)
         valid, message = validate_cycles(all_cycles, selected_cycles)
@@ -83,6 +85,9 @@ class MainController(QObject):
 
         # get data from model
         data = self._model.medusa_data
+
+        # get data within the range of voltage
+        data = get_data_in_voltage_range(data, voltage_range)
 
         # changing cycle user input into array
         if selected_cycles == "all":
@@ -121,16 +126,16 @@ class MainController(QObject):
 
         # plot graph based on plot names
         if plot_name == "norm":
-            self.plot_norm_volt_cur(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            self.plot_norm_volt_cur(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data)
             plot_title_name = "Normalize Current and Voltage plot"
         elif plot_name == "charge":
-            self.plot_charge_discharge(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            self.plot_charge_discharge(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data)
             plot_title_name = "Voltage vs Charge"
         elif plot_name == "avg_voltage":
-            self.plot_avg_voltage(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            self.plot_avg_voltage(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data)
             plot_title_name = "Average Voltage vs Cycle"
         elif plot_name == "capacity":
-            self.plot_capacity(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data)
+            self.plot_capacity(axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data)
             plot_title_name = "Capacity vs Cycle"
 
         # update status bar
@@ -156,7 +161,7 @@ class MainController(QObject):
         plt.close()
 
     # plot normalized current vs voltage
-    def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+    def plot_capacity(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
@@ -198,10 +203,10 @@ class MainController(QObject):
                 x_left, x_right = ax.get_xlim()
             set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
+            set_subplot_tile(ax, show_tile, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
-    def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+    def plot_avg_voltage(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
@@ -239,10 +244,10 @@ class MainController(QObject):
                 x_left, x_right = ax.get_xlim()
             set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
+            set_subplot_tile(ax, show_tile, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
-    def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+    def plot_charge_discharge(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
@@ -289,10 +294,10 @@ class MainController(QObject):
                 x_left, x_right = ax.get_xlim()
             set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
+            set_subplot_tile(ax, show_tile, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     # plot normalized current vs voltage
-    def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, x_y_label_checked, data):
+    def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data):
         y_bottom, y_top, x_left, x_right = 0, 0, 0, 0
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
@@ -339,7 +344,7 @@ class MainController(QObject):
                 x_left, x_right = ax.get_xlim()
             set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right)
             # set subplot title
-            set_subplot_tile(ax, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
+            set_subplot_tile(ax, show_tile, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
 
     def validate_cycles_channels(self, selected_cycles, selected_channels):
         # cycle validation
@@ -540,6 +545,11 @@ class MainController(QObject):
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
+
+    def get_voltage_range(self):
+        data = self._model.medusa_data["Vavg (V)"].values
+        return min(data), max(data)
+
 
 
 class ZoomPan:

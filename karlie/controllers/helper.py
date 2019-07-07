@@ -184,13 +184,15 @@ def set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_r
     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 
 
-def set_subplot_tile(ax, x_y_label_checked, x_y_data, channel_number, config):
-    if x_y_label_checked:
-        x = x_y_data.loc[channel_number, 'x']
-        y = x_y_data.loc[channel_number, 'y']
-        ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
-    else:
-        ax.set_title('Channel {}'.format(channel_number), **config)
+def set_subplot_tile(ax, show_tile, x_y_label_checked, x_y_data, channel_number, config):
+
+    if show_tile:
+        if x_y_label_checked:
+            x = x_y_data.loc[channel_number, 'x']
+            y = x_y_data.loc[channel_number, 'y']
+            ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
+        else:
+            ax.set_title('Channel {}'.format(channel_number), **config)
 
 
 
@@ -218,3 +220,9 @@ def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
     elif channel_number != 8:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
+
+def get_data_in_voltage_range(data, voltage_range):
+    min_voltage, max_voltage = voltage_range
+    data = data.loc[data.loc[:, 'Vavg (V)'] >= min_voltage, :]
+    data = data.loc[data.loc[:, 'Vavg (V)'] <= max_voltage, :]
+    return data
