@@ -152,9 +152,10 @@ class MainView(QMainWindow):
             self._ui.checkbox_show_title.setEnabled(True)
 
             # update min and max voltage
-            min_voltage, max_voltage = self._main_controller.get_voltage_range()
-            self._ui.lineEdit_min_voltage.setText(str(min_voltage))
-            self._ui.lineEdit_max_voltage.setText(str(max_voltage))
+            if "karlie" == self.get_mapping() and self._model.medusa_data is not None:
+                min_voltage, max_voltage = self._main_controller.get_voltage_range()
+                self._ui.lineEdit_min_voltage.setText(str(min_voltage))
+                self._ui.lineEdit_max_voltage.setText(str(max_voltage))
 
 
         elif file_type == "mass":
@@ -194,16 +195,15 @@ class MainView(QMainWindow):
         self._ui.statusbar.setStyleSheet('color: {}'.format(color))
 
     def mapping_change(self):
-        id = self._ui.slider_mapping.value()
         # reset buttons and other ui elements
         self.reset_application()
 
         # make changes based on slider
-        if "karlie" == self.mapping_id[id]:
+        if "karlie" == self.get_mapping():
             self._ui.label_karlie_mapping.setStyleSheet('color: green; font: bold')
             self._ui.label_eloi_mapping.setStyleSheet('color: black; font: regular')
             self.setWindowTitle("Karlie's Application")
-        elif "eloi" == self.mapping_id[id]:
+        elif "eloi" == self.get_mapping():
             self._ui.label_eloi_mapping.setStyleSheet('color: green; font: bold')
             self._ui.label_karlie_mapping.setStyleSheet('color: black; font: regular')
             self.setWindowTitle("Eloi's Application")
@@ -255,6 +255,10 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+
+    def get_mapping(self):
+        id = self._ui.slider_mapping.value()
+        return self.mapping_id[id]
 
     def enable_show_x_y_tile(self, checked):
         if self._model.medusa_data is not None and self._model.x_y_data is not None:
