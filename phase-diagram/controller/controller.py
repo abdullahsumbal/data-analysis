@@ -20,6 +20,10 @@ class MainController(QObject):
         data = self._model.ternary_file_data
         # perform calculation
         data = calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation)
+        # remove the inf and nan
+        inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
+        print("bad indexes:", inf_nan_indexes)
+        data.drop(inf_nan_indexes)
         points = np.array([data["x"].values, data["y"].values]).transpose()
 
         # colors map

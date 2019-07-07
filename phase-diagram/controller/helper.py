@@ -26,7 +26,7 @@ def calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected
     # if compare is not checked
     if selected_operation is None:
         data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]
-        print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
+        # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
         return data
 
     # if compare is checked
@@ -36,8 +36,11 @@ def calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected
     elif selected_operation == "Multiple (*)":
         data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] * \
                              data[selected_type_dict[selected_type_2] + selected_cycle_2]
+    elif selected_operation == "Divide (/)":
+        data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
+                             data[selected_type_dict[selected_type_2] + selected_cycle_2]
 
-    print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
+    # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
     return data
 
 def remove_exclude(data, exclude_channels):
