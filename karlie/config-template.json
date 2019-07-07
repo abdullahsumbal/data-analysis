@@ -29,5 +29,12 @@
     "subplot_title": {
         "fontsize": 10,
         "position": [0.5, 0.8]
-    }
+    },
+    "subplot_axis_label_name": {
+        "norm": {"x": "V vs Li/Li\u207A", "y": "Normalized Current (mA/g)"},
+        "charge": {"x": "Charge/Discharge Capacity (mAh/g)", "y": "Average Voltage (V)"},
+        "avg_voltage": {"x": "Cycles Number", "y": "Average Voltage (V)"},
+        "capacity": {"x": "Cycles Number", "y": "Specific Capacity (mAh/g)"}
+    },
+     "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
 }

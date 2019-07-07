@@ -50,7 +50,14 @@ class MainController(QObject):
                 "subplot_title": {
                     "fontsize": 10,
                     "position": [0.5, 0.8]
-                }
+                },
+                "subplot_axis_label_name": {
+                    "norm": {"x": "V vs Li/Li⁺", "y": "Normalized Current (mA/g)"},
+                    "charge": {"x": "Charge/Discharge Capacity (mAh/g)", "y": "Average Voltage (V)"},
+                    "avg_voltage": {"x": "Cycles Number", "y": "Average Voltage (V)"},
+                    "capacity": {"x": "Cycles Number", "y": "Specific Capacity (mAh/g)"}
+                },
+                "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
             }
 
         # tick_params
@@ -156,7 +163,7 @@ class MainController(QObject):
             zp.zoom_factory(axs, base_scale=1.2)
             zp.pan_factory(axs)
         fig.suptitle(message, fontsize=25)
-        plt.subplots_adjust(hspace=0.05, wspace=0.05)
+        plt.subplots_adjust(**self.config["subplot_spacing"])
         plt.show()
         plt.close()
 
@@ -186,7 +193,10 @@ class MainController(QObject):
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Cycles Number", "Specific Capacity (mAh/g)", plot_one_channel, channel_number, self.config["axis_label"])
+            subplot_axis_label_name = self.config["subplot_axis_label_name"]
+            x_label = subplot_axis_label_name["capacity"]["x"]
+            y_label = subplot_axis_label_name["capacity"]["y"]
+            set_labels(ax, x_label, y_label, plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["capacity"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["capacity"]["x"])
@@ -227,7 +237,10 @@ class MainController(QObject):
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Cycles Number", "Average Voltage (V)", plot_one_channel, channel_number, self.config["axis_label"])
+            subplot_axis_label_name = self.config["subplot_axis_label_name"]
+            x_label = subplot_axis_label_name["avg_voltage"]["x"]
+            y_label = subplot_axis_label_name["avg_voltage"]["y"]
+            set_labels(ax, x_label, y_label, plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["avg_voltage"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["avg_voltage"]["x"])
@@ -275,9 +288,11 @@ class MainController(QObject):
                 ax.plot(charge, voltage, c=colors[color_index % len(colors)], **self.config["plot"])
                 color_index += 1
 
-
             # axis label
-            set_labels(ax, "Charge/Discharge Capacity (mAh/g)", "Average Voltage (V)", plot_one_channel, channel_number, self.config["axis_label"])
+            subplot_axis_label_name = self.config["subplot_axis_label_name"]
+            x_label = subplot_axis_label_name["charge"]["x"]
+            y_label = subplot_axis_label_name["charge"]["y"]
+            set_labels(ax, x_label, y_label, plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["charge"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["charge"]["x"])
@@ -327,7 +342,10 @@ class MainController(QObject):
                 color_index += 1
 
             # axis label
-            set_labels(ax, "Voltage (V)", "Normalized Current (mA/g)", plot_one_channel, channel_number, self.config["axis_label"])
+            subplot_axis_label_name = self.config["subplot_axis_label_name"]
+            x_label = subplot_axis_label_name["norm"]["x"]
+            y_label = subplot_axis_label_name["norm"]["y"]
+            set_labels(ax, x_label, y_label, plot_one_channel, channel_number, self.config["axis_label"])
             # x axis tick spacing
             if "x" in self.config["tick_locator"]["norm"]:
                 loc = MultipleLocator(base=self.config["tick_locator"]["norm"]["x"])
