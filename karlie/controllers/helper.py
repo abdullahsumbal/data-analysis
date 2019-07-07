@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import numpy as np
+import sys
 
 
 def scale_user_input_to_float(limit):
@@ -106,8 +107,10 @@ def get_mass_columns():
     return columns
 
 
-def get_charges(data, selected_channels_list):
+def get_charges(data, selected_channels_list, mass_data):
     # calculate charges
+    x_min, x_max = sys.maxsize, -sys.maxsize - 1
+    y_min, y_max = min(data.loc[:, "Vavg (V)"].values), max(data.loc[:, "Vavg (V)"].values)
     charges = {}
     for channel_number in selected_channels_list:
         charges[channel_number] = {}
@@ -116,6 +119,9 @@ def get_charges(data, selected_channels_list):
         time_h = data.loc[:, "Time(h)"].values
         voltages = data.loc[:, "Vavg (V)"].values
         cycle = data.loc[:, "Cycle"].values
+        mass = 1
+        if mass_data is not None:
+            mass = mass_data[channel_number - 1]
         for index in range(len(time_h) - 1):
             # formula to calculate charges
             cycle_number = cycle[index]
@@ -124,20 +130,29 @@ def get_charges(data, selected_channels_list):
             avg_charge = (current[index] + current[index + 1]) / 2
             time_diff = time_h[index + 1] - time_h[index]
             charge = avg_charge * time_diff
-            accumulated_charge += charge
+            accumulated_charge += charge/mass
             voltage = voltages[index]
 
             charges[channel_number][cycle_number]['charge'].append(accumulated_charge)
             charges[channel_number][cycle_number]['voltage'].append(voltage)
 
-    return charges
+            x_min = min(accumulated_charge, x_min)
+            x_max = max(accumulated_charge, x_max)
+
+    return charges, x_min, x_max, y_min, y_max
 
 
-def get_capacity(data, selected_cycles_list, selected_channels_list):
+def get_capacity(data, selected_cycles_list, selected_channels_list, mass_data):
     # calculate charges
+    x_min, x_max = min(selected_cycles_list), max(selected_cycles_list)
+    y_min, y_max = sys.maxsize, -sys.maxsize - 1
     charges = {}
     for channel_number in selected_channels_list:
         charges[channel_number] = {}
+        # get mass data
+        mass = 1
+        if mass_data is not None:
+            mass = mass_data[channel_number - 1]
         for cycle_number in selected_cycles_list:
             charges[channel_number][cycle_number] = 0
             cycle_data = data[data['Cycle'] == cycle_number]
@@ -149,12 +164,48 @@ def get_capacity(data, selected_cycles_list, selected_channels_list):
                 avg_charge = (current[index] + current[index + 1]) / 2
                 time_diff = time_h[index + 1] - time_h[index]
                 charge += avg_charge * time_diff
-            charges[channel_number][cycle_number] = charge
+            charges[channel_number][cycle_number] = abs(charge/(mass * 1000))
 
-    return charges
+            y_min = min(charges[channel_number][cycle_number], y_min)
+            y_max = max(charges[channel_number][cycle_number], y_max)
+
+    return charges, x_min, x_max, y_min, y_max
+
+
+def get_norm_cur_voltage(data, selected_cycles_list, selected_channels_list, mass_data):
+    # calculate charges
+    x_min, x_max = sys.maxsize, -sys.maxsize - 1
+    y_min, y_max = sys.maxsize, -sys.maxsize - 1
+    norm_cur_voltage = {}
+    for channel_number in selected_channels_list:
+        norm_cur_voltage[channel_number] = {}
+        # get mass data
+        mass = 1
+        if mass_data is not None:
+            mass = mass_data[channel_number - 1]
+        for cycle_number in selected_cycles_list:
+            norm_cur_voltage[channel_number][cycle_number] = {}
+            # get selected cycle data
+            cycle_data = data[data['Cycle'] == cycle_number]
+            # get voltage
+            voltage_cycle = cycle_data.loc[:, 'Vavg (V)'].values
+            # get current
+            current_cycle = cycle_data.loc[:, 'Ch.{}-I (uA)'.format(channel_number)].apply(lambda x: x / (1000 * mass))
+            current_cycle = current_cycle.values
+            norm_cur_voltage[channel_number][cycle_number]['current'] = current_cycle
+            norm_cur_voltage[channel_number][cycle_number]['voltage'] = voltage_cycle
+
+            y_min = min(current_cycle.min(), y_min)
+            y_max = max(current_cycle.max(), y_max)
+            x_min = min(voltage_cycle.min(), x_min)
+            x_max = max(voltage_cycle.max(), x_max)
+
+    return norm_cur_voltage, x_min, x_max, y_min, y_max
 
 def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
     # calculate average voltage
+    x_min, x_max = min(selected_cycles_list) , max(selected_cycles_list)
+    y_min, y_max = sys.maxsize, -sys.maxsize - 1
     avg_voltages = {}
     for channel_number in selected_channels_list:
         avg_voltages[channel_number] = {}
@@ -167,17 +218,18 @@ def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
             voltage_into_current = np.sum(np.multiply(current, avg_volt_from_data))
             avg_voltages[channel_number][cycle_number] = voltage_into_current / sum_current
 
-    return avg_voltages
+            y_min = min(avg_voltages[channel_number][cycle_number], y_min)
+            y_max = max(avg_voltages[channel_number][cycle_number], y_max)
+
+    return avg_voltages, x_min, x_max, y_min, y_max
 
 
-def set_plot_limits(ax, x_min, x_max, y_min, y_max, y_bottom, y_top, x_left, x_right):
-    # get default limits
-    # y_bottom, y_top = ax.get_ylim()
-    # x_left, x_right = ax.get_xlim()
-    y_min = y_bottom if y_min is None else y_min
-    y_max = y_top if y_max is None else y_max
-    x_min = x_left if x_min is None else x_min
-    x_max = x_right if x_max is None else x_max
+def set_plot_limits(ax, x_min, x_max, y_min, y_max, x_left, x_right, y_bottom, y_top):
+    # if none use calculated limits.
+    y_min = y_bottom - abs(y_bottom)*0.05 if y_min is None else y_min
+    y_max = y_top + abs(y_top)*0.05 if y_max is None else y_max
+    x_min = x_left - abs(x_left)*0.05 if x_min is None else x_min
+    x_max = x_right + abs(x_right)*0.05 if x_max is None else x_max
 
     # assign limits
     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
@@ -193,7 +245,6 @@ def set_subplot_tile(ax, show_tile, x_y_label_checked, x_y_data, channel_number,
             ax.set_title('{}: {}, {}'.format(channel_number, np.round(x,2), np.round(y, 2)), **config)
         else:
             ax.set_title('Channel {}'.format(channel_number), **config)
-
 
 
 def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
@@ -220,6 +271,7 @@ def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
     elif channel_number != 8:
         ax.set_yticklabels([])
         ax.set_xticklabels([])
+
 
 def get_data_in_voltage_range(data, voltage_range):
     min_voltage, max_voltage = voltage_range
