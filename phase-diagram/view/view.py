@@ -185,6 +185,7 @@ class MainView(QMainWindow):
         self._ui.comboBox_operation.setEnabled(checked)
         self._ui.comboBox_cycle_2.setEnabled(checked)
         self._ui.comboBox_type_2.setEnabled(checked)
+        self._ui.checkbox_percentage.setEnabled(checked)
 
 
 
