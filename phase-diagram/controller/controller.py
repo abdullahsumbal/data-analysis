@@ -19,21 +19,29 @@ class MainController(QObject):
 
         data = self._model.ternary_file_data
         # perform calculation
-        data = calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation)
+        data = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation)
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
-        print("bad indexes:", inf_nan_indexes)
+        # print("bad indexes:", inf_nan_indexes)
         data = data.drop(inf_nan_indexes)
 
         # get default min and max color scale if values are not defined
         if min_color_scale is None:
             min_color_scale = min(data["calculated"].values)
+        else:
+            min_color_scale = float(min_color_scale)
         if max_color_scale is None:
             max_color_scale = max(data["calculated"].values)
+        else:
+            max_color_scale = float(max_color_scale)
 
-        # remove data that is out of range
-        data = data.loc[data.loc[:, 'calculated'] >= min_color_scale, :]
-        data = data.loc[data.loc[:, 'calculated'] <= max_color_scale, :]
+        # remove/replace data that is out of range
+        # remove
+        # data = data.loc[data.loc[:, 'calculated'] >= min_color_scale, :]
+        # data = data.loc[data.loc[:, 'calculated'] <= max_color_scale, :]
+        # replace
+        data['calculated'].values[data['calculated'].values < min_color_scale] = min_color_scale
+        data['calculated'].values[data['calculated'].values > max_color_scale] = max_color_scale
 
         points = np.array([data["x"].values, data["y"].values]).transpose()
         # colors map
@@ -45,11 +53,12 @@ class MainController(QObject):
         cm = LinearSegmentedColormap.from_list('Capacities', ['blue', 'red'], N=1024)
 
         # normalize data
-        norm = Normalize(vmin=max_color_scale, vmax=max_color_scale)
+        norm = Normalize(vmin=min_color_scale, vmax=max_color_scale)
 
         # get color based on color map
-        data["calculated"] = data["calculated"].apply(lambda x: cm(norm(x)))
-        colors = data["calculated"].values
+        data["calculated_norm"] = data["calculated"].apply(lambda x: norm(x))
+        data["calculated_color"] = data["calculated_norm"].apply(lambda x: cm(x))
+        colors = data["calculated_color"].values
 
         # Creates a ternary set of axes to plot the diagram from python-ternary
         fig, ax = plt.subplots(figsize=(15, 10))
@@ -141,3 +150,25 @@ class MainController(QObject):
             message = "Error: Invalidate {} file format. Check Line {} | {}".format(file_type, index + 2, e)
             self.task_bar_message.emit("red", message)
             return [], False
+
+    def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation):
+
+        # if compare is not checked
+        if selected_operation is None:
+            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]
+            # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
+            return data
+
+        # if compare is checked
+        if selected_operation == "Subtract (-)":
+            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] - \
+                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+        elif selected_operation == "Multiple (*)":
+            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] * \
+                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+        elif selected_operation == "Divide (/)":
+            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
+                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+        # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1,
+        # selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
+        return data

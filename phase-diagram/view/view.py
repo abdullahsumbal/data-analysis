@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from PyQt5.QtCore import pyqtSlot
-from os import path
+import numpy as np
 from view.main_view_ui import Ui_MainWindow
 
 
@@ -27,6 +27,14 @@ class MainView(QMainWindow):
 
         # compare option
         self._ui.checkbox_compare.stateChanged.connect(lambda checked: self.enable_compare(checked))
+
+        # calculation signal
+        self._ui.comboBox_cycle_1.currentIndexChanged.connect(self.perform_calculation)
+        self._ui.comboBox_cycle_2.currentIndexChanged.connect(self.perform_calculation)
+        self._ui.comboBox_type_1.currentIndexChanged.connect(self.perform_calculation)
+        self._ui.comboBox_type_2.currentIndexChanged.connect(self.perform_calculation)
+        self._ui.comboBox_operation.currentIndexChanged.connect(self.perform_calculation)
+        self._ui.checkbox_compare.stateChanged.connect(self.perform_calculation)
 
         ####################################################################
         #   listen for model event signals
@@ -64,6 +72,8 @@ class MainView(QMainWindow):
             self._ui.comboBox_cycle_2.clear()
             self._ui.comboBox_cycle_2.addItems(cycles_list)
 
+            print(self._model.ternary_file_data)
+
 
 
     ####################################################################
@@ -78,6 +88,38 @@ class MainView(QMainWindow):
     ####################################################################
     #   helper functions to send request to controller
     ####################################################################
+
+    def perform_calculation(self):
+        selected_type_1 = self._ui.comboBox_type_1.currentText()
+        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
+
+        if selected_cycle_1 == "":
+            return
+        selected_type_2 = None
+        selected_cycle_2 = None
+        selected_operation = None
+
+        if self._ui.checkbox_compare.isChecked():
+            selected_type_2 = self._ui.comboBox_type_2.currentText()
+            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
+            selected_operation = self._ui.comboBox_operation.currentText()
+
+        # perform calculation
+        data = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+                              selected_operation)
+
+        # remove the inf and nan
+        inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
+        # print("bad indexes:", inf_nan_indexes)
+        data = data.drop(inf_nan_indexes)
+
+        # get min and max
+        min_color_scale = min(data["calculated"].values)
+        max_color_scale = max(data["calculated"].values)
+
+        # set min and max user on UI.
+        self._ui.lineEdit_min_color.setText(str(min_color_scale))
+        self._ui.lineEdit_max_color.setText(str(max_color_scale))
 
     def plot_ternary(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
