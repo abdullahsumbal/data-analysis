@@ -53,7 +53,7 @@ pyuic5 view/app.ui -o view/main_view_ui.py
 ### Deploy Application
 Run the following command on terminal
 ```buildoutcfg
-pyinstaller --noconsole -n mvc_application  app.py
+pyinstaller --noconsole -n phase-diagram  app.py
 ```
 
 This will create a `dist` folder with an `mvc_application` directory inside.
