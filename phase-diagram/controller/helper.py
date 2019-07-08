@@ -21,28 +21,6 @@ def make_colormap(seq):
     return mcolors.LinearSegmentedColormap('CustomMap', cdict)
 
 
-def calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation):
-
-    # if compare is not checked
-    if selected_operation is None:
-        data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]
-        # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
-        return data
-
-    # if compare is checked
-    if selected_operation == "Subtract (-)":
-        data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] - \
-                             data[selected_type_dict[selected_type_2] + selected_cycle_2]
-    elif selected_operation == "Multiple (*)":
-        data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] * \
-                             data[selected_type_dict[selected_type_2] + selected_cycle_2]
-    elif selected_operation == "Divide (/)":
-        data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
-                             data[selected_type_dict[selected_type_2] + selected_cycle_2]
-
-    # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
-    return data
-
 def remove_exclude(data, exclude_channels):
     for channel in exclude_channels:
         # Get names of indexes for which column Age has value 30
