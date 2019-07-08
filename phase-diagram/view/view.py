@@ -22,6 +22,9 @@ class MainView(QMainWindow):
         # plot button
         self._ui.button_plot.clicked.connect(self.plot_ternary)
 
+        # export button
+        self._ui.button_export.clicked.connect(self.export)
+
         # color scaling
         self._ui.checkbox_default_color.stateChanged.connect(lambda checked: self.enable_color_scale(checked))
 
@@ -65,6 +68,7 @@ class MainView(QMainWindow):
             self._ui.comboBox_type_1.setEnabled(True)
             self._ui.button_plot.setEnabled(True)
             self._ui.checkbox_compare.setEnabled(True)
+            self._ui.button_export.setEnabled(True)
 
             # populate combo box cycles
             cycles_list = self.get_cycle_list()
@@ -123,6 +127,28 @@ class MainView(QMainWindow):
         # set min and max user on UI.
         self._ui.lineEdit_min_color.setText(str(min_color_scale))
         self._ui.lineEdit_max_color.setText(str(max_color_scale))
+
+    def export(self):
+        selected_type_1 = self._ui.comboBox_type_1.currentText()
+        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
+        selected_type_2 = None
+        selected_cycle_2 = None
+        selected_operation = None
+        min_color_scale = None
+        max_color_scale = None
+        is_percentage = None
+
+        if self._ui.checkbox_compare.isChecked():
+            selected_type_2 = self._ui.comboBox_type_2.currentText()
+            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
+            selected_operation = self._ui.comboBox_operation.currentText()
+            is_percentage = self._ui.checkbox_percentage.isChecked()
+
+        file_name = self.save_file_dialog()
+        if file_name:
+            self._main_controller.export(selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+                                       selected_operation, is_percentage, file_name)
+
 
     def plot_ternary(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
@@ -192,6 +218,17 @@ class MainView(QMainWindow):
         self._ui.comboBox_cycle_2.setEnabled(checked)
         self._ui.comboBox_type_2.setEnabled(checked)
         self._ui.checkbox_percentage.setEnabled(checked)
+
+    # save file
+    def save_file_dialog(self):
+        options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save to file", "",
+                                                   "CSV File (*.csv) ;; All Files (*)", options=options)
+        if file_name:
+            return file_name
+        else:
+            return False
 
 
 

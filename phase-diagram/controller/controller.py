@@ -4,6 +4,7 @@ from matplotlib.colors import LinearSegmentedColormap, Normalize
 import matplotlib.pyplot as plt
 import ternary
 import numpy as np
+import os
 from controller.helper import *
 
 
@@ -77,6 +78,26 @@ class MainController(QObject):
         plt.axis('off')
         tax.show()
         tax.close()
+
+    def export(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+                                   selected_operation, is_percentage, file_name):
+
+        data = self._model.ternary_file_data
+        # perform calculation
+        data, _ = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
+
+        # get basename to show in task bar.
+        csv_file_basename = os.path.basename(file_name)
+        try:
+            columns_to_export = ["x", "y", selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]
+            if selected_type_2 is not None:
+                columns_to_export.insert(3, selected_type_dict[selected_type_2] + selected_cycle_2)
+            data = data[columns_to_export]
+            data.to_csv(file_name, index=False)
+            self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
+        except PermissionError:
+            self.task_bar_message.emit("red", "Do not have permission to open file. {} may be in use.".format(csv_file_basename))
+
 
     @pyqtSlot(str)
     def file_name_changed(self, name):
