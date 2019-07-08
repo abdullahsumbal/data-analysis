@@ -478,6 +478,19 @@
         </item>
        </layout>
       </item>
+      <item row="7" column="2">
+       <widget class="QCheckBox" name="checkbox_percentage">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Show in Percentage</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>

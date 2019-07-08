@@ -15,11 +15,11 @@ class MainController(QObject):
         self._model = model
 
     def plot(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
-             selected_operation, min_color_scale, max_color_scale):
+             selected_operation, min_color_scale, max_color_scale, is_percentage):
 
         data = self._model.ternary_file_data
         # perform calculation
-        data = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation)
+        data = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
         # print("bad indexes:", inf_nan_indexes)
@@ -151,7 +151,7 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], False
 
-    def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation):
+    def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage):
 
         # if compare is not checked
         if selected_operation is None:
@@ -169,6 +169,11 @@ class MainController(QObject):
         elif selected_operation == "Divide (/)":
             data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
                                  data[selected_type_dict[selected_type_2] + selected_cycle_2]
+
+        if is_percentage:
+            data["avg"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]/2 + \
+                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]/2
+            data["calculated"] = data["calculated"] / data["avg"]
         # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1,
         # selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
         return data
