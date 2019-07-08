@@ -19,7 +19,7 @@ class MainController(QObject):
 
         data = self._model.ternary_file_data
         # perform calculation
-        data = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
+        data, title = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
         # print("bad indexes:", inf_nan_indexes)
@@ -62,11 +62,18 @@ class MainController(QObject):
 
         # Creates a ternary set of axes to plot the diagram from python-ternary
         fig, ax = plt.subplots(figsize=(15, 10))
+        # fix aspect ratio.
+        ax.set_aspect("equal")
+        ax.set_title(title, fontsize = 20)
         tax = ternary.TernaryAxesSubplot(ax=ax, scale=1.0)
         tax.boundary()
         tax.gridlines(multiple=0.1, color='blue')
         tax.scatter(points, marker = 'o', c = colors, s=64,colorbar = True, colormap = cm, vmin=min_color_scale, vmax=max_color_scale)
         tax.ticks(axis='blr', linewidth=1.0, multiple=0.1, tick_formats='%.1f', offset=0.02)
+        # set axis labels
+        tax.left_axis_label("1 - x - y", fontsize = 14, offset = 0.11)
+        tax.right_axis_label("y", fontsize = 14, offset = 0.105)
+        tax.bottom_axis_label("x", fontsize = 14, offset = 0.005)
         plt.axis('off')
         tax.show()
         tax.close()
@@ -153,11 +160,13 @@ class MainController(QObject):
 
     def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage):
 
+        title = ""
         # if compare is not checked
         if selected_operation is None:
             data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]
+            title += "Type: {} and Cycle {}".format(selected_type_1, selected_cycle_1)
             # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
-            return data
+            return data, title
 
         # if compare is checked
         if selected_operation == "Subtract (-)":
@@ -170,10 +179,17 @@ class MainController(QObject):
             data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
                                  data[selected_type_dict[selected_type_2] + selected_cycle_2]
 
+        title += "Type: {} and Cycle {}  {}  Type {} and Cycle {}".format(
+            selected_type_1,
+            selected_cycle_1,
+            selected_operation,
+            selected_type_2,
+            selected_cycle_2)
         if is_percentage:
             data["avg"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]/2 + \
                                  data[selected_type_dict[selected_type_2] + selected_cycle_2]/2
             data["calculated"] = data["calculated"] / data["avg"]
+            title += "  (Percentage)"
         # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1,
         # selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
-        return data
+        return data, title

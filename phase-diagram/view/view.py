@@ -108,7 +108,7 @@ class MainView(QMainWindow):
             is_percentage = self._ui.checkbox_percentage.isChecked()
 
         # perform calculation
-        data = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+        data, _ = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
                               selected_operation, is_percentage)
 
         # remove the inf and nan
