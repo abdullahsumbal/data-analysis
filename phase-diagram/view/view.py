@@ -18,6 +18,7 @@ class MainView(QMainWindow):
         # open file buttons
         self._ui.button_ternary_file.clicked.connect(lambda: self.open_file_name_dialog("ternary"))
         self._ui.button_master_file.clicked.connect(lambda: self.open_file_name_dialog("master"))
+        self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
         # plot button
         self._ui.button_plot.clicked.connect(self.plot_ternary)
@@ -61,7 +62,7 @@ class MainView(QMainWindow):
         self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(file_type))
 
         # enable buttons in UI
-        if file_type == "master" or "ternary":
+        if file_type == "master" or file_type == "ternary":
             self._ui.checkbox_default_color.setEnabled(True)
             self._ui.button_reset_ternary.setEnabled(True)
             self._ui.comboBox_cycle_1.setEnabled(True)

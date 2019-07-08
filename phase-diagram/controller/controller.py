@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import ternary
 import numpy as np
 import os
+import json
 from controller.helper import *
 
 
@@ -14,9 +15,51 @@ class MainController(QObject):
     def __init__(self, model):
         super().__init__()
         self._model = model
+        self.default_config = {
+                        "axis_label": {
+                            "fontsize": 25
+                        },
+                        "scatter": {
+                            "marker": "o",
+                            "colorbar": True,
+                            "linewidth": 5
+                        },
+                        "colors": ["blue", "red"],
+                        "figure": {
+                            "figsize": [20, 15]
+                        },
+                        "title": {
+                            "fontsize": 25,
+                            "y": 1.08
+                        },
+                        "axis_ticks": {
+                            "axis": "blr",
+                            "linewidth": 1.0,
+                            "fontsize": 20,
+                            "multiple": 0.1,
+                            "tick_formats": "%.1f",
+                            "offset": 0.02
+                        },
+                        "gridlines": {
+                            "multiple": 0.1,
+                            "color": "blue"
+                        },
+                        "colorbar_tick_params": {
+                            "labelsize": 20,
+                            "width": 3,
+                            "size": 10,
+                            "direction": "out"
+                        }
+                    }
 
     def plot(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
              selected_operation, min_color_scale, max_color_scale, is_percentage):
+
+        #get config
+        if self._model.config_data is not None:
+            config = self._model.config_data
+        else:
+            config = self.default_config
 
         data = self._model.ternary_file_data
         # perform calculation
@@ -51,7 +94,7 @@ class MainController(QObject):
         # norm = plt.Normalize(0, 1)
         # rvb = make_colormap(
         #     [c('red'), c('violet'), 0.33, c('violet'), c('blue'), 0.66, c('blue')])
-        cm = LinearSegmentedColormap.from_list('Capacities', ['blue', 'red'], N=1024)
+        cm = LinearSegmentedColormap.from_list('Capacities', config["colors"], N=1024)
 
         # normalize data
         norm = Normalize(vmin=min_color_scale, vmax=max_color_scale)
@@ -62,20 +105,25 @@ class MainController(QObject):
         colors = data["calculated_color"].values
 
         # Creates a ternary set of axes to plot the diagram from python-ternary
-        fig, ax = plt.subplots(figsize=(15, 10))
+        fig, ax = plt.subplots(**config["figure"])
         # fix aspect ratio.
         ax.set_aspect("equal")
-        ax.set_title(title, fontsize = 20)
+        ax.set_title("Figure : {} | {}".format(plt.gcf().number, title), **config["title"])
         tax = ternary.TernaryAxesSubplot(ax=ax, scale=1.0)
         tax.boundary()
-        tax.gridlines(multiple=0.1, color='blue')
-        tax.scatter(points, marker = 'o', c = colors, s=64,colorbar = True, colormap = cm, vmin=min_color_scale, vmax=max_color_scale)
-        tax.ticks(axis='blr', linewidth=1.0, multiple=0.1, tick_formats='%.1f', offset=0.02)
+        tax.gridlines(**config["gridlines"])
+        tax.scatter(points, c=colors,  colormap=cm, vmin=min_color_scale, vmax=max_color_scale, **config["scatter"])
+        # colorbar
+        cbar_ax = fig.axes[-1]
+        cbar_ax.tick_params(**config["colorbar_tick_params"])
+        # ticks
+        tax.ticks(**config["axis_ticks"])
         # set axis labels
-        tax.left_axis_label("1 - x - y", fontsize = 14, offset = 0.11)
-        tax.right_axis_label("y", fontsize = 14, offset = 0.105)
-        tax.bottom_axis_label("x", fontsize = 14, offset = 0.005)
+        tax.left_axis_label("1 - x - y", offset=0.11, **config["axis_label"])
+        tax.right_axis_label("y", offset=0.105, **config["axis_label"])
+        tax.bottom_axis_label("x", offset=0.005, **config["axis_label"])
         plt.axis('off')
+        self.task_bar_message.emit("green", "Figure : {} | {}".format(plt.gcf().number, title))
         tax.show()
         tax.close()
 
@@ -176,6 +224,16 @@ class MainController(QObject):
             return master_data, True
         except Exception as e:
             message = "Error: Invalidate {} file format. Check Line {} | {}".format(file_type, index + 2, e)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
+    def validate_config_file(self, name, file_type):
+        try:
+            with open(name) as json_file:
+                data = json.load(json_file)
+                return data, True
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
             self.task_bar_message.emit("red", message)
             return [], False
 

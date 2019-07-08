@@ -12,3 +12,4 @@ dist
 
 !karlie/sample-files/*
 !karlie/config-template.json
+!phase-diagram/config-template.json

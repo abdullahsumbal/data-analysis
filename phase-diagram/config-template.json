@@ -1,0 +1,36 @@
+{
+    "axis_label": {
+        "fontsize": 25
+    },
+    "scatter": {
+        "marker": "o",
+        "colorbar": true,
+        "linewidth": 5
+    },
+    "colors": ["blue", "red"],
+    "figure": {
+        "figsize": [20, 15]
+    },
+    "title": {
+        "fontsize": 25,
+        "y": 1.08
+    },
+    "axis_ticks": {
+        "axis": "blr",
+        "linewidth": 1.0,
+        "fontsize": 20,
+        "multiple": 0.1,
+        "tick_formats": "%.1f",
+        "offset": 0.02
+    },
+    "gridlines": {
+        "multiple": 0.1,
+        "color": "blue"
+    },
+    "colorbar_tick_params": {
+        "labelsize": 20,
+        "width": 3,
+        "size": 10,
+        "direction": "out"
+    }
+}
