@@ -182,6 +182,7 @@ class MainView(QMainWindow):
         self._ui.lineEdit_max_color.setEnabled(not checked)
 
     def enable_compare(self, checked):
+        # things to enable or disabled based on the compare checkbox
         self._ui.comboBox_operation.setEnabled(checked)
         self._ui.comboBox_cycle_2.setEnabled(checked)
         self._ui.comboBox_type_2.setEnabled(checked)
