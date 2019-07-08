@@ -9,6 +9,9 @@ class Model(QObject):
         self._ternary_file_data = None
         self._config_data = None
 
+    @property
+    def config_data(self):
+        return self._config_data
 
     @property
     def ternary_file_data(self):
