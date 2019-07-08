@@ -62,11 +62,17 @@ class MainController(QObject):
 
         # Creates a ternary set of axes to plot the diagram from python-ternary
         fig, ax = plt.subplots(figsize=(15, 10))
+        # fix aspect ratio.
+        ax.set_aspect("equal")
         tax = ternary.TernaryAxesSubplot(ax=ax, scale=1.0)
         tax.boundary()
         tax.gridlines(multiple=0.1, color='blue')
         tax.scatter(points, marker = 'o', c = colors, s=64,colorbar = True, colormap = cm, vmin=min_color_scale, vmax=max_color_scale)
         tax.ticks(axis='blr', linewidth=1.0, multiple=0.1, tick_formats='%.1f', offset=0.02)
+        # set axis labels
+        tax.left_axis_label("1 - x - y", fontsize = 14, offset = 0.11)
+        tax.right_axis_label("y", fontsize = 14, offset = 0.105)
+        tax.bottom_axis_label("x", fontsize = 14, offset = 0.005)
         plt.axis('off')
         tax.show()
         tax.close()
