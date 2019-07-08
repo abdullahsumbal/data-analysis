@@ -258,7 +258,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addLayout(self.gridLayout_4, 5, 2, 1, 1)
         self.checkbox_percentage = QtWidgets.QCheckBox(self.centralwidget)
         self.checkbox_percentage.setEnabled(False)
-        self.checkbox_percentage.setChecked(True)
+        self.checkbox_percentage.setChecked(False)
         self.checkbox_percentage.setObjectName("checkbox_percentage")
         self.gridLayout.addWidget(self.checkbox_percentage, 7, 2, 1, 1)
         self.gridLayout.setColumnStretch(0, 1)
