@@ -107,16 +107,6 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="2">
-       <widget class="QPushButton" name="button_plot">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Plot Ternay Diagram</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="0">
        <layout class="QGridLayout" name="gridLayout_6">
         <item row="2" column="1">
@@ -242,38 +232,6 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="4">
-         <widget class="QComboBox" name="comboBox_operation">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <item>
-           <property name="text">
-            <string>Subtract (-)</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Multiple (*)</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Divide (/)</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label_5">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Select Cycle:</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QLabel" name="label_4">
           <property name="enabled">
@@ -315,23 +273,52 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="6">
-         <widget class="QLabel" name="label_6">
+        <item row="2" column="4">
+         <widget class="QComboBox" name="comboBox_operation">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
-          <property name="text">
-           <string>Select Type:</string>
-          </property>
+          <item>
+           <property name="text">
+            <string>Subtract (-)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Multiple (*)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Divide (/)</string>
+           </property>
+          </item>
          </widget>
         </item>
-        <item row="2" column="6">
-         <widget class="QLabel" name="label_7">
+        <item row="2" column="1">
+         <widget class="QLabel" name="label_5">
           <property name="enabled">
            <bool>true</bool>
           </property>
           <property name="text">
            <string>Select Cycle:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="8" rowspan="4">
+         <widget class="Line" name="line_13">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="comboBox_cycle_1">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="currentText">
+           <string/>
           </property>
          </widget>
         </item>
@@ -345,6 +332,23 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="3">
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QLabel" name="label_7">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Select Cycle:</string>
           </property>
          </widget>
         </item>
@@ -362,34 +366,20 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="8" rowspan="4">
-         <widget class="Line" name="line_13">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" rowspan="3">
-         <widget class="Line" name="line_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QComboBox" name="comboBox_cycle_1">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="currentText">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="7">
          <widget class="QComboBox" name="comboBox_cycle_2">
           <property name="enabled">
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="6">
+         <widget class="QLabel" name="label_6">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string>Select Type:</string>
           </property>
          </widget>
         </item>
@@ -488,6 +478,26 @@
         </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QPushButton" name="button_plot">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Plot Ternay Diagram</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="2">
+       <widget class="QPushButton" name="button_export">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Export</string>
         </property>
        </widget>
       </item>
