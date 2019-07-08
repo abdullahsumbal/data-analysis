@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QDialog
 from PyQt5.QtCore import pyqtSlot
 import numpy as np
 from view.main_view_ui import Ui_MainWindow
+from view.about_view_ui import Ui_AboutWindow
+from view.github_view_ui import Ui_GithubWindow
 
 
 class MainView(QMainWindow):
@@ -10,7 +12,15 @@ class MainView(QMainWindow):
         self._model = model
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
+        self._ui_about = AboutView()
+        self._ui_github = GithubView()
         self._ui.setupUi(self)
+
+        ####################################################################
+        #   trigger function for UI widgets
+        ####################################################################
+        self._ui.action_about.triggered.connect(lambda: self._ui_about.show())
+        self._ui.action_github.triggered.connect(lambda: self._ui_github.show())
 
         ####################################################################
         #   connect widgets to controllers
@@ -231,5 +241,17 @@ class MainView(QMainWindow):
         else:
             return False
 
+class AboutView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_AboutWindow()
+        self.ui.setupUi(self)
+
+
+class GithubView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_GithubWindow()
+        self.ui.setupUi(self)
 
 

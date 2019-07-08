@@ -518,18 +518,18 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout"/>
-    <addaction name="actionGitHub"/>
+    <addaction name="action_about"/>
+    <addaction name="action_github"/>
    </widget>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionAbout">
+  <action name="action_about">
    <property name="text">
     <string>About</string>
    </property>
   </action>
-  <action name="actionGitHub">
+  <action name="action_github">
    <property name="text">
     <string>GitHub</string>
    </property>

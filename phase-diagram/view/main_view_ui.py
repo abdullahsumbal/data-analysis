@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'view/app.ui'
+# Form implementation generated from reading ui file 'app.ui'
 #
 # Created by: PyQt5 UI code generator 5.12.2
 #
@@ -278,12 +278,12 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionGitHub = QtWidgets.QAction(MainWindow)
-        self.actionGitHub.setObjectName("actionGitHub")
-        self.menuHelp.addAction(self.actionAbout)
-        self.menuHelp.addAction(self.actionGitHub)
+        self.action_about = QtWidgets.QAction(MainWindow)
+        self.action_about.setObjectName("action_about")
+        self.action_github = QtWidgets.QAction(MainWindow)
+        self.action_github.setObjectName("action_github")
+        self.menuHelp.addAction(self.action_about)
+        self.menuHelp.addAction(self.action_github)
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -322,7 +322,7 @@ class Ui_MainWindow(object):
         self.button_plot.setText(_translate("MainWindow", "Plot Ternay Diagram"))
         self.button_export.setText(_translate("MainWindow", "Export"))
         self.menuHelp.setTitle(_translate("MainWindow", "Help"))
-        self.actionAbout.setText(_translate("MainWindow", "About"))
-        self.actionGitHub.setText(_translate("MainWindow", "GitHub"))
+        self.action_about.setText(_translate("MainWindow", "About"))
+        self.action_github.setText(_translate("MainWindow", "GitHub"))
 
 
