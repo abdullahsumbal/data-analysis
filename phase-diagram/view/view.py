@@ -35,6 +35,7 @@ class MainView(QMainWindow):
         self._ui.comboBox_type_2.currentIndexChanged.connect(self.perform_calculation)
         self._ui.comboBox_operation.currentIndexChanged.connect(self.perform_calculation)
         self._ui.checkbox_compare.stateChanged.connect(self.perform_calculation)
+        self._ui.checkbox_percentage.stateChanged.connect(self.perform_calculation)
 
         ####################################################################
         #   listen for model event signals
@@ -72,7 +73,7 @@ class MainView(QMainWindow):
             self._ui.comboBox_cycle_2.clear()
             self._ui.comboBox_cycle_2.addItems(cycles_list)
 
-            print(self._model.ternary_file_data)
+            # print(self._model.ternary_file_data)
 
 
 
@@ -98,15 +99,17 @@ class MainView(QMainWindow):
         selected_type_2 = None
         selected_cycle_2 = None
         selected_operation = None
+        is_percentage = None
 
         if self._ui.checkbox_compare.isChecked():
             selected_type_2 = self._ui.comboBox_type_2.currentText()
             selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
             selected_operation = self._ui.comboBox_operation.currentText()
+            is_percentage = self._ui.checkbox_percentage.isChecked()
 
         # perform calculation
         data = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
-                              selected_operation)
+                              selected_operation, is_percentage)
 
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
@@ -129,18 +132,20 @@ class MainView(QMainWindow):
         selected_operation = None
         min_color_scale = None
         max_color_scale = None
+        is_percentage = None
 
         if self._ui.checkbox_compare.isChecked():
             selected_type_2 = self._ui.comboBox_type_2.currentText()
             selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
             selected_operation = self._ui.comboBox_operation.currentText()
+            is_percentage = self._ui.checkbox_percentage.isChecked()
 
         if not self._ui.checkbox_default_color.isChecked():
             min_color_scale = self._ui.lineEdit_min_color.text()
             max_color_scale = self._ui.lineEdit_max_color.text()
 
         self._main_controller.plot(selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
-                                   selected_operation, min_color_scale, max_color_scale)
+                                   selected_operation, min_color_scale, max_color_scale, is_percentage)
 
     # Set one file
     def open_file_name_dialog(self, file_type):
