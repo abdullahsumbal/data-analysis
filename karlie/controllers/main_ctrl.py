@@ -415,7 +415,7 @@ class MainController(QObject):
                     for cycle_number in selected_cycles_list:
                         capacity = capacities[channel_number][cycle_number]
                         avg_voltage = avg_voltages[channel_number][cycle_number]
-                        row += [str(abs(capacity/(mass * 1000))), str(avg_voltage)]
+                        row += [str(abs(capacity)), str(avg_voltage)]
                     csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
