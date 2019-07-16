@@ -15,7 +15,6 @@ class MainController(QObject):
     def __init__(self, model):
         super().__init__()
         self._model = model
-        self.figure_number = 1
         self.charges = None
         self.avg_voltages = None
         self.config_data_default = \
@@ -150,14 +149,13 @@ class MainController(QObject):
         if len(selected_channels_list) == 1:
             channel_message = "channel {}".format(*selected_channels_list)
         message = "Figure {}: {} plot for {} {} and {}".format(
-            self.figure_number,
+            plt.gcf().number,
             plot_title_name,
             "cycles" if len(selected_cycles_list) > 1 else "cycle",
             ",".join(map(str, selected_cycles_list)),
             channel_message
             )
         self.task_bar_message.emit("green", message)
-        self.figure_number += 1
         if len(selected_channels_list) == 1:
             zp = ZoomPan()
             zp.zoom_factory(axs, base_scale=1.2)
