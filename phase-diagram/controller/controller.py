@@ -10,7 +10,7 @@ from controller.helper import *
 
 
 class MainController(QObject):
-    task_bar_message = pyqtSignal(str, str)
+    task_bar_message = pyqtSignal(dict)
 
     def __init__(self, model):
         super().__init__()
@@ -26,7 +26,7 @@ class MainController(QObject):
                         },
                         "colors": ["blue", "red"],
                         "figure": {
-                            "figsize": [20, 15]
+                            "figsize": [15, 10]
                         },
                         "title": {
                             "fontsize": 25,
@@ -66,7 +66,7 @@ class MainController(QObject):
         data, title = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
-        # print("bad indexes:", inf_nan_indexes)
+        inf_indexes = data[data['calculated'].isin([np.inf, -np.inf])]
         data = data.drop(inf_nan_indexes)
 
         # get default min and max color scale if values are not defined
@@ -89,11 +89,6 @@ class MainController(QObject):
 
         points = np.array([data["x"].values, data["y"].values]).transpose()
         # colors map
-        # c = mcolors.ColorConverter().to_rgb
-        # reds = plt.get_cmap("Reds")
-        # norm = plt.Normalize(0, 1)
-        # rvb = make_colormap(
-        #     [c('red'), c('violet'), 0.33, c('violet'), c('blue'), 0.66, c('blue')])
         cm = LinearSegmentedColormap.from_list('Capacities', config["colors"], N=1024)
 
         # normalize data
@@ -123,7 +118,17 @@ class MainController(QObject):
         tax.right_axis_label("y", offset=0.105, **config["axis_label"])
         tax.bottom_axis_label("x", offset=0.005, **config["axis_label"])
         plt.axis('off')
-        self.task_bar_message.emit("green", "Figure : {} | {}".format(plt.gcf().number, title))
+        # if there are some inf index , so report it to user
+        if not inf_indexes.empty:
+            tooltip = inf_indexes[['x', 'y']].to_string()
+            task_bar_data = {"color": "orange",
+                             'message': "Figure : {} | Warning: calculation contains inf | {}".format(plt.gcf().number, title),
+                             'tooltip': tooltip}
+            self.task_bar_message.emit(task_bar_data)
+        else:
+            self.task_bar_message.emit({"color": "green",
+                                        "message": "Figure : {} | {}".format(plt.gcf().number, title),
+                                        "tooltip": "{} rows were removed: {}".format(str(len(inf_nan_indexes)), ",".join(str(x) for x in inf_nan_indexes))})
         tax.show()
         tax.close()
 
@@ -142,9 +147,9 @@ class MainController(QObject):
                 columns_to_export.insert(3, selected_type_dict[selected_type_2] + selected_cycle_2)
             data = data[columns_to_export]
             data.to_csv(file_name, index=False)
-            self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))
+            self.task_bar_message.emit({"color": "green", "message": "Successfully written to {}".format(csv_file_basename)})
         except PermissionError:
-            self.task_bar_message.emit("red", "Do not have permission to open file. {} may be in use.".format(csv_file_basename))
+            self.task_bar_message.emit({"color": "red", "message": "Do not have permission to open file. {} may be in use.".format(csv_file_basename)})
 
 
     @pyqtSlot(str)
@@ -174,7 +179,7 @@ class MainController(QObject):
         exclude_channels = validate_exclude_channels(exclude_channels)
         if exclude_channels is None:
             message = "Invalid exclude channel format"
-            self.task_bar_message.emit("red", message)
+            self.task_bar_message.emit({"color": "red", "message": message})
             return [], False
         columns = {"channels", "x", "y"}
         try:
@@ -186,7 +191,7 @@ class MainController(QObject):
             if bool(diff):
                 message = "Error: Invalidate file format. Heading not found: {}".format(
                     ",".join(diff))
-                self.task_bar_message.emit("red", message)
+                self.task_bar_message.emit({"color": "red", "message": message})
                 return [], False
             else:  # all checks are done , we gucci to update model
                 # remove exclude channels (outliers)
@@ -199,7 +204,7 @@ class MainController(QObject):
                 return data, True
         except Exception as e:
             message = "Error: Invalidate {} file format. {}".format(file_type, e)
-            self.task_bar_message.emit("red", message)
+            self.task_bar_message.emit({"color": "red", "message": message})
             return [], False
 
     def validate_master_file(self, name, file_type):
@@ -213,7 +218,7 @@ class MainController(QObject):
                 ternary_data, valid = self.validate_ternary_file(file_path, "ternary", exclude_channels, master_data)
                 if not valid:
                     message = "Error: Invalidate file format. Error in row {}".format(index+1)
-                    self.task_bar_message.emit("red", message)
+                    self.task_bar_message.emit({"color": "red", "message": message})
                     return [], False
                 # if master_data is not None:
                 #     master_data = pd.concat([master_data, ternary_data], sort=False)
@@ -224,7 +229,7 @@ class MainController(QObject):
             return master_data, True
         except Exception as e:
             message = "Error: Invalidate {} file format. Check Line {} | {}".format(file_type, index + 2, e)
-            self.task_bar_message.emit("red", message)
+            self.task_bar_message.emit({"color": "red", "message": message})
             return [], False
 
     def validate_config_file(self, name, file_type):
@@ -234,7 +239,7 @@ class MainController(QObject):
                 return data, True
         except Exception as error:
             message = "Error: Invalidate {} file format. {}".format(file_type, error)
-            self.task_bar_message.emit("red", message)
+            self.task_bar_message.emit({"color": "red", "message": message})
             return [], False
 
     def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage):
@@ -265,9 +270,9 @@ class MainController(QObject):
             selected_type_2,
             selected_cycle_2)
         if is_percentage:
-            data["avg"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]/2 + \
-                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]/2
-            data["calculated"] = data["calculated"] / data["avg"]
+            # data["avg"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]/2 + \
+            #                      data[selected_type_dict[selected_type_2] + selected_cycle_2]/2
+            data["calculated"] = data["calculated"] / data[selected_type_dict[selected_type_1] + selected_cycle_1]
             title += "  (Percentage)"
         # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1,
         # selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])

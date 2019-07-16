@@ -31,6 +31,9 @@ class MainView(QMainWindow):
         self._ui.button_config_file.clicked.connect(lambda: self.open_file_name_dialog("config"))
 
         # plot button
+        self._ui.button_reset_config.clicked.connect(lambda: self.reset_file("config"))
+
+        # plot button
         self._ui.button_plot.clicked.connect(self.plot_ternary)
 
         # export button
@@ -69,12 +72,11 @@ class MainView(QMainWindow):
     @pyqtSlot(str)
     def on_file_name_changed(self, file_type):
         file_label_color = "green"
-        self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(file_type))
+        self.on_task_bar_message({"color": file_label_color, "message": "Successfully loaded {} file".format(file_type)})
 
         # enable buttons in UI
         if file_type == "master" or file_type == "ternary":
             self._ui.checkbox_default_color.setEnabled(True)
-            self._ui.button_reset_ternary.setEnabled(True)
             self._ui.comboBox_cycle_1.setEnabled(True)
             self._ui.comboBox_type_1.setEnabled(True)
             self._ui.button_plot.setEnabled(True)
@@ -88,18 +90,22 @@ class MainView(QMainWindow):
             self._ui.comboBox_cycle_2.clear()
             self._ui.comboBox_cycle_2.addItems(cycles_list)
 
-            # print(self._model.ternary_file_data)
-
+        elif file_type == "config":
+            self._ui.button_reset_config.setEnabled(True)
 
 
     ####################################################################
     #   controller listener functions
     ####################################################################
-    @pyqtSlot(str, str)
-    def on_task_bar_message(self, color, message):
+    @pyqtSlot(dict)
+    def on_task_bar_message(self, task_bar_data):
+        color = task_bar_data['color']
+        message = task_bar_data['message']
         self._ui.statusbar.show()
         self._ui.statusbar.showMessage(message)
         self._ui.statusbar.setStyleSheet('color: {}'.format(color))
+        if "tooltip" in task_bar_data:
+            self._ui.statusbar.setToolTip(task_bar_data["tooltip"])
 
     ####################################################################
     #   helper functions to send request to controller
@@ -108,8 +114,9 @@ class MainView(QMainWindow):
     def perform_calculation(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
         selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
+        selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
 
-        if selected_cycle_1 == "":
+        if selected_cycle_1 == "" or selected_cycle_2 == "":
             return
         selected_type_2 = None
         selected_cycle_2 = None
@@ -202,6 +209,13 @@ class MainView(QMainWindow):
     ####################################################################
     #   View helper methods
     ####################################################################
+
+    def reset_file(self, file_type):
+        data = None
+        self._model.add_data(data, file_type)
+        if file_type == "config":
+            self._ui.button_reset_config.setEnabled(False)
+            self.on_task_bar_message({"color": "green", "message": "Successfully removed config file"})
 
     def get_cycle_list(self):
         data = self._model.ternary_file_data

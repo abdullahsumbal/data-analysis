@@ -9,7 +9,7 @@
     },
     "colors": ["blue", "red"],
     "figure": {
-        "figsize": [20, 15]
+        "figsize": [15, 10]
     },
     "title": {
         "fontsize": 25,
