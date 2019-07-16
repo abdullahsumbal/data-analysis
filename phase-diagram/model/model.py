@@ -22,7 +22,6 @@ class Model(QObject):
         self._ternary_file_data = value
         self.file_name_changed.emit("master")
 
-
     def add_data(self, data, file_type):
 
         if file_type == "ternary":
