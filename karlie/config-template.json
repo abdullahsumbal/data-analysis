@@ -18,7 +18,7 @@
     },
     "colors": ["r", "b"],
     "tick_locator": {
-        "norm": {},
+        "norm": {"x": 0.5},
         "charge": {},
         "avg_voltage": {},
         "capacity": {}
