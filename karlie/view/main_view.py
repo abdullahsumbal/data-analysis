@@ -152,11 +152,10 @@ class MainView(QMainWindow):
             self._ui.checkbox_show_title.setEnabled(enable)
 
             # update min and max voltage
-            if "karlie" == self.get_mapping() and self._model.medusa_data is not None:
+            if self._model.medusa_data is not None:
                 min_voltage, max_voltage = self._main_controller.get_voltage_range()
                 self._ui.lineEdit_min_voltage.setText(str(min_voltage))
                 self._ui.lineEdit_max_voltage.setText(str(max_voltage))
-
 
         elif file_type == "mass":
             new_label = get_new_label(self._ui.label_mass_file.text(), name)
@@ -226,7 +225,7 @@ class MainView(QMainWindow):
             file_name, _ = QFileDialog.getOpenFileName(self,"Select {} file".format(file_type), "",
                                                        "CSV File (*.csv);;All Files (*)", options=options)
         if file_name:
-            self._main_controller.file_name_changed(file_name, file_type)
+            self._main_controller.file_name_changed(file_name, file_type, self.get_mapping())
 
     # send information to controller about which channels and cycles to plot
     def plot(self, plot_name):
@@ -270,6 +269,13 @@ class MainView(QMainWindow):
         self._ui.checkbox_channel.setChecked(True)
         self._ui.checkbox_scale_default.setChecked(True)
         self._ui.checkbox_x_y_plot_label.setChecked(True)
+        self._ui.checkbox_default_voltage_range.setChecked(True)
+        self._ui.checkbox_show_title.setChecked(True)
+        self._ui.checkbox_x_y_plot_label.setChecked(True)
+
+        # clear voltage range
+        self._ui.lineEdit_min_voltage.clear()
+        self._ui.lineEdit_max_voltage.clear()
 
         # rest linedit for scale
         self._ui.lineEdit_scale_x_min.clear()

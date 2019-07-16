@@ -93,11 +93,53 @@ def get_discharge_from_selected_cycles(selected_cycles):
             discharge_cycles.append(cycle)
 
 
-def get_medusa_columns():
-    columns = {"Cycle", "Time(h)", "VSet (V)", "Vavg (V)"}
-    for channel_number in range(1, 65):
-        columns.add("Ch.{}-I (uA)".format(channel_number))
-    return columns
+def get_medusa_columns(mapping):
+    if mapping == "karlie":
+        starting_row = 7
+        columns = {"Cycle", "Time(h)", "VSet (V)", "Vavg (V)"}
+        for channel_number in range(1, 65):
+            columns.add("Ch.{}-I (uA)".format(channel_number))
+        return columns, starting_row
+    elif mapping == "eloi":
+        starting_row = 71
+        columns = {"Time", "Total_I", "Cell_E", "Base_E", "Group_E", "I_(1,1)", "I_(2,1)", "I_(3,1)", "I_(4,1)", "I_(5,1)", "I_(6,1)", "I_(7,1)", "I_(8,1)", "I_(9,1)", "I_(10,1)", "I_(1,2)", "I_(2,2)", "I_(3,2)", "I_(4,2)", "I_(5,2)", "I_(6,2)", "I_(7,2)", "I_(8,2)", "I_(9,2)", "I_(10,2)", "I_(1,3)", "I_(2,3)", "I_(3,3)", "I_(4,3)", "I_(5,3)", "I_(6,3)", "I_(7,3)", "I_(8,3)", "I_(9,3)", "I_(10,3)", "I_(1,4)", "I_(2,4)", "I_(3,4)", "I_(4,4)", "I_(5,4)", "I_(6,4)", "I_(7,4)", "I_(8,4)", "I_(9,4)", "I_(10,4)", "I_(1,5)", "I_(2,5)", "I_(3,5)", "I_(4,5)", "I_(5,5)", "I_(6,5)", "I_(7,5)", "I_(8,5)", "I_(9,5)", "I_(10,5)", "I_(1,6)", "I_(2,6)", "I_(3,6)", "I_(4,6)", "I_(5,6)", "I_(6,6)", "I_(7,6)", "I_(8,6)", "I_(9,6)", "I_(10,6)", "I_(1,7)", "I_(2,7)", "I_(3,7)", "I_(4,7)", "I_(5,7)", "I_(6,7)", "I_(7,7)", "I_(8,7)", "I_(9,7)", "I_(10,7)", "I_(1,8)", "I_(2,8)", "I_(3,8)", "I_(4,8)", "I_(5,8)", "I_(6,8)", "I_(7,8)", "I_(8,8)", "I_(9,8)", "I_(10,8)", "I_(1,9)", "I_(2,9)", "I_(3,9)", "I_(4,9)", "I_(5,9)", "I_(6,9)", "I_(7,9)", "I_(8,9)", "I_(9,9)", "I_(10,9)", "I_(1,10)", "I_(2,10)", "I_(3,10)", "I_(4,10)", "I_(5,10)", "I_(6,10)", "I_(7,10)", "I_(8,10)", "I_(9,10)", "I_(10,10)"}
+        return columns, starting_row
+    else:
+        return {}
+
+
+def change_col_name_eloi_mapping(data):
+    add_cycle_column_in_eloi_mapping(data)
+    channel_names = ['6,9', '10,9', '4,10', '8,10', '2,8', '6,8', '10,8', '2,9',
+                     '5,9', '9,9', '3,10', '7,10', '1,8', '5,8', '9,8', '1,9',
+                     '4,9', '8,9', '2,10', '6,10', '10,10', '4,8', '8,8', '4,4',
+                     '3,9', '7,9', '1,10', '5,10', '9,10', '3,8', '7,8', '3,4',
+                     '2,5', '10,7', '6,7', '2,7', '8,6', '4,6', '10,5', '6,5',
+                     '1,5', '9,7', '5,7', '1,7', '7,6', '3,6', '9,5', '5,5',
+                     '2,4', '8,7', '4,7', '10,6', '6,6', '2,6', '8,5', '4,5',
+                     '1,4', '7,7', '3,7', '9,6', '5,6', '1,6', '7,5', '3,5']
+    column_mapping = {'Cell_E': 'Vavg (V)', 'Time': 'Time(h)'}
+    for index, channel_name in enumerate(channel_names):
+        channel_number = index + 1
+        column_mapping['I_({})'.format(channel_name)] = "Ch.{}-I (uA)".format(channel_number)
+
+    data.rename(columns=column_mapping, inplace=True)
+
+
+def add_cycle_column_in_eloi_mapping(data):
+    # eloi mapping does not have cycles in the data
+    # so everytime the time is zero I increment the cycle number
+    # and add a column of Cycle in the data
+    zero_index = data.index[data['Time'] == 0].tolist()
+    number_of_rows = data.shape[0]
+    cycle_number = 0
+    cycle_data = []
+    for index in range(number_of_rows):
+        if index in zero_index:
+            cycle_number += 1
+        cycle_data.append(cycle_number)
+
+    data['Cycle'] = cycle_data
 
 
 def get_mass_columns():
@@ -202,6 +244,7 @@ def get_norm_cur_voltage(data, selected_cycles_list, selected_channels_list, mas
 
     return norm_cur_voltage, x_min, x_max, y_min, y_max
 
+
 def get_avg_voltage(data, selected_cycles_list, selected_channels_list):
     # calculate average voltage
     x_min, x_max = min(selected_cycles_list) , max(selected_cycles_list)
@@ -283,6 +326,7 @@ def set_labels(ax, x_label, y_label, plot_one_channel, channel_number, config):
 
 def get_data_in_voltage_range(data, voltage_range):
     min_voltage, max_voltage = voltage_range
-    data = data.loc[data.loc[:, 'Vavg (V)'] >= min_voltage, :]
-    data = data.loc[data.loc[:, 'Vavg (V)'] <= max_voltage, :]
+    voltage_column_name = 'Vavg (V)'
+    data = data.loc[data.loc[:, voltage_column_name] >= min_voltage, :]
+    data = data.loc[data.loc[:, voltage_column_name] <= max_voltage, :]
     return data

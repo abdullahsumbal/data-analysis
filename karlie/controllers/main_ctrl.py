@@ -58,6 +58,7 @@ class MainController(QObject):
                 },
                 "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
             }
+        self.config = self._model.config_data
 
         # tick_params
         # https://matplotlib.org/3.1.0/api/_as_gen/matplotlib.axes.Axes.tick_params.html
@@ -73,11 +74,16 @@ class MainController(QObject):
         # https://matplotlib.org/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure
 
     # general plot function which is responsible for calling other plot functions.
-    def plot(self, selected_cycles, selected_channels, x_y_scale_limit, plot_name, voltage_range, x_y_label_checked, show_tile):
+    def plot(self, selected_cycles, selected_channels, x_y_scale_limit, plot_name, voltage_range, x_y_label_checked,
+             show_tile):
 
         x_limit, y_limit = x_y_scale_limit
+
+        # get data from model
+        data = self._model.medusa_data
+
         # cycle validation
-        all_cycles = get_unique_cycles(self._model.medusa_data)
+        all_cycles = get_unique_cycles(data)
         valid, message = validate_cycles(all_cycles, selected_cycles)
         if not valid:
             self.task_bar_message.emit("red", message)
@@ -88,9 +94,6 @@ class MainController(QObject):
         if not valid:
             self.task_bar_message.emit("red", message)
             return
-
-        # get data from model
-        data = self._model.medusa_data
 
         # get data within the range of voltage
         data = get_data_in_voltage_range(data, voltage_range)
@@ -422,25 +425,21 @@ class MainController(QObject):
             self.task_bar_message.emit("red", "Do not have permission to open file. {} may be in use.".format(csv_file_basename))
 
     @pyqtSlot(str)
-    def file_name_changed(self, name, file_type):
+    def file_name_changed(self, name, file_type, mapping):
         # TODO: Validate if the file
         valid = False
         if file_type == "medusa":
-            data, valid = self.validate_medusa_file(name, file_type)
+            data, valid = self.validate_medusa_file(name, file_type, mapping)
         elif file_type == "mass":
             data, valid = self.validate_mass_file(name, file_type)
         elif file_type == "x_y":
             data, valid = self.validate_x_y_file(name, file_type)
         elif file_type == "config":
             data, valid = self.validate_config_file(name, file_type)
-        # resistances_header = pd.read_csv(name, header=6, nrows=0)
-        # resistances_values = pd.read_csv(name, skiprows=4, nrows=1)
-        # self._model.resistances = resistances_values
 
         # update model
         if valid:
             self._model.file_name = (name, data, file_type)
-
 
     def get_unique_cycles(self, data):
         return data.Cycle.unique()
@@ -506,10 +505,10 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], False
 
-    def validate_medusa_file(self, name, file_type):
-        columns = get_medusa_columns()
+    def validate_medusa_file(self, name, file_type, mapping):
+        columns, starting_row = get_medusa_columns(mapping)
         try:
-            data = pd.read_csv(name, skiprows=7)
+            data = pd.read_csv(name, skiprows=starting_row)
             diff = columns.difference(set(data.columns.values))
             if bool(diff):
                 message = "Error: Invalidate {} file format. Heading not found: {}".format(
@@ -518,10 +517,13 @@ class MainController(QObject):
                 self.task_bar_message.emit("red", message)
                 return [], False
             else:
+                # change column names in eloi's mapping to it matches to karlie's
+                if mapping == 'eloi':
+                    change_col_name_eloi_mapping(data)
                 return data, True
 
-        except Exception:
-            message = "Error: Invalidate {} file format.".format(file_type)
+        except Exception as e:
+            message = "Error: Invalidate {} file format. {}".format(file_type, e)
             self.task_bar_message.emit("red", message)
             return [], False
 
@@ -553,9 +555,9 @@ class MainController(QObject):
             return [], False
 
     def get_voltage_range(self):
-        data = self._model.medusa_data["Vavg (V)"].values
+        voltage_column_name = 'Vavg (V)'
+        data = self._model.medusa_data[voltage_column_name].values
         return min(data), max(data)
-
 
 
 class ZoomPan:
