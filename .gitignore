@@ -8,7 +8,7 @@ dist
 *.pdf
 *.pyc
 *json
-
+*.xlsx
 
 !karlie/sample-files/*
 !karlie/config-template.json
