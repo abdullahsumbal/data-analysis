@@ -244,12 +244,14 @@ class MainView(QMainWindow):
         # get user input for cycles and channels
         cycles = self.get_selected_cycles()
         channels = self.get_selected_channels()
+        # get voltage from user input
+        voltage_range = self.get_voltage_range()
         # validate user input before openning save window
         if self._main_controller.validate_cycles_channels(cycles, channels):
             csv_file_name = self.save_file_dialog()
             # export
             if csv_file_name:
-                self._main_controller.export_csv(cycles, channels, csv_file_name)
+                self._main_controller.export_csv(cycles, channels, voltage_range, csv_file_name)
 
     ####################################################################
     #   View helper methods

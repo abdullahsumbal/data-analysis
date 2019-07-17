@@ -371,7 +371,7 @@ class MainController(QObject):
 
         return True
 
-    def export_csv(self, selected_cycles, selected_channels, csv_file_name):
+    def export_csv(self, selected_cycles, selected_channels, voltage_range, csv_file_name):
         # changing cycle user input into array
         if selected_cycles == "all":
             all_cycles = get_unique_cycles(self._model.medusa_data)
@@ -387,6 +387,10 @@ class MainController(QObject):
 
         # get data from model
         data = self._model.medusa_data
+
+        # get data within the range of voltage
+        data = get_data_in_voltage_range(data, voltage_range)
+
         # calculate charges
         capacities, *_ = get_capacity(data, selected_cycles_list, selected_channels_list, self._model.mass_data)
         avg_voltages, *_ = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
