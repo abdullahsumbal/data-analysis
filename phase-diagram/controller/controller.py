@@ -17,7 +17,8 @@ class MainController(QObject):
         self._model = model
         self.default_config = {
                         "axis_label": {
-                            "fontsize": 25
+                            "fontsize": 25,
+                            "offset": 0.12
                         },
                         "scatter": {
                             "marker": "o",
@@ -114,9 +115,9 @@ class MainController(QObject):
         # ticks
         tax.ticks(**config["axis_ticks"])
         # set axis labels
-        tax.left_axis_label("1 - x - y", offset=0.11, **config["axis_label"])
-        tax.right_axis_label("y", offset=0.105, **config["axis_label"])
-        tax.bottom_axis_label("x", offset=0.005, **config["axis_label"])
+        tax.left_axis_label("1 - x - y", **config["axis_label"])
+        tax.right_axis_label("y", **config["axis_label"])
+        tax.bottom_axis_label("x", **config["axis_label"])
         plt.axis('off')
         # if there are some inf index , so report it to user
         if not inf_indexes.empty:

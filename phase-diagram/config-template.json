@@ -1,6 +1,7 @@
 {
     "axis_label": {
-        "fontsize": 25
+        "fontsize": 25,
+        "offset": 0.12
     },
     "scatter": {
         "marker": "o",
