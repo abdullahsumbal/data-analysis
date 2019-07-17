@@ -100,23 +100,6 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="2">
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="text">
-         <string>Plot</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="1">
-       <widget class="QCheckBox" name="checkBox_5">
-        <property name="text">
-         <string>Apply Fitting</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="2">
        <widget class="QPushButton" name="pushButton_3">
         <property name="text">
@@ -330,10 +313,24 @@
       </item>
       <item row="6" column="1">
        <layout class="QGridLayout" name="gridLayout_7">
-        <item row="1" column="0" colspan="3">
+        <item row="2" column="0" rowspan="3">
+         <widget class="Line" name="line_16">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="4">
          <widget class="Line" name="line_12">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3" rowspan="3">
+         <widget class="Line" name="line_17">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
@@ -353,7 +350,7 @@
         <item row="3" column="1">
          <widget class="QCheckBox" name="checkBox_4">
           <property name="text">
-           <string>Show x y Values on Plot</string>
+           <string>x y</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -363,24 +360,30 @@
         <item row="2" column="1">
          <widget class="QCheckBox" name="checkBox_3">
           <property name="text">
-           <string>Show Plot Title</string>
+           <string>Title</string>
           </property>
           <property name="checked">
            <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="2" column="0" rowspan="3">
-         <widget class="Line" name="line_16">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="checkBox_6">
+          <property name="text">
+           <string>R</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
-        <item row="2" column="2" rowspan="3">
-         <widget class="Line" name="line_17">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+        <item row="3" column="2">
+         <widget class="QCheckBox" name="checkBox_7">
+          <property name="text">
+           <string>Con</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -453,6 +456,30 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="9" column="0">
+       <widget class="QCheckBox" name="checkBox_5">
+        <property name="text">
+         <string>Apply Fitting</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="1">
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="text">
+         <string>Plot</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QPushButton" name="pushButton_5">
+        <property name="text">
+         <string>Export</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
