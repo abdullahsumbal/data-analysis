@@ -206,7 +206,10 @@ def get_capacity(data, selected_cycles_list, selected_channels_list, mass_data):
                 avg_charge = (current[index] + current[index + 1]) / 2
                 time_diff = time_h[index + 1] - time_h[index]
                 charge += avg_charge * time_diff
-            charges[channel_number][cycle_number] = abs(charge/(mass * 1000))
+            if cycle_number % 2 == 0:
+                charges[channel_number][cycle_number] = charge/(mass * 1000) * -1
+            else:
+                charges[channel_number][cycle_number] = charge / (mass * 1000)
 
             y_min = min(charges[channel_number][cycle_number], y_min)
             y_max = max(charges[channel_number][cycle_number], y_max)
