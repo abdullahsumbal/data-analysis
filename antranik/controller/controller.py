@@ -1,12 +1,11 @@
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
 from controller.helper import *
 import pandas as pd
 import glob
-import matplotlib.pyplot as plt
-from impedance.circuits import Randles, CustomCircuit
 import matplotlib
 matplotlib.use("TkAgg")
-import numpy as np
+import matplotlib.pyplot as plt
+
 
 class MainController(QObject):
     task_bar_message = pyqtSignal(str, str)
@@ -85,9 +84,11 @@ class MainController(QObject):
             if apply_fitting:
                 get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
-                    fitting = get_fitting_data(channel_data)
+                    fitting = get_fitting_data_timeout(channel_data)
+                    print("processed:", channel_number)
                 except Exception:
                     belated_fitting.append(channel_number)
+                    print("timed out:", channel_number)
 
             self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
 
@@ -106,8 +107,8 @@ class MainController(QObject):
             ax.set_picker(True)
 
             # remove tick labels.
-            ax.set_xticklabels([])
-            ax.set_yticklabels([])
+            # ax.set_xticklabels([])
+            # ax.set_yticklabels([])
 
             # set axes label
             if channel_number == 32:
@@ -123,7 +124,7 @@ class MainController(QObject):
 
         # setup picker. double clicking on the subplot will open
         # a plot with one channel
-        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data))
+        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data, limits, timeout_time, apply_fitting))
 
         # plot title and message box
         message = "Figure {}: {}".format(
@@ -131,8 +132,9 @@ class MainController(QObject):
             "plot title")
         self.task_bar_message.emit("green", message)
         fig.suptitle(message, fontsize=25)
-        self.enabled_plot_button.emit()
         plt.show()
+        plt.close()
+        self.enabled_plot_button.emit()
 
     def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, config):
 
@@ -185,8 +187,9 @@ class MainController(QObject):
             "plot title")
         self.task_bar_message.emit("green", message)
         fig.suptitle(message, fontsize=25)
-        self.enabled_plot_button.emit()
         plt.show()
+        plt.close()
+        self.enabled_plot_button.emit()
 
     def validate_file_folder(self, file_name, file_type, missing=[]):
         # update model
@@ -316,31 +319,38 @@ class MainController(QObject):
                 return False
         return True
 
-    def onclick(self, event, axs, data):
+    def onclick(self, event, axs, data, limits, timeout_time, apply_fitting):
+        #  {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, 'up', 'down'}
+        # 3 means right click
+        if event.button == 3:
+
+            # right click will show/hide the tick labels.
+            ax = event.inaxes
+            show_labels = ax.get_xticklabels() == []
+            ax.tick_params(labelleft=show_labels, labelbottom=show_labels)
+            event.canvas.draw()
+
+
+
         if event.dblclick:
             for row in range(8):
                 for col in range(8):
                     if event.inaxes == axs[row][col]:
-                        fig, axs = plt.subplots(1, 1)
-                        channel_number = (col)* 8 + (row + 1)
-                        channel_data = data[data['channel'] == channel_number]
-                        axs.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"])
-                        zp = ZoomPan()
-                        zp.zoom_factory(axs, base_scale=1.2)
-                        zp.pan_factory(axs)
-                        fig.suptitle("channel {}".format(channel_number))
-                        plt.show()
-    def onpick(self, event, axs, data):
+                        channel_number = (col) * 8 + (row + 1)
 
-        for row in range(8):
-            for col in range(8):
-                if event.artist == axs[row][col]:
-                    fig, axs = plt.subplots(1, 1)
-                    channel_number = (col)* 8 + (row + 1)
-                    channel_data = data[data['channel'] == channel_number]
-                    axs.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"])
-                    zp = ZoomPan()
-                    zp.zoom_factory(axs, base_scale=1.2)
-                    zp.pan_factory(axs)
-                    fig.suptitle("channel {}".format(channel_number))
-                    plt.show()
+                        # get config
+                        config = self._model.config_data
+                        if config is None:
+                            config = default_config_single
+
+
+                        self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, config)
+                        # fig, axs = plt.subplots(1, 1)
+                        # channel_number = (col)* 8 + (row + 1)
+                        # channel_data = data[data['channel'] == channel_number]
+                        # axs.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"])
+                        # zp = ZoomPan()
+                        # zp.zoom_factory(axs, base_scale=1.2)
+                        # zp.pan_factory(axs)
+                        # fig.suptitle("channel {}".format(channel_number))
+                        # plt.show()

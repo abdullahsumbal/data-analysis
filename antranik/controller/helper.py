@@ -1,10 +1,7 @@
 from os import path
 import re
 from impedance.circuits import Randles
-import matplotlib
 import numpy as np
-
-matplotlib.use("TkAgg")
 
 from threading import Thread
 import functools
@@ -276,7 +273,9 @@ default_config_multiple = {
         "labelsize": 20,
         "direction": "in",
         "top": True,
-        "right": True
+        "right": True,
+        "labelleft": False,
+        "labelbottom": False
     },
     "axis_label": {
         "fontsize": 30
