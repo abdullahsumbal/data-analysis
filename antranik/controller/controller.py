@@ -17,7 +17,7 @@ class MainController(QObject):
         self._model = model
         self.temp = None
 
-    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits):
+    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, apply_fitting):
         data = self._model.data_data
 
         # validate channel
@@ -54,58 +54,12 @@ class MainController(QObject):
             return
 
         if is_one_channel:
-            self.plot_one(data, int(selected_channel), limits, config)
+            self.plot_one(data, int(selected_channel), limits, apply_fitting, config)
         else:
-            self.plot_multiple(data, missing, limits, config)
+            self.plot_multiple(data, missing, limits, apply_fitting, config)
         return 
 
-        if selected_channel == "all":
-            fig, self.axs = plt.subplots(8, 8, **config["figure"])
-        else:
-            fig, self.axs = plt.subplots(1, 1, **config["figure"])
-
-
-        for channel_index in range(64):
-
-            channel_number = channel_index + 1
-
-            #  more than one plot
-            if not is_one_channel:
-                ax = self.axs[channel_index % 8][int(channel_index / 8)]
-            # one plot
-            elif channel_number == int(selected_channel):
-                ax = self.axs
-
-            # skip missing channels
-            if channel_number in missing:
-                continue
-
-            # get channel data
-            channel_data = data[data['channel'] == channel_number]
-            ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
-
-            # styling the plot
-            # ax.ticklabel_format(style="sci", scilimits=(0, 4))
-            ax.tick_params(labelsize=10)
-            ax.set_picker(True)
-            set_labels(ax, config["axis_label_name"]["x"], config["axis_label_name"]["y"], is_one_channel, channel_number, {})
-        if not is_one_channel:
-            set_plot_limits(ax, x_min, x_max, y_min, y_max)
-        if is_one_channel:
-            zp = ZoomPan()
-            zp.zoom_factory(self.axs, base_scale=1.2)
-            zp.pan_factory(self.axs)
-        else:
-            fig.canvas.mpl_connect('button_press_event', self.onclick)
-        plt.subplots_adjust(**config["subplot_spacing"])
-        message = "Figure {}: {}".format(
-            plt.gcf().number,
-            "plot title")
-        self.task_bar_message.emit("green", message)
-        fig.suptitle(message, fontsize=25)
-        plt.show()
-
-    def plot_multiple(self, data, missing, limits, config):
+    def plot_multiple(self, data, missing, limits, apply_fitting,  config):
 
         # get fitting
         # fitting = get_fitting_data(data)
@@ -129,11 +83,11 @@ class MainController(QObject):
             channel_data = data[data['channel'] == channel_number]
 
             # get fitting
-
-            try:
-                fitting = get_fitting_data(channel_data)
-            except Exception:
-                belated_fitting.append(channel_number)
+            if apply_fitting:
+                try:
+                    fitting = get_fitting_data(channel_data)
+                except Exception:
+                    belated_fitting.append(channel_number)
 
             print(channel_number)
             self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
@@ -146,15 +100,22 @@ class MainController(QObject):
 
             # plots and scatter
             ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
-            if channel_number not in belated_fitting:
+            if channel_number not in belated_fitting and apply_fitting:
                 ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
 
             # styling the plot
-            # ax.tick_params(labelsize=10)
             ax.set_picker(True)
+
+            # remove tick labels.
+            ax.set_xticklabels([])
+            ax.set_yticklabels([])
+
             # set axes label
-            # ax.set_xlabel(config["axis_label_name"]["x"], **config["axis_label"])
-            # ax.set_ylabel(config["axis_label_name"]["y"], **config["axis_label"])
+            if channel_number == 32:
+                ax.set_xlabel(config["axis_label_name"]["x"], **config["axis_label"])
+
+            if channel_number == 4:
+                ax.set_ylabel(config["axis_label_name"]["y"], **config["axis_label"])
 
             # ticks
             ax.tick_params(**config["tick_params"])
@@ -174,7 +135,7 @@ class MainController(QObject):
         self.enabled_plot_button.emit()
         plt.show()
 
-    def plot_one(self, data, channel_number, limits, config):
+    def plot_one(self, data, channel_number, limits, apply_fitting, config):
 
         # get channel data
         channel_data = data[data['channel'] == channel_number]
@@ -182,7 +143,12 @@ class MainController(QObject):
         # get fitting
         from time import gmtime, strftime
         # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
-        fitting = get_fitting_data(channel_data)
+        if apply_fitting:
+            try:
+                fitting = get_fitting_data(channel_data)
+            except Exception:
+                self.enabled_plot_button.emit()
+                return
         # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
         # scale given by user
         x_limit, y_limit = limits
@@ -196,9 +162,9 @@ class MainController(QObject):
 
         # plot
         ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
-        ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
+        if apply_fitting:
+            ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
         ax.tick_params(labelsize=10)
-        ax.set_picker(True)
         # set axes label
         ax.set_xlabel(config["axis_label_name"]["x"], **config["axis_label"])
         ax.set_ylabel(config["axis_label_name"]["y"], **config["axis_label"])

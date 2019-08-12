@@ -90,6 +90,10 @@ class MainView(QMainWindow):
             # filter and options
             self._ui.checkBox_freq_range.setEnabled(enable)
             self._ui.checkBox_freq_point_range.setEnabled(enable)
+
+            # enable fitting
+            self._ui.checkBox_fitting.setEnabled(enable)
+
             # update frequency Range
             if enable:
                 min_freq, max_freq, total_points = self._main_controller.get_frequency_range_from_data()
@@ -127,6 +131,9 @@ class MainView(QMainWindow):
         x_limits = self.get_x_axis_limit()
         limits = [x_limits, y_limits]
 
+        # allow fitting
+        apply_fitting = self._ui.checkBox_fitting.isChecked()
+
         # get frequency info. sends checkbox and lineedit and
         # lets the control decide which one to use
         freq_range_info = {"default": self._ui.checkBox_freq_range.isChecked(),
@@ -134,7 +141,7 @@ class MainView(QMainWindow):
         freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
                            "range": [int(self._ui.lineEdit_freq_point_min.text()), int(self._ui.lineEdit_freq_point_max.text())]}
 
-        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits)
+        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, apply_fitting)
 
     def load_file_folder(self, file_type):
         if file_type == "data":
