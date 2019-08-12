@@ -1,2 +1,5 @@
 pyqt5==5.12.2
 pyinstaller==3.4
+pandas==0.24.2
+matplotlib==3.0.3
+impedance==0.3.0
