@@ -121,6 +121,7 @@ class MainController(QObject):
             ax.tick_params(**config["tick_params"])
             # set set limits
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
+            ax.ticklabel_format(style='plain')
 
         # setup picker. double clicking on the subplot will open
         # a plot with one channel
@@ -323,7 +324,7 @@ class MainController(QObject):
         #  {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, 'up', 'down'}
         # 3 means right click
         if event.button == 3:
-
+            print("detected right click")
             # right click will show/hide the tick labels.
             ax = event.inaxes
             show_labels = ax.get_xticklabels() == []
@@ -332,7 +333,8 @@ class MainController(QObject):
 
 
 
-        if event.dblclick:
+        if event.button == 1:
+            print("detected left click")
             for row in range(8):
                 for col in range(8):
                     if event.inaxes == axs[row][col]:
