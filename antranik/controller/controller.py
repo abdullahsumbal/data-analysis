@@ -4,8 +4,9 @@ import pandas as pd
 import glob
 import matplotlib
 matplotlib.use("TkAgg")
+import numpy as np
 import matplotlib.pyplot as plt
-
+import json
 
 class MainController(QObject):
     task_bar_message = pyqtSignal(str, str)
@@ -198,6 +199,14 @@ class MainController(QObject):
         emit_message = True
         if file_type == "data":
             data, valid, emit_message = self.validate_data_file(file_name, file_type, missing)
+        elif file_type == "x_y":
+            data, valid = self.validate_other_files(file_name, file_type, {"x", "y", "channel"}, missing)
+        elif file_type == "guess_model":
+            data, valid = self.validate_other_files(file_name, file_type, {"channel", "model", "guess"}, missing)
+        elif file_type == "area_thickness":
+            data, valid = self.validate_other_files(file_name, file_type, {"channel", "area", "thickness"}, missing)
+        elif file_type == "config":
+            data, valid = self.validate_config_file(file_name, file_type)
         # update model
         if valid:
             self._model.file_name = (file_name, data, file_type, emit_message)
@@ -251,6 +260,56 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], not valid, emit_message
 
+    def validate_config_file(self, name, file_type):
+        try:
+            with open(name) as json_file:
+                data = json.load(json_file)
+                return data, True
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
+    def validate_other_files(self, name, file_type, columns, missing_channels):
+        try:
+            data = pd.read_csv(name)
+            diff = columns.difference(set(data.columns.values))
+            if bool(diff):
+                message = "Error: Invalidate {} file format. Heading not found: {}".format(
+                    file_type,
+                    ",".join(diff))
+                self.task_bar_message.emit("red", message)
+                return [], False
+            else:
+                channel_count = data['channel'].count()
+                selected_channels = get_selected_channels(missing_channels)
+                # channel count should be less than 64 and greater (64 - missing channels)
+                if channel_count < len(selected_channels) or channel_count > 64:
+                    message = "Error: Invalidate {} file format. Channels should be between {} and 64".format(
+                        file_type,
+                        len(selected_channels))
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+                elif not pd.Series(selected_channels).isin(data['channel'].values).all():
+                    message = "Error: Invalidate {} file format. The following channels should be in the file: {}".format(
+                        file_type,
+                        ",".join(map(str, selected_channels)))
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+                elif not all(isinstance(x, np.int64) for x in data["channel"].values):
+                    message = "Error: Invalidate {} file format. Channel should be integers".format(
+                        file_type)
+                    self.task_bar_message.emit("red", message)
+                    return [], False
+                data = data.set_index('channel')
+                return data, True
+
+
+        except Exception as error:
+            message = "Error: Invalidate {} file format. {}".format(file_type, error)
+            self.task_bar_message.emit("red", message)
+            return [], False
+
     def get_freq_range_for_plotting(self, freq_range_info):
         if freq_range_info["default"] == False:
             return string_to_range_frequency(freq_range_info["range"])
@@ -262,6 +321,7 @@ class MainController(QObject):
             return string_to_range_frequency(freq_range_info["range"])
         else:
             return 1, self.get_frequency_range_from_data()[2]
+
     def get_frequency_range_from_data(self):
         data = self._model.data_data
         min_freq = data["freq/Hz"].min()
