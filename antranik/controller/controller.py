@@ -17,7 +17,7 @@ class MainController(QObject):
         self._model = model
         self.temp = None
 
-    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, apply_fitting):
+    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting):
         data = self._model.data_data
 
         # validate channel
@@ -28,7 +28,6 @@ class MainController(QObject):
 
         # selects validate frequency
         valid, freq_range = self.validate_freq_range(freq_range_info, freq_range_point_info)
-        print(freq_range)
         if not valid:
             return
 
@@ -54,12 +53,12 @@ class MainController(QObject):
             return
 
         if is_one_channel:
-            self.plot_one(data, int(selected_channel), limits, apply_fitting, config)
+            self.plot_one(data, int(selected_channel), limits, timeout, apply_fitting, config)
         else:
-            self.plot_multiple(data, missing, limits, apply_fitting, config)
+            self.plot_multiple(data, missing, limits, timeout, apply_fitting, config)
         return 
 
-    def plot_multiple(self, data, missing, limits, apply_fitting,  config):
+    def plot_multiple(self, data, missing, limits, timeout_time, apply_fitting,  config):
 
         # get fitting
         # fitting = get_fitting_data(data)
@@ -84,12 +83,12 @@ class MainController(QObject):
 
             # get fitting
             if apply_fitting:
+                get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
                     fitting = get_fitting_data(channel_data)
                 except Exception:
                     belated_fitting.append(channel_number)
 
-            print(channel_number)
             self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
 
             # skip missing channels
@@ -135,21 +134,21 @@ class MainController(QObject):
         self.enabled_plot_button.emit()
         plt.show()
 
-    def plot_one(self, data, channel_number, limits, apply_fitting, config):
+    def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, config):
 
         # get channel data
         channel_data = data[data['channel'] == channel_number]
 
         # get fitting
-        from time import gmtime, strftime
-        # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
         if apply_fitting:
+            get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
             try:
-                fitting = get_fitting_data(channel_data)
+                fitting = get_fitting_data_timeout(channel_data)
             except Exception:
                 self.enabled_plot_button.emit()
+                self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params")
                 return
-        # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
+
         # scale given by user
         x_limit, y_limit = limits
         x_min = x_limit[0]
@@ -245,7 +244,6 @@ class MainController(QObject):
             return data, valid, emit_message
         except Exception as error:
             message = "Error: Invalidate {} folder. {}".format(file_type, error)
-            print(message)
             self.task_bar_message.emit("red", message)
             return [], not valid, emit_message
 
@@ -333,13 +331,10 @@ class MainController(QObject):
                         fig.suptitle("channel {}".format(channel_number))
                         plt.show()
     def onpick(self, event, axs, data):
-        print(event.mouseevent.button)
 
         for row in range(8):
             for col in range(8):
                 if event.artist == axs[row][col]:
-                    print(row, col)
-
                     fig, axs = plt.subplots(1, 1)
                     channel_number = (col)* 8 + (row + 1)
                     channel_data = data[data['channel'] == channel_number]
