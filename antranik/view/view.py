@@ -17,10 +17,11 @@ class MainView(QMainWindow):
         # input validation for missing channel lineedit
         self.apply_validation(self._ui.lineEdit_missing, "(([0-9]{1,2}|([0-9]{1,2}-[0-9]{1,2})),)+")
         self.apply_validation(self._ui.lineEdit_freq_min, "[0-9]+\.?[0-9]+")
-        self.apply_validation(self._ui.lineEdit_freq_min, "[0-9]+\.?[0-9]+")
+        self.apply_validation(self._ui.lineEdit_freq_max, "[0-9]+\.?[0-9]+")
         self.apply_validation(self._ui.lineEdit_freq_point_min, "[1-9][0-9]+")
         self.apply_validation(self._ui.lineEdit_freq_point_max, "[1-9][0-9]+")
         self.apply_validation(self._ui.lineEdit_channel, "([1-9]|[1-5][0-9]|6[0-4])")
+        self.apply_validation(self._ui.lineEdit_timeout, "[1-9][0-9]+")
 
         # frequency range checkout listeners
         self._ui.checkBox_freq_range.stateChanged.connect(lambda checked:
@@ -32,6 +33,9 @@ class MainView(QMainWindow):
         self._ui.checkBox_channel.stateChanged.connect(
             lambda checked: self._ui.lineEdit_channel.setEnabled(not checked)
         )
+
+        # fitting
+        self._ui.checkBox_fitting.stateChanged.connect(lambda checked: self._ui.lineEdit_timeout.setEnabled(checked))
 
         # scale default
         self._ui.checkBox_default_scale.stateChanged.connect(lambda checked: self.enable_custom_scale(checked))
@@ -93,6 +97,7 @@ class MainView(QMainWindow):
 
             # enable fitting
             self._ui.checkBox_fitting.setEnabled(enable)
+            self._ui.lineEdit_timeout.setEnabled(enable)
 
             # update frequency Range
             if enable:
@@ -134,6 +139,13 @@ class MainView(QMainWindow):
         # allow fitting
         apply_fitting = self._ui.checkBox_fitting.isChecked()
 
+        # get fitting timeout
+        timeout = self._ui.lineEdit_timeout.text()
+        if timeout == "":
+            self.on_task_bar_message("red", "Error: timeout can not be empty")
+            return
+        timeout = int(timeout)
+
         # get frequency info. sends checkbox and lineedit and
         # lets the control decide which one to use
         freq_range_info = {"default": self._ui.checkBox_freq_range.isChecked(),
@@ -141,7 +153,7 @@ class MainView(QMainWindow):
         freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
                            "range": [int(self._ui.lineEdit_freq_point_min.text()), int(self._ui.lineEdit_freq_point_max.text())]}
 
-        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, apply_fitting)
+        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting)
 
     def load_file_folder(self, file_type):
         if file_type == "data":

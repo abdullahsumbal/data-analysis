@@ -34,8 +34,6 @@ def timeout(timeout):
         return wrapper
     return deco
 
-
-@timeout(5)
 def get_fitting_data(data):
 
     randles = Randles(initial_guess=[.01, .005, .1, .001, 200])

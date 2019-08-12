@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(517, 520)
+        MainWindow.resize(626, 520)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
@@ -415,6 +415,16 @@ class Ui_MainWindow(object):
         self.label_12.setAlignment(QtCore.Qt.AlignCenter)
         self.label_12.setObjectName("label_12")
         self.gridLayout.addWidget(self.label_12, 13, 0, 1, 4)
+        self.gridLayout_4 = QtWidgets.QGridLayout()
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.label_8 = QtWidgets.QLabel(self.centralwidget)
+        self.label_8.setObjectName("label_8")
+        self.gridLayout_4.addWidget(self.label_8, 0, 0, 1, 1)
+        self.lineEdit_timeout = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_timeout.setEnabled(False)
+        self.lineEdit_timeout.setObjectName("lineEdit_timeout")
+        self.gridLayout_4.addWidget(self.lineEdit_timeout, 0, 1, 1, 1)
+        self.gridLayout.addLayout(self.gridLayout_4, 14, 1, 1, 1)
         self.gridLayout.setColumnStretch(0, 1)
         self.gridLayout.setColumnStretch(1, 1)
         self.gridLayout.setColumnStretch(2, 1)
@@ -422,7 +432,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addLayout(self.gridLayout, 0, 1, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 517, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 626, 20))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -492,5 +502,7 @@ class Ui_MainWindow(object):
         self.label_x_y.setText(_translate("MainWindow", "x y File:"))
         self.label_22.setText(_translate("MainWindow", "Selected Folder/Files"))
         self.label_12.setText(_translate("MainWindow", "Plot"))
+        self.label_8.setText(_translate("MainWindow", "Fitting Timeout (s): "))
+        self.lineEdit_timeout.setText(_translate("MainWindow", "5"))
 
 
