@@ -1,3 +1,5 @@
+from builtins import enumerate
+
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from PyQt5.QtCore import pyqtSlot, QRegExp, Qt, QObject, pyqtSignal, QRunnable, QThreadPool
 from PyQt5.QtGui import QRegExpValidator
@@ -14,6 +16,7 @@ class MainView(QMainWindow):
         self._ui.setupUi(self)
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(3)
+        self.missing_channels = []
 
         # input validation for missing channel lineedit
         self.apply_validation(self._ui.lineEdit_missing, "(([0-9]{1,2}|([0-9]{1,2}-[0-9]{1,2})),)+")
@@ -47,6 +50,10 @@ class MainView(QMainWindow):
         ####################################################################
         # open file buttons
         self._ui.button_data_folder.clicked.connect(lambda: self.load_file_folder("data"))
+        self._ui.button_x_y.clicked.connect(lambda: self.load_file_folder("x_y"))
+        self._ui.button_guess_model.clicked.connect(lambda: self.load_file_folder("guess_model"))
+        self._ui.button_area_thickness.clicked.connect(lambda: self.load_file_folder("area_thickness"))
+        self._ui.button_config.clicked.connect(lambda: self.load_file_folder("config"))
         self._ui.button_plot.clicked.connect(lambda: self.send_plot_info_to_controller(""))
 
         ####################################################################
@@ -98,12 +105,39 @@ class MainView(QMainWindow):
 
             # enable fitting
             self._ui.checkBox_fitting.setEnabled(enable)
-            # self._ui.lineEdit_timeout.setEnabled(enable)
+
+            # other files
+            self._ui.button_x_y.setEnabled(enable)
+            self._ui.button_config.setEnabled(enable)
+            self._ui.button_guess_model.setEnabled(enable)
+            self._ui.button_area_thickness.setEnabled(enable)
 
             # update frequency Range
             if enable:
                 min_freq, max_freq, total_points = self._main_controller.get_frequency_range_from_data()
                 self.set_freq_range(min_freq, max_freq, total_points)
+
+        elif file_type == "config":
+            new_label = self.get_new_label(self._ui.label_config.text(), name)
+            self._ui.label_config.setText(new_label)
+            self._ui.label_config.setStyleSheet('color: ' + file_label_color)
+        elif file_type == "x_y":
+            new_label = self.get_new_label(self._ui.label_x_y.text(), name)
+            self._ui.label_x_y.setText(new_label)
+            self._ui.label_x_y.setStyleSheet('color: ' + file_label_color)
+        elif file_type == "config":
+            new_label = self.get_new_label(self._ui.label_config.text(), name)
+            self._ui.label_config.setText(new_label)
+            self._ui.label_config.setStyleSheet('color: ' + file_label_color)
+        elif file_type == "guess_model":
+            new_label = self.get_new_label(self._ui.label_guess_model.text(), name)
+            self._ui.label_guess_model.setText(new_label)
+            self._ui.label_guess_model.setStyleSheet('color: ' + file_label_color)
+        elif file_type == "area_thickness":
+            new_label = self.get_new_label(self._ui.label_area_thickness.text(), name)
+            self._ui.label_area_thickness.setText(new_label)
+            self._ui.label_area_thickness.setStyleSheet('color: ' + file_label_color)
+
 
 
     ####################################################################
@@ -162,14 +196,15 @@ class MainView(QMainWindow):
     def load_file_folder(self, file_type):
         if file_type == "data":
             valid, missing_channels = self.validate_missing_channel()
+            self.missing_channels = missing_channels
             if valid:
-                folder_name = "test" #self.open_folder_dialog()
+                folder_name = self.open_folder_dialog() #"test" #
                 if folder_name:
                     self._main_controller.validate_file_folder(folder_name, file_type, missing=missing_channels)
         else:
             file_name = self.open_file_name_dialog()
             if file_name:
-                self._main_controller.file_name_loading(file_name, file_type)
+                self._main_controller.validate_file_folder(file_name, file_type, self.missing_channels)
 
     ####################################################################
     #   View helper methods
@@ -179,7 +214,6 @@ class MainView(QMainWindow):
     def open_file_name_dialog(self):
         # open window to select file
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
 
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                        "All Files (*)", options=options)

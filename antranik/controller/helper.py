@@ -203,36 +203,15 @@ def set_plot_limits(ax, x_min, x_max, y_min, y_max):
     # assign limits
     ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
     ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
-# def enter_axes(event):
-#     print('enter_axes', event.inaxes, event.xdata, event.ydata)
-#     # event.inaxes.patch.set_facecolor('yellow')
-#     # event.canvas.draw()
-#     # ax = event.inaxes
-#     # line = ax.get_label_text()
-#     # print(line)
-#
-# def leave_axes(event):
-#     print('leave_axes', event.inaxes)
-#     event.inaxes.patch.set_facecolor('white')
-#     event.canvas.draw()
-#
-# def enter_figure(event):
-#     print('enter_figure', event.canvas.figure)
-#     event.canvas.figure.patch.set_facecolor('red')
-#     event.canvas.draw()
-#
-# def leave_figure(event):
-#     print('leave_figure', event.canvas.figure)
-#     event.canvas.figure.patch.set_facecolor('grey')
-#     event.canvas.draw()
-#
-# def on_press(event):
-#     print('you pressed', event.button, event.xdata, event.ydata)
-        # fig.canvas.mpl_connect('figure_leave_event', leave_figure)
-        # fig.canvas.mpl_connect('figure_enter_event', enter_figure)
-        # fig.canvas.mpl_connect('axes_enter_event', self.enter_axes)
-        # fig.canvas.mpl_connect('axes_leave_event', leave_axes)
-        # fig.canvas.mpl_connect('button_press_event', self.on_press)
+
+
+def get_selected_channels(missing):
+    selected_channels = []
+    for i in range(1, 65):
+        if i in missing:
+            continue
+        selected_channels.append(i)
+    return selected_channels
 
 default_config_single = {
     "tick_params": {
@@ -262,8 +241,7 @@ default_config_single = {
         "fontsize": 10,
         "position": [0.5, 0.8]
     },
-    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
-    "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
+    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"}
 }
 
 default_config_multiple = {
@@ -289,7 +267,6 @@ default_config_multiple = {
         "s": 4,
         "c": "b"
     },
-    "tick_locator": {},
     "figure": {
         "figsize": [20, 15]
     },
@@ -297,6 +274,5 @@ default_config_multiple = {
         "fontsize": 10,
         "position": [0.5, 0.8]
     },
-    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
-    "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
+    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"}
 }
