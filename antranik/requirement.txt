@@ -1,3 +1,5 @@
 pyqt5==5.12.2
 pyinstaller==3.4
-timeout-decorator==0.4.1
+pandas==0.24.2
+matplotlib==3.0.3
+impedance
