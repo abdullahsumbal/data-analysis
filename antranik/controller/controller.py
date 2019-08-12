@@ -10,42 +10,12 @@ import numpy as np
 
 class MainController(QObject):
     task_bar_message = pyqtSignal(str, str)
+    enabled_plot_button = pyqtSignal()
 
     def __init__(self, model):
         super().__init__()
         self._model = model
         self.temp = None
-        self.default_config = {
-                "tick_params": {
-                    "axis": "both",
-                    "which": "major",
-                    "labelsize": 20,
-                    "direction": "in",
-                    "top": True,
-                    "right": True
-                },
-                "axis_label": {
-                    "fontsize": 30
-                },
-                "plot": {
-                    "linewidth": 2
-                },
-                "scatter": {
-                    "marker": "o",
-                    "s": 4,
-                    "c": "b"
-                },
-                "tick_locator": {},
-                "figure": {
-                    "figsize": [20, 15]
-                },
-                "subplot_title": {
-                    "fontsize": 10,
-                    "position": [0.5, 0.8]
-                },
-                "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
-                "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
-            }
 
     def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits):
         data = self._model.data_data
@@ -63,85 +33,64 @@ class MainController(QObject):
             return
 
         # get config
-        config = self.default_config
+        config = self._model.config_data
+        if config is None:
+            if is_one_channel:
+                config = default_config_single
+            else:
+                config = default_config_multiple
 
         # get data in frequency range.
         data = get_data_in_frequency_range(data, freq_range)
 
-        # change scale x-axis user input to int
         x_limit, y_limit = limits
-        x_min = scale_user_input_to_float(x_limit[0])
-        x_max = scale_user_input_to_float(x_limit[1])
-        # change scale y-axis user input to int
-        y_min = scale_user_input_to_float(y_limit[0])
-        y_max = scale_user_input_to_float(y_limit[1])
-
-        # circuit info
-        randles = Randles(initial_guess=[.01, .005, .1, .001, 200])
-        randlesCPE = Randles(initial_guess=[.01, .005, .1, .9, .001, 200], CPE=True)
-        customCircuit = CustomCircuit(initial_guess=[.01, .005, .1, .005, .1, .001, 200],
-                                      circuit='R_0-p(R_1,C_1)-p(R_1,C_1)-W_1')
+        x_min = x_limit[0]
+        x_max = x_limit[1]
+        y_min = y_limit[0]
+        y_max = y_limit[1]
 
         # validate limits
         if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
             return
+
+        if is_one_channel:
+            self.plot_one(data, int(selected_channel), limits, config)
+        else:
+            self.plot_multiple(data, missing, limits, config)
+        return 
 
         if selected_channel == "all":
             fig, self.axs = plt.subplots(8, 8, **config["figure"])
         else:
             fig, self.axs = plt.subplots(1, 1, **config["figure"])
 
-        # if is_one_channel:
-            # channel_data = data[data['channel'] == int(selected_channel)]
-            # frequencies = data["freq/Hz"].values
-            # Z = data["Re(Z)/Ohm"].values + 1j*data["-Im(Z)/Ohm"].values
-            #
-            # # # keep only the impedance data in the first quandrant
-            # # frequencies = frequencies[np.imag(Z) < 0]
-            # # Z = Z[np.imag(Z) < 0]
-            # randles.fit(frequencies, Z)
-            # randlesCPE.fit(frequencies, Z)
-            # customCircuit.fit(frequencies, Z)
-            # from impedance.plotting import plot_nyquist
-            #
-            # f_pred = np.logspace(5, -2)
-            #
-            # randles_fit = randles.predict(f_pred)
-            # randlesCPE_fit = randlesCPE.predict(f_pred)
-            # customCircuit_fit = customCircuit.predict(f_pred)
-            #
-            # fig, ax = plt.subplots(figsize=(5, 5))
-            #
-            # plot_nyquist(ax, frequencies, Z)
-            # plot_nyquist(ax, f_pred, randles_fit, fmt='-')
-            # plot_nyquist(ax, f_pred, randlesCPE_fit, fmt='-')
-            # plot_nyquist(ax, f_pred, customCircuit_fit, fmt='-')
-            #
-            # plt.show()
 
         for channel_index in range(64):
 
             channel_number = channel_index + 1
 
+            #  more than one plot
             if not is_one_channel:
                 ax = self.axs[channel_index % 8][int(channel_index / 8)]
+            # one plot
             elif channel_number == int(selected_channel):
                 ax = self.axs
-            else:
-                continue
 
+            # skip missing channels
             if channel_number in missing:
                 continue
+
+            # get channel data
             channel_data = data[data['channel'] == channel_number]
             ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
-            # scatterBuilder(t)
-            ax.ticklabel_format(style="sci", scilimits=(0, 4))
-            # plt.ticklabel_format(useOffset=False)
+
+            # styling the plot
+            # ax.ticklabel_format(style="sci", scilimits=(0, 4))
             ax.tick_params(labelsize=10)
             ax.set_picker(True)
-            # ax.set_ylim(bottom=0, top=2500000)  # set the y-axis limits
-            # ax.set_xlim(left=0, right=500000)  # set the x-axis limits
-            set_labels(ax, config["axis_label_name"]["x"], config["axis_label_name"]["y"], channel_number, {})
+            set_labels(ax, config["axis_label_name"]["x"], config["axis_label_name"]["y"], is_one_channel, channel_number, {})
+        if not is_one_channel:
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
         if is_one_channel:
             zp = ZoomPan()
             zp.zoom_factory(self.axs, base_scale=1.2)
@@ -154,8 +103,124 @@ class MainController(QObject):
             "plot title")
         self.task_bar_message.emit("green", message)
         fig.suptitle(message, fontsize=25)
-        import matplotlib
-        print(matplotlib.__version__)
+        plt.show()
+
+    def plot_multiple(self, data, missing, limits, config):
+
+        # get fitting
+        # fitting = get_fitting_data(data)
+        # scale given by user
+        x_limit, y_limit = limits
+        x_min = x_limit[0]
+        x_max = x_limit[1]
+        y_min = y_limit[0]
+        y_max = y_limit[1]
+
+        # plot all 64 but skip misisng
+        fig, axs = plt.subplots(8, 8, **config["figure"])
+
+        # track fittings which were taking too long
+        belated_fitting = []
+
+        for channel_index in range(64):
+
+            # get channel data
+            channel_number = channel_index + 1
+            channel_data = data[data['channel'] == channel_number]
+
+            # get fitting
+
+            try:
+                fitting = get_fitting_data(channel_data)
+            except Exception:
+                belated_fitting.append(channel_number)
+
+            print(channel_number)
+            self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
+
+            # skip missing channels
+            if channel_number in missing:
+                continue
+            # get subplot
+            ax = axs[channel_index % 8][int(channel_index / 8)]
+
+            # plots and scatter
+            ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
+            if channel_number not in belated_fitting:
+                ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
+
+            # styling the plot
+            # ax.tick_params(labelsize=10)
+            ax.set_picker(True)
+            # set axes label
+            # ax.set_xlabel(config["axis_label_name"]["x"], **config["axis_label"])
+            # ax.set_ylabel(config["axis_label_name"]["y"], **config["axis_label"])
+
+            # ticks
+            ax.tick_params(**config["tick_params"])
+            # set set limits
+            set_plot_limits(ax, x_min, x_max, y_min, y_max)
+
+        # setup picker. double clicking on the subplot will open
+        # a plot with one channel
+        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data))
+
+        # plot title and message box
+        message = "Figure {}: {}".format(
+            plt.gcf().number,
+            "plot title")
+        self.task_bar_message.emit("green", message)
+        fig.suptitle(message, fontsize=25)
+        self.enabled_plot_button.emit()
+        plt.show()
+
+    def plot_one(self, data, channel_number, limits, config):
+
+        # get channel data
+        channel_data = data[data['channel'] == channel_number]
+
+        # get fitting
+        from time import gmtime, strftime
+        # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
+        fitting = get_fitting_data(channel_data)
+        # print(strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime()))
+        # scale given by user
+        x_limit, y_limit = limits
+        x_min = x_limit[0]
+        x_max = x_limit[1]
+        y_min = y_limit[0]
+        y_max = y_limit[1]
+
+        # subplot which is only one
+        fig, ax = plt.subplots(1, 1, **config["figure"])
+
+        # plot
+        ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
+        ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
+        ax.tick_params(labelsize=10)
+        ax.set_picker(True)
+        # set axes label
+        ax.set_xlabel(config["axis_label_name"]["x"], **config["axis_label"])
+        ax.set_ylabel(config["axis_label_name"]["y"], **config["axis_label"])
+
+        # set set limits
+        set_plot_limits(ax, x_min, x_max, y_min, y_max)
+
+        # ticks
+        ax.tick_params(**config["tick_params"])
+
+        # cool zoom
+        zp = ZoomPan()
+        zp.zoom_factory(ax, base_scale=1.2)
+        zp.pan_factory(ax)
+
+        # plot title and message box
+        message = "Figure {}: {}".format(
+            plt.gcf().number,
+            "plot title")
+        self.task_bar_message.emit("green", message)
+        fig.suptitle(message, fontsize=25)
+        self.enabled_plot_button.emit()
         plt.show()
 
     def validate_file_folder(self, file_name, file_type, missing=[]):
@@ -276,7 +341,7 @@ class MainController(QObject):
         if not (min and max):
             return True
         # min has to be greater than max
-        if min > max:
+        if float(min) > float(max):
             self.task_bar_message.emit("red", "Maximum limit has to be greater than minimum limit")
             return False
         return True
@@ -287,14 +352,11 @@ class MainController(QObject):
                 return False
         return True
 
-    def onclick(self, event):
+    def onclick(self, event, axs, data):
         if event.dblclick:
             for row in range(8):
                 for col in range(8):
-                    if event.inaxes == self.axs[row][col]:
-                        print(row, col)
-
-                        data = self._model.data_data
+                    if event.inaxes == axs[row][col]:
                         fig, axs = plt.subplots(1, 1)
                         channel_number = (col)* 8 + (row + 1)
                         channel_data = data[data['channel'] == channel_number]
@@ -304,15 +366,14 @@ class MainController(QObject):
                         zp.pan_factory(axs)
                         fig.suptitle("channel {}".format(channel_number))
                         plt.show()
-    def onpick(self, event):
+    def onpick(self, event, axs, data):
         print(event.mouseevent.button)
 
         for row in range(8):
             for col in range(8):
-                if event.artist == self.axs[row][col]:
+                if event.artist == axs[row][col]:
                     print(row, col)
 
-                    data = self._model.data_data
                     fig, axs = plt.subplots(1, 1)
                     channel_number = (col)* 8 + (row + 1)
                     channel_data = data[data['channel'] == channel_number]
@@ -322,23 +383,3 @@ class MainController(QObject):
                     zp.pan_factory(axs)
                     fig.suptitle("channel {}".format(channel_number))
                     plt.show()
-
-
-
-class scatterBuilder:
-    def __init__(self, line):
-        self.line = line
-        self.xs = list(line.get_xdata())
-        self.ys = list(line.get_ydata())
-        self.cid = line.figure.canvas.mpl_connect('button_press_event', self)
-
-    def __call__(self, event):
-        print('click', event)
-        if event.inaxes!=self.line.axes: return
-        self.xs.append(event.xdata)
-        self.ys.append(event.ydata)
-        self.line.set_data(self.xs, self.ys)
-        self.line.figure.canvas.draw()
-
-
-

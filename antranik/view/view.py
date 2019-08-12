@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
-from PyQt5.QtCore import pyqtSlot, QRegExp, Qt
+from PyQt5.QtCore import pyqtSlot, QRegExp, Qt, QObject, pyqtSignal, QRunnable, QThreadPool
 from PyQt5.QtGui import QRegExpValidator
 from os import path
 from view.main_view_ui import Ui_MainWindow
@@ -12,6 +12,7 @@ class MainView(QMainWindow):
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
+        self.threadpool = QThreadPool()
 
         # input validation for missing channel lineedit
         self.apply_validation(self._ui.lineEdit_missing, "(([0-9]{1,2}|([0-9]{1,2}-[0-9]{1,2})),)+")
@@ -41,7 +42,7 @@ class MainView(QMainWindow):
         ####################################################################
         # open file buttons
         self._ui.button_data_folder.clicked.connect(lambda: self.load_file_folder("data"))
-        self._ui.button_plot.clicked.connect(self.send_plot_info_to_controller)
+        self._ui.button_plot.clicked.connect(self.plotting)
 
         ####################################################################
         #   listen for model event signals
@@ -54,6 +55,7 @@ class MainView(QMainWindow):
         ####################################################################
         # status bar  message
         self._main_controller.task_bar_message.connect(self.on_task_bar_message)
+        self._main_controller.enabled_plot_button.connect(lambda : self._ui.button_plot.setEnabled(True))
 
     ####################################################################
     #   controller listener functions
@@ -98,7 +100,19 @@ class MainView(QMainWindow):
     #   helper functions to send request to controller
     ####################################################################
 
-    def send_plot_info_to_controller(self):
+    def plotting(self):
+        worker = Worker(self.send_plot_info_to_controller) # Any other args, kwargs are passed to the run function
+        # worker.signals.result.connect(self.print_output)
+        # worker.signals.finished.connect(self.thread_complete)
+        # worker.signals.progress.connect(self.progress_fn)
+
+
+        self.threadpool.start(worker)
+
+
+    def send_plot_info_to_controller(self, progress_callback):
+        # turn of the plot button
+        self._ui.button_plot.setEnabled(False)
         self.on_task_bar_message("blue", "Processing Request for plot")
         # missing. return a list of missing channels
         valid, missing = self.validate_missing_channel()
@@ -126,7 +140,7 @@ class MainView(QMainWindow):
         if file_type == "data":
             valid, missing_channels = self.validate_missing_channel()
             if valid:
-                folder_name = self.open_folder_dialog()
+                folder_name = "test" #self.open_folder_dialog()
                 if folder_name:
                     self._main_controller.validate_file_folder(folder_name, file_type, missing=missing_channels)
         else:
@@ -285,3 +299,77 @@ class MainView(QMainWindow):
             return "all"
         else:
             return self._ui.lineEdit_channel.text()
+
+
+# dont know how this code works but this makes the application
+# more responsive during a long process.
+import traceback, sys
+
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        `tuple` (exctype, value, traceback.format_exc() )
+
+    result
+        `object` data returned from processing, anything
+
+    progress
+        `int` indicating % progress
+
+    '''
+    finished = pyqtSignal()
+    error = pyqtSignal(tuple)
+    result = pyqtSignal(object)
+    progress = pyqtSignal(int)
+
+
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        # Add the callback to our kwargs
+        self.kwargs['progress_callback'] = self.signals.progress
+
+    @pyqtSlot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        else:
+            self.signals.result.emit(result)  # Return the result of the processing
+        finally:
+            self.signals.finished.emit()  # Done

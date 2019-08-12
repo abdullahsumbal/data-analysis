@@ -8,6 +8,8 @@ class Model(QObject):
         super().__init__()
         self._data_file_name = ''
         self._data_data = None
+        self._config_file = ""
+        self._config_data = None
 
     @property
     def file_name(self):
@@ -17,6 +19,9 @@ class Model(QObject):
     def data_data(self):
         return self._data_data
 
+    @property
+    def config_data(self):
+        return self._config_data
 
     @file_name.setter
     def file_name(self, value):
@@ -27,7 +32,6 @@ class Model(QObject):
         if file_type == "data":
             self._data_file_name = file_name
             self._data_data = data
-            print(data)
 
         if emit_message:
             # update in model is reflected in view by sending a signal to view

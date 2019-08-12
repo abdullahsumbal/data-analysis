@@ -1,5 +1,57 @@
 from os import path
 import re
+from impedance.circuits import Randles
+import matplotlib
+import numpy as np
+
+matplotlib.use("TkAgg")
+
+from threading import Thread
+import functools
+
+def timeout(timeout):
+    def deco(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            res = [Exception('function [%s] timeout [%s seconds] exceeded!' % (func.__name__, timeout))]
+            def newFunc():
+                try:
+                    res[0] = func(*args, **kwargs)
+                except Exception as e:
+                    res[0] = e
+            t = Thread(target=newFunc)
+            t.daemon = True
+            try:
+                t.start()
+                t.join(timeout)
+            except Exception as je:
+                print ('error starting thread')
+                raise je
+            ret = res[0]
+            if isinstance(ret, BaseException):
+                raise ret
+            return ret
+        return wrapper
+    return deco
+
+
+@timeout(5)
+def get_fitting_data(data):
+
+    randles = Randles(initial_guess=[.01, .005, .1, .001, 200])
+    columns = ['freq/Hz', 'Re(Z)/Ohm', '-Im(Z)/Ohm']
+    # data = pd.read_csv("test/test_01_1_C01.txt", sep="\t", usecols=columns)
+
+    frequencies = data["freq/Hz"].values
+    Z = data['Re(Z)/Ohm'].values - 1j * data['-Im(Z)/Ohm'].values
+
+    randles.fit(frequencies, Z)
+    f_pred = np.logspace(5, -2)
+
+    randles_fit = randles.predict(f_pred)
+
+    return randles_fit
+
 
 def get_file_number(file_path):
     name = path.basename(file_path)
@@ -12,8 +64,12 @@ def get_sorted_files(list_of_files):
     sorted(list_of_files, key=lambda file_path: get_file_number(file_path))
     return list_of_files
 
-def set_labels(ax, x_label, y_label, channel_number, config):
+def set_labels(ax, x_label, y_label, is_one_channel, channel_number, config):
     # show axis only on the left and bottom
+    if is_one_channel:
+        ax.set_xlabel(x_label, **config)
+        ax.set_ylabel(y_label, **config)
+
     # there are more than one plot
     # y axis label on channel 3 plot
     if channel_number == 4:
@@ -128,6 +184,30 @@ class ZoomPan:
         #return the function
         return onMotion
 
+
+def set_plot_limits(ax, x_min, x_max, y_min, y_max):
+    # get the default limits
+    x_left = ax.get_xlim()[0]
+    x_right = ax.get_xlim()[1]
+    y_bottom = ax.get_ylim()[0]
+    y_top = ax.get_ylim()[1]
+    # if none use calculated limits.
+    y_min = y_bottom if y_min == "" else float(y_max)
+    y_max = y_top if y_max == "" else float(y_max)
+    x_min = x_left if x_min == "" else float(x_min)
+    x_max = x_right if x_max == "" else float(x_max)
+
+    # margin
+    x_range = x_max - x_min
+    y_range = y_max - y_min
+    x_max = x_max + (x_range * 0.05)
+    x_min = x_min - (x_range * 0.05)
+    y_max = y_max + (y_range * 0.05)
+    y_min = y_min - (y_range * 0.05)
+
+    # assign limits
+    ax.set_ylim(bottom=y_min, top=y_max)  # set the y-axis limits
+    ax.set_xlim(left=x_min, right=x_max)  # set the x-axis limits
 # def enter_axes(event):
 #     print('enter_axes', event.inaxes, event.xdata, event.ydata)
 #     # event.inaxes.patch.set_facecolor('yellow')
@@ -158,3 +238,68 @@ class ZoomPan:
         # fig.canvas.mpl_connect('axes_enter_event', self.enter_axes)
         # fig.canvas.mpl_connect('axes_leave_event', leave_axes)
         # fig.canvas.mpl_connect('button_press_event', self.on_press)
+
+default_config_single = {
+    "tick_params": {
+        "axis": "both",
+        "which": "major",
+        "labelsize": 20,
+        "direction": "in",
+        "left": True,
+        "bottom": True
+    },
+    "axis_label": {
+        "fontsize": 30
+    },
+    "plot": {
+        "c": "orange",
+        "linewidth": 2
+    },
+    "scatter": {
+        "marker": "o",
+        "s": 4,
+        "c": "b"
+    },
+    "figure": {
+        "figsize": [20, 15]
+    },
+    "subplot_title": {
+        "fontsize": 10,
+        "position": [0.5, 0.8]
+    },
+    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
+    "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
+}
+
+default_config_multiple = {
+    "tick_params": {
+        "axis": "both",
+        "which": "major",
+        "labelsize": 20,
+        "direction": "in",
+        "top": True,
+        "right": True
+    },
+    "axis_label": {
+        "fontsize": 30
+    },
+    "plot": {
+        "linewidth": 2,
+        "c": "orange"
+    },
+    "scatter": {
+        "marker": "o",
+        "s": 4,
+        "c": "b"
+    },
+    "tick_locator": {},
+    "figure": {
+        "figsize": [20, 15]
+    },
+    "subplot_title": {
+        "fontsize": 10,
+        "position": [0.5, 0.8]
+    },
+    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
+    "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
+}
