@@ -13,6 +13,7 @@ class MainView(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
         self.threadpool = QThreadPool()
+        self.threadpool.setMaxThreadCount(3)
 
         # input validation for missing channel lineedit
         self.apply_validation(self._ui.lineEdit_missing, "(([0-9]{1,2}|([0-9]{1,2}-[0-9]{1,2})),)+")
@@ -46,7 +47,7 @@ class MainView(QMainWindow):
         ####################################################################
         # open file buttons
         self._ui.button_data_folder.clicked.connect(lambda: self.load_file_folder("data"))
-        self._ui.button_plot.clicked.connect(self.plotting)
+        self._ui.button_plot.clicked.connect(lambda: self.send_plot_info_to_controller(""))
 
         ####################################################################
         #   listen for model event signals
@@ -97,7 +98,7 @@ class MainView(QMainWindow):
 
             # enable fitting
             self._ui.checkBox_fitting.setEnabled(enable)
-            self._ui.lineEdit_timeout.setEnabled(enable)
+            # self._ui.lineEdit_timeout.setEnabled(enable)
 
             # update frequency Range
             if enable:
@@ -121,7 +122,7 @@ class MainView(QMainWindow):
 
     def send_plot_info_to_controller(self, progress_callback):
         # turn of the plot button
-        self._ui.button_plot.setEnabled(False)
+        # self._ui.button_plot.setEnabled(False)
         self.on_task_bar_message("blue", "Processing Request for plot")
         # missing. return a list of missing channels
         valid, missing = self.validate_missing_channel()
@@ -148,6 +149,9 @@ class MainView(QMainWindow):
 
         # get frequency info. sends checkbox and lineedit and
         # lets the control decide which one to use
+        if not self.validate_freq_line_edits():
+            return
+
         freq_range_info = {"default": self._ui.checkBox_freq_range.isChecked(),
                            "range": [float(self._ui.lineEdit_freq_min.text()), float(self._ui.lineEdit_freq_max.text())]}
         freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
@@ -319,6 +323,26 @@ class MainView(QMainWindow):
         else:
             return self._ui.lineEdit_channel.text()
 
+    def validate_freq_line_edits(self):
+        min_freq, max_freq, total_points = self._main_controller.get_frequency_range_from_data()
+        if self._ui.lineEdit_freq_point_min.text() == "":
+            self.on_task_bar_message("red", "Error: min frequency point can not be empty. resetting to default")
+            self._ui.lineEdit_freq_point_min.setText("1")
+            return False
+        elif self._ui.lineEdit_freq_point_max.text() == "":
+            self.on_task_bar_message("red", "Error: max frequency point can not be empty. resetting to default")
+            self._ui.lineEdit_freq_point_max.setText(str(total_points))
+            return False
+        elif self._ui.lineEdit_freq_min.text() == "":
+            self.on_task_bar_message("red", "Error: min frequency can not be empty. resetting to default")
+            self._ui.lineEdit_freq_min.setText(str(min_freq))
+            return False
+        elif self._ui.lineEdit_freq_max.text() == "":
+            self.on_task_bar_message("red", "Error: max frequency can not be empty. resetting to default")
+            self._ui.lineEdit_freq_max.setText(str(max_freq))
+            return False
+
+        return True
 
 # dont know how this code works but this makes the application
 # more responsive during a long process.

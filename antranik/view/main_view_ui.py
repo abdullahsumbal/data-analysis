@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         self.checkBox_fitting = QtWidgets.QCheckBox(self.centralwidget)
         self.checkBox_fitting.setEnabled(False)
-        self.checkBox_fitting.setChecked(True)
+        self.checkBox_fitting.setChecked(False)
         self.checkBox_fitting.setObjectName("checkBox_fitting")
         self.gridLayout.addWidget(self.checkBox_fitting, 14, 0, 1, 1)
         self.line_9 = QtWidgets.QFrame(self.centralwidget)
