@@ -40,12 +40,16 @@ def get_fitting_data(data):
     frequencies = data["freq/Hz"].values
     Z = data['Re(Z)/Ohm'].values - 1j * data['-Im(Z)/Ohm'].values
 
-    randles.fit(frequencies, Z)
-    f_pred = np.logspace(5, -2)
+    instance_of_impedance_lib = randles.fit(frequencies, Z)
+    print(instance_of_impedance_lib)
+    param_names = instance_of_impedance_lib.get_param_names()
+    param_values = instance_of_impedance_lib.parameters_
+    param_error = instance_of_impedance_lib.conf_
 
-    randles_fit = randles.predict(f_pred)
+    # f_pred = np.logspace(5, -2)
+    randles_fit = randles.predict(frequencies)
 
-    return randles_fit
+    return randles_fit, param_names, param_values, param_error
 
 
 def get_file_number(file_path):

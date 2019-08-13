@@ -182,12 +182,7 @@
           </property>
           <item>
            <property name="text">
-            <string>&quot;some model&quot;</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>some model2</string>
+            <string>randles</string>
            </property>
           </item>
          </widget>

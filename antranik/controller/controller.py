@@ -16,6 +16,7 @@ class MainController(QObject):
         super().__init__()
         self._model = model
         self.temp = None
+        self.fitting_params_dict = {}
 
     def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting):
         data = self._model.data_data
@@ -85,7 +86,7 @@ class MainController(QObject):
             if apply_fitting:
                 get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
-                    fitting = get_fitting_data_timeout(channel_data)
+                    fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data)
                     print("processed:", channel_number)
                 except Exception:
                     belated_fitting.append(channel_number)
@@ -147,10 +148,10 @@ class MainController(QObject):
         if apply_fitting:
             get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
             try:
-                fitting = get_fitting_data_timeout(channel_data)
-            except Exception:
+                fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data)
+            except Exception as e:
                 self.enabled_plot_button.emit()
-                self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params")
+                self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params. {}".format(e))
                 return
 
         # scale given by user
@@ -404,15 +405,4 @@ class MainController(QObject):
                         config = self._model.config_data
                         if config is None:
                             config = default_config_single
-
-
                         self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, config)
-                        # fig, axs = plt.subplots(1, 1)
-                        # channel_number = (col)* 8 + (row + 1)
-                        # channel_data = data[data['channel'] == channel_number]
-                        # axs.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"])
-                        # zp = ZoomPan()
-                        # zp.zoom_factory(axs, base_scale=1.2)
-                        # zp.pan_factory(axs)
-                        # fig.suptitle("channel {}".format(channel_number))
-                        # plt.show()
