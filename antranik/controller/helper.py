@@ -1,8 +1,8 @@
 from os import path
 import re
-from impedance.circuits import Randles
-import numpy as np
 
+import numpy as np
+from impedance.circuits import Randles
 from threading import Thread
 import functools
 

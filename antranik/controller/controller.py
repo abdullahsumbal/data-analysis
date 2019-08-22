@@ -2,8 +2,6 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from controller.helper import *
 import pandas as pd
 import glob
-import matplotlib
-matplotlib.use("TkAgg")
 import numpy as np
 import matplotlib.pyplot as plt
 import json
