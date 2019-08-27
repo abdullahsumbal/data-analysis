@@ -38,6 +38,10 @@ class Model(QObject):
         return self._x_y_data
 
     @property
+    def area_thickness_data(self):
+        return self._area_thickness_data
+
+    @property
     def area_thickness_name(self):
         return self._area_thickness_name
 
