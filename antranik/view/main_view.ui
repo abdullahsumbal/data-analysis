@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>626</width>
+    <width>660</width>
     <height>520</height>
    </rect>
   </property>
@@ -484,30 +484,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="8">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>Select Initial Guess</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="8">
-         <widget class="QComboBox" name="comboBox_guess">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <item>
-           <property name="text">
-            <string>Guess 1</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Guess 2</string>
-           </property>
-          </item>
-         </widget>
-        </item>
         <item row="2" column="1">
          <widget class="QCheckBox" name="checkBox_freq_range">
           <property name="enabled">
@@ -698,6 +674,29 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="8">
+         <widget class="QLineEdit" name="lineEdit_guess">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0.01,0.005,0.1,0.001,200</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="8">
+         <widget class="QCheckBox" name="checkBox_default_guess">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Use Default guess</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item row="14" column="3">
@@ -847,7 +846,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>626</width>
+     <width>660</width>
      <height>20</height>
     </rect>
    </property>

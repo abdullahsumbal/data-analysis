@@ -5,6 +5,8 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import csv
+from os import path
 
 class MainController(QObject):
     task_bar_message = pyqtSignal(str, str)
@@ -16,7 +18,7 @@ class MainController(QObject):
         self.temp = None
         self.fitting_params_dict = {}
 
-    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting):
+    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting, model, guess):
         data = self._model.data_data
 
         # validate channel
@@ -52,12 +54,12 @@ class MainController(QObject):
             return
 
         if is_one_channel:
-            self.plot_one(data, int(selected_channel), limits, timeout, apply_fitting, config)
+            self.plot_one(data, int(selected_channel), limits, timeout, apply_fitting, model, guess,config)
         else:
-            self.plot_multiple(data, missing, limits, timeout, apply_fitting, config)
+            self.plot_multiple(data, missing, limits, timeout, apply_fitting, model, guess, config)
         return 
 
-    def plot_multiple(self, data, missing, limits, timeout_time, apply_fitting,  config):
+    def plot_multiple(self, data, missing, limits, timeout_time, apply_fitting, model, guess, config):
 
         # get fitting
         # fitting = get_fitting_data(data)
@@ -84,11 +86,11 @@ class MainController(QObject):
             if apply_fitting:
                 get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
-                    fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data)
+                    fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data, model, guess)
                     print("processed:", channel_number)
-                except Exception:
+                except Exception as e:
                     belated_fitting.append(channel_number)
-                    print("timed out:", channel_number)
+                    self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params. {}".format(e))
 
             self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
 
@@ -99,9 +101,9 @@ class MainController(QObject):
             ax = axs[channel_index % 8][int(channel_index / 8)]
 
             # plots and scatter
-            ax.scatter(channel_data["Re(Z)/Ohm"], channel_data["-Im(Z)/Ohm"], **config["scatter"])
+            ax.scatter(normalized(channel_data["Re(Z)/Ohm"].values), normalized(channel_data["-Im(Z)/Ohm"].values), **config["scatter"])
             if channel_number not in belated_fitting and apply_fitting:
-                ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
+                ax.plot(normalized(fitting.real), normalized(fitting.imag * -1), **config["plot"])
 
             # styling the plot
             ax.set_picker(True)
@@ -137,7 +139,7 @@ class MainController(QObject):
         plt.close()
         self.enabled_plot_button.emit()
 
-    def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, config):
+    def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, model, guess, config):
 
         # get channel data
         channel_data = data[data['channel'] == channel_number]
@@ -146,7 +148,7 @@ class MainController(QObject):
         if apply_fitting:
             get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
             try:
-                fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data)
+                fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data, model, guess)
             except Exception as e:
                 self.enabled_plot_button.emit()
                 self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params. {}".format(e))
@@ -191,6 +193,120 @@ class MainController(QObject):
         plt.show()
         plt.close()
         self.enabled_plot_button.emit()
+
+    def export(self, file_path, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout_time, apply_fitting, model, guess):
+        data = self._model.data_data
+
+        # validate channel
+        if not self.validate_selected_channel(selected_channel, missing):
+            return
+
+        is_one_channel = not (selected_channel == "all")
+
+        # selects validate frequency
+        valid, freq_range = self.validate_freq_range(freq_range_info, freq_range_point_info)
+        if not valid:
+            return
+
+        # get config
+        config = self._model.config_data
+        if config is None:
+            if is_one_channel:
+                config = default_config_single
+            else:
+                config = default_config_multiple
+
+        # get data in frequency range.
+        data = get_data_in_frequency_range(data, freq_range)
+
+        x_limit, y_limit = limits
+        x_min = x_limit[0]
+        x_max = x_limit[1]
+        y_min = y_limit[0]
+        y_max = y_limit[1]
+
+        # validate limits
+        if not (self.validate_limit(x_min, x_max) and self.validate_limit(y_min, y_max)):
+            return
+
+        # track fittings which were taking too long
+        belated_fitting = []
+
+        # x_y file data
+        x_y_data = self._model.x_y_data
+
+        area_thickness_data = self._model.area_thickness_data
+
+        # first time for csv writer
+        first_time = True
+
+        for channel_index in range(64):
+
+            # get channel data
+            channel_number = channel_index + 1
+            channel_data = data[data['channel'] == channel_number]
+
+            # skip missing channels
+            if channel_number in missing:
+                continue
+            # x and y data for channel
+            x = x_y_data.loc[channel_number, 'x']
+            y = x_y_data.loc[channel_number, 'y']
+            # area and thickness for channel
+            area = 1
+            thickness = 1
+            if area_thickness_data is not None:
+                area = area_thickness_data.loc[channel_number, 'area']
+                thickness = area_thickness_data.loc[channel_number, 'thickness']
+
+
+            # get fitting
+            if apply_fitting:
+                get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
+                try:
+                    fitting, param_names, param_values, param_errors = get_fitting_data_timeout(channel_data, model, guess)
+                    print("processed:", channel_number)
+
+                    # write and append to file
+                    if first_time:
+                        with open(file_path, 'w', newline='') as f:
+                            writer = csv.writer(f)
+                            writer.writerow(["channels", "x", "y", *param_names,
+                                             *list(map(lambda param: "+" + param, param_names)),
+                                             *list(map(lambda param: "-" + param, param_names)),
+                                            "some_calculation",
+                                            "+some_calculation",
+                                            "-some_calculation"]
+                                            )
+                            param_values_plus, param_values_neg = get_param_value_limits(param_values, param_errors)
+                            some_calculation, some_calculation_plus, some_calculation_plus_neg = get_some_calculation(
+                                param_names, param_values, param_errors, area, thickness)
+                            writer.writerow([channel_number, x, y, *param_values, *param_values_plus, *param_values_neg,
+                                            some_calculation, some_calculation_plus, some_calculation_plus_neg])
+                            first_time = not first_time
+                    else:
+                        with open(file_path, 'a', newline='') as f:
+                            writer = csv.writer(f)
+                            param_values_plus, param_values_neg = get_param_value_limits(param_values, param_errors)
+                            some_calculation, some_calculation_plus, some_calculation_plus_neg = get_some_calculation(
+                                param_names, param_values, param_errors, area, thickness)
+                            writer.writerow([channel_number, x, y, *param_values, *param_values_plus, *param_values_neg,
+                                            some_calculation, some_calculation_plus, some_calculation_plus_neg])
+                except Exception as e:
+                    belated_fitting.append(channel_number)
+                    print(e)
+                    self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params. {}".format(e))
+
+            self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
+
+
+        # plot title and message box
+        message = "Exporting successful to file {}".format(path.basename(file_path))
+        self.task_bar_message.emit("green", message)
+        self.enabled_plot_button.emit()
+
+
+
 
     def validate_file_folder(self, file_name, file_type, missing=[]):
         # update model

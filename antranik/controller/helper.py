@@ -6,6 +6,11 @@ from impedance.circuits import Randles
 from threading import Thread
 import functools
 
+def normalized(a, axis=-1, order=2):
+    l2 = np.atleast_1d(np.linalg.norm(a, order, axis))
+    l2[l2==0] = 1
+    return a / np.expand_dims(l2, axis)
+
 def timeout(timeout):
     def deco(func):
         @functools.wraps(func)
@@ -31,25 +36,28 @@ def timeout(timeout):
         return wrapper
     return deco
 
-def get_fitting_data(data):
+def get_fitting_data(data, model, guess):
 
-    randles = Randles(initial_guess=[.01, .005, .1, .001, 200])
+    if model == "randles":
+        circuit = Randles(initial_guess=guess)
+    else:
+        circuit = Randles(initial_guess=[.01, .005, .1, .001, 200])
     columns = ['freq/Hz', 'Re(Z)/Ohm', '-Im(Z)/Ohm']
     # data = pd.read_csv("test/test_01_1_C01.txt", sep="\t", usecols=columns)
 
     frequencies = data["freq/Hz"].values
     Z = data['Re(Z)/Ohm'].values - 1j * data['-Im(Z)/Ohm'].values
 
-    instance_of_impedance_lib = randles.fit(frequencies, Z)
+    instance_of_impedance_lib = circuit.fit(frequencies, Z)
     print(instance_of_impedance_lib)
     param_names = instance_of_impedance_lib.get_param_names()
     param_values = instance_of_impedance_lib.parameters_
     param_error = instance_of_impedance_lib.conf_
 
     # f_pred = np.logspace(5, -2)
-    randles_fit = randles.predict(frequencies)
+    circuit_fit = circuit.predict(frequencies)
 
-    return randles_fit, param_names, param_values, param_error
+    return circuit_fit, param_names, param_values, param_error
 
 
 def get_file_number(file_path):
@@ -216,6 +224,35 @@ def get_selected_channels(missing):
             continue
         selected_channels.append(i)
     return selected_channels
+
+
+def get_param_value_limits(param_values, param_errors):
+    # fitting params has +/- as error. this create two new lists to
+    # of the limits of the param values
+    param_values = np.array(param_values)
+    param_errors = np.array(param_errors)
+
+    param_value_plus = param_values + param_errors
+    param_value_neg = param_values - param_errors
+
+    return param_value_plus.tolist(), param_value_neg.tolist()
+
+
+def get_some_calculation(param_names, param_values, param_errors, area, thickness):
+    r0_index = param_names.index("R0")
+    r0_value = param_values[r0_index]
+    r0_error = param_errors[r0_index]
+    r0_top = r0_value + r0_error
+    r0_bottom = r0_value - r0_error
+
+    return area / (r0_value * thickness), \
+           area / (r0_top * thickness), \
+           area / (r0_bottom * thickness)
+
+
+
+
+
 
 default_config_single = {
     "tick_params": {

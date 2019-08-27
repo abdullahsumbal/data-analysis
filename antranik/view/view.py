@@ -18,6 +18,11 @@ class MainView(QMainWindow):
         self.threadpool.setMaxThreadCount(3)
         self.missing_channels = []
 
+        # model and guesses
+        self.model_guess = {
+            "randles": [0.01,0.005,0.1,0.001,200]
+        }
+
         # input validation for missing channel lineedit
         self.apply_validation(self._ui.lineEdit_missing, "(([0-9]{1,2}|([0-9]{1,2}-[0-9]{1,2})),)+")
         self.apply_validation(self._ui.lineEdit_freq_min, "[0-9]+\.?[0-9]+")
@@ -26,6 +31,7 @@ class MainView(QMainWindow):
         self.apply_validation(self._ui.lineEdit_freq_point_max, "[1-9][0-9]+")
         self.apply_validation(self._ui.lineEdit_channel, "([1-9]|[1-5][0-9]|6[0-4])")
         self.apply_validation(self._ui.lineEdit_timeout, "[1-9][0-9]+")
+        self.apply_validation(self._ui.lineEdit_guess, "([0-9]+\.[0-9]*,|[0-9]+,)*")
 
         # frequency range checkout listeners
         self._ui.checkBox_freq_range.stateChanged.connect(lambda checked:
@@ -44,6 +50,8 @@ class MainView(QMainWindow):
         # scale default
         self._ui.checkBox_default_scale.stateChanged.connect(lambda checked: self.enable_custom_scale(checked))
 
+        # default guess
+        self._ui.checkBox_default_guess.stateChanged.connect(lambda checked: self._ui.lineEdit_guess.setEnabled(not checked))
 
         ####################################################################
         #   connect widgets to controllers
@@ -55,6 +63,7 @@ class MainView(QMainWindow):
         self._ui.button_area_thickness.clicked.connect(lambda: self.load_file_folder("area_thickness"))
         self._ui.button_config.clicked.connect(lambda: self.load_file_folder("config"))
         self._ui.button_plot.clicked.connect(lambda: self.send_plot_info_to_controller(""))
+        self._ui.button_export.clicked.connect(self.export)
 
         ####################################################################
         #   listen for model event signals
@@ -112,6 +121,9 @@ class MainView(QMainWindow):
             self._ui.button_guess_model.setEnabled(enable)
             self._ui.button_area_thickness.setEnabled(enable)
 
+            # enable guess
+            self._ui.checkBox_default_guess.setEnabled(enable)
+
             # update frequency Range
             if enable:
                 min_freq, max_freq, total_points = self._main_controller.get_frequency_range_from_data()
@@ -138,7 +150,9 @@ class MainView(QMainWindow):
             self._ui.label_area_thickness.setText(new_label)
             self._ui.label_area_thickness.setStyleSheet('color: ' + file_label_color)
 
-
+        # open export button
+        if self._model.x_y_data is not None and self._model.data_data is not None:
+            self._ui.button_export.setEnabled(True)
 
     ####################################################################
     #   helper functions to send request to controller
@@ -181,6 +195,12 @@ class MainView(QMainWindow):
             return
         timeout = int(timeout)
 
+        #get guess and model
+        model = self._ui.comboBox_model.currentText()
+        valid, guess = self.get_initial_guess()
+        if not valid:
+            return
+
         # get frequency info. sends checkbox and lineedit and
         # lets the control decide which one to use
         if not self.validate_freq_line_edits():
@@ -191,14 +211,63 @@ class MainView(QMainWindow):
         freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
                            "range": [int(self._ui.lineEdit_freq_point_min.text()), int(self._ui.lineEdit_freq_point_max.text())]}
 
-        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting)
+        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting, model, guess)
+
+    def export(self):
+        file_path = self.save_file_dialog()
+        if not file_path:
+            return
+
+        # turn of the plot button
+        # self._ui.button_plot.setEnabled(False)
+        self.on_task_bar_message("blue", "Processing Request for plot")
+        # missing. return a list of missing channels
+        valid, missing = self.validate_missing_channel()
+        if not valid:
+            return
+
+        # get channel
+        channels = self.get_selected_channels()
+
+        # get scale
+        y_limits = self.get_y_axis_limit()
+        x_limits = self.get_x_axis_limit()
+        limits = [x_limits, y_limits]
+
+        # allow fitting
+        apply_fitting = self._ui.checkBox_fitting.isChecked()
+
+        # get fitting timeout
+        timeout = self._ui.lineEdit_timeout.text()
+        if timeout == "":
+            self.on_task_bar_message("red", "Error: timeout can not be empty")
+            return
+        timeout = int(timeout)
+
+        #get guess and model
+        model = self._ui.comboBox_model.currentText()
+        valid, guess = self.get_initial_guess()
+        if not valid:
+            return
+
+        # get frequency info. sends checkbox and lineedit and
+        # lets the control decide which one to use
+        if not self.validate_freq_line_edits():
+            return
+
+        freq_range_info = {"default": self._ui.checkBox_freq_range.isChecked(),
+                           "range": [float(self._ui.lineEdit_freq_min.text()), float(self._ui.lineEdit_freq_max.text())]}
+        freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
+                           "range": [int(self._ui.lineEdit_freq_point_min.text()), int(self._ui.lineEdit_freq_point_max.text())]}
+
+        self._main_controller.export(file_path, missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting, model, guess)
 
     def load_file_folder(self, file_type):
         if file_type == "data":
             valid, missing_channels = self.validate_missing_channel()
             self.missing_channels = missing_channels
             if valid:
-                folder_name = self.open_folder_dialog() #"test" #
+                folder_name = "test" #self.open_folder_dialog() #"test" #
                 if folder_name:
                     self._main_controller.validate_file_folder(folder_name, file_type, missing=missing_channels)
         else:
@@ -218,6 +287,17 @@ class MainView(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
                                                        "All Files (*)", options=options)
         return file_name
+
+    # save file
+    def save_file_dialog(self):
+        options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getSaveFileName(self, "Save to file", "",
+                                                   "CSV File (*.csv) ;; All Files (*)", options=options)
+        if file_name:
+            return file_name
+        else:
+            return False
 
     # Set one file
     def open_folder_dialog(self):
@@ -349,6 +429,28 @@ class MainView(QMainWindow):
             x_min = self._ui.lineEdit_scale_x_min.text()
             x_max = self._ui.lineEdit_scale_x_max.text()
         return x_min, x_max
+
+    def get_initial_guess(self):
+        model = self._ui.comboBox_model.currentText()
+        guess = self._ui.lineEdit_guess.text()
+        default_guess = self.model_guess[model]
+        valid = True
+        # if default checked is checked then use default guesses or guesses are empty
+        if self._ui.checkBox_default_guess.isChecked():
+            return valid, default_guess
+        if guess == "":
+            return valid, default_guess
+        if guess[-1] == ",":
+            guess = guess[:-1]
+
+        # convert guess string to list of floats
+        guess_list = list(map(float, guess.split(",")))
+
+        if model == "randles":
+            if len(guess_list) != len(default_guess):
+                self.on_task_bar_message("red", "Error: There should be {} guesses".format(len(default_guess)))
+                return not valid, None
+        return valid, guess_list
 
     # get channels form ui
     def get_selected_channels(self):
