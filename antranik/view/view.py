@@ -20,7 +20,8 @@ class MainView(QMainWindow):
 
         # model and guesses
         self.model_guess = {
-            "randles": [0.01,0.005,0.1,0.001,200]
+            "randles": [0.01,0.005,0.1,0.001,200],
+            "R0-p(R1,C1)-W1" : [0.01,0.005,0.1,0.001,200]
         }
 
         # input validation for missing channel lineedit
@@ -124,6 +125,9 @@ class MainView(QMainWindow):
 
             # enable guess
             self._ui.checkBox_default_guess.setEnabled(enable)
+
+            # enable model
+            self._ui.comboBox_model.setEnabled(enable)
 
             # update frequency Range
             if enable:
@@ -268,7 +272,7 @@ class MainView(QMainWindow):
             valid, missing_channels = self.validate_missing_channel()
             self.missing_channels = missing_channels
             if valid:
-                folder_name = "test" #self.open_folder_dialog() #"test" #
+                folder_name = self.open_folder_dialog() #"test" #
                 if folder_name:
                     self._main_controller.validate_file_folder(folder_name, file_type, missing=missing_channels)
         else:

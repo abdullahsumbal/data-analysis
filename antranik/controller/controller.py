@@ -76,11 +76,18 @@ class MainController(QObject):
         # track fittings which were taking too long
         belated_fitting = []
 
+        # get fitting info if guess_model file is loaded
+        guess_model_data = self._model.guess_model_data
+
         for channel_index in range(64):
 
             # get channel data
             channel_number = channel_index + 1
             channel_data = data[data['channel'] == channel_number]
+
+            if guess_model_data is not None:
+                model = guess_model_data.loc[channel_number, 'model']
+                guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
 
             # get fitting
             if apply_fitting:
@@ -89,6 +96,7 @@ class MainController(QObject):
                     fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data, model, guess)
                     print("processed:", channel_number)
                 except Exception as e:
+                    print(e)
                     belated_fitting.append(channel_number)
                     self.task_bar_message.emit("red", "Error: fitting timed out. Increase fitting timeout or change fitting params. {}".format(e))
 
@@ -101,9 +109,9 @@ class MainController(QObject):
             ax = axs[channel_index % 8][int(channel_index / 8)]
 
             # plots and scatter
-            ax.scatter(normalized(channel_data["Re(Z)/Ohm"].values), normalized(channel_data["-Im(Z)/Ohm"].values), **config["scatter"])
+            ax.scatter(channel_data["Re(Z)/Ohm"].values, channel_data["-Im(Z)/Ohm"].values, **config["scatter"])
             if channel_number not in belated_fitting and apply_fitting:
-                ax.plot(normalized(fitting.real), normalized(fitting.imag * -1), **config["plot"])
+                ax.plot(fitting.real, fitting.imag * -1, **config["plot"])
 
             # styling the plot
             ax.set_picker(True)
@@ -127,7 +135,7 @@ class MainController(QObject):
 
         # setup picker. double clicking on the subplot will open
         # a plot with one channel
-        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data, limits, timeout_time, apply_fitting))
+        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data, limits, timeout_time, model, guess, apply_fitting))
 
         # plot title and message box
         message = "Figure {}: {}".format(
@@ -143,6 +151,12 @@ class MainController(QObject):
 
         # get channel data
         channel_data = data[data['channel'] == channel_number]
+
+        # get fitting info if guess_model file is loaded
+        guess_model_data = self._model.guess_model_data
+        if guess_model_data is not None:
+            model = guess_model_data.loc[channel_number, 'model']
+            guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
 
         # get fitting
         if apply_fitting:
@@ -235,6 +249,9 @@ class MainController(QObject):
         # x_y file data
         x_y_data = self._model.x_y_data
 
+        # get fitting info if guess_model file is loaded
+        guess_model_data = self._model.guess_model_data
+
         area_thickness_data = self._model.area_thickness_data
 
         # first time for csv writer
@@ -259,6 +276,9 @@ class MainController(QObject):
                 area = area_thickness_data.loc[channel_number, 'area']
                 thickness = area_thickness_data.loc[channel_number, 'thickness']
 
+            if guess_model_data is not None:
+                model = guess_model_data.loc[channel_number, 'model']
+                guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
 
             # get fitting
             if apply_fitting:
@@ -487,7 +507,7 @@ class MainController(QObject):
                 return False
         return True
 
-    def onclick(self, event, axs, data, limits, timeout_time, apply_fitting):
+    def onclick(self, event, axs, data, limits, timeout_time, model, guess,  apply_fitting):
         #  {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, 'up', 'down'}
         # 3 means right click
         if event.button == 3:
@@ -511,4 +531,4 @@ class MainController(QObject):
                         config = self._model.config_data
                         if config is None:
                             config = default_config_single
-                        self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, config)
+                        self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, model, guess, config)

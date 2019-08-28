@@ -56,7 +56,7 @@ class Model(QObject):
             self._data_data = data
         elif file_type == "guess_model":
             self._guess_model_name = file_name
-            self._guess_model = data
+            self._guess_model_data = data
         elif file_type == "x_y":
             self._x_y_name = file_name
             self._x_y_data = data
@@ -64,7 +64,7 @@ class Model(QObject):
             self._area_thickness_name = file_name
             self._area_thickness_data = data
         elif file_type == "config":
-            self._config_name = file_name
+            self._config_file = file_name
             self._config_data = data
 
         if emit_message:

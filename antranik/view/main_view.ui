@@ -171,6 +171,11 @@
             <string>randles</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>R0-p(R1,C1)-W1</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="0" column="6">

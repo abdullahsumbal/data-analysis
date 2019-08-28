@@ -2,7 +2,7 @@ from os import path
 import re
 
 import numpy as np
-from impedance.circuits import Randles
+from impedance.circuits import Randles, CustomCircuit
 from threading import Thread
 import functools
 
@@ -41,9 +41,10 @@ def get_fitting_data(data, model, guess):
     if model == "randles":
         circuit = Randles(initial_guess=guess)
     else:
-        circuit = Randles(initial_guess=[.01, .005, .1, .001, 200])
+        # circuit = Randles(initial_guess=[.01, .005, .1, .001, 200])
+        circuit = CustomCircuit(initial_guess=guess,
+                                      circuit=model)
     columns = ['freq/Hz', 'Re(Z)/Ohm', '-Im(Z)/Ohm']
-    # data = pd.read_csv("test/test_01_1_C01.txt", sep="\t", usecols=columns)
 
     frequencies = data["freq/Hz"].values
     Z = data['Re(Z)/Ohm'].values - 1j * data['-Im(Z)/Ohm'].values
