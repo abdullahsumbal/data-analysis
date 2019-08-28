@@ -45,7 +45,8 @@ class MainView(QMainWindow):
         )
 
         # fitting
-        self._ui.checkBox_fitting.stateChanged.connect(lambda checked: self._ui.lineEdit_timeout.setEnabled(checked))
+        #self._ui.checkBox_fitting.stateChanged.connect(lambda checked: self._ui.lineEdit_timeout.setEnabled(checked))
+        self._ui.checkBox_fitting.stateChanged.connect(lambda checked: self.enable_fitting(checked))
 
         # scale default
         self._ui.checkBox_default_scale.stateChanged.connect(lambda checked: self.enable_custom_scale(checked))
@@ -151,7 +152,7 @@ class MainView(QMainWindow):
             self._ui.label_area_thickness.setStyleSheet('color: ' + file_label_color)
 
         # open export button
-        if self._model.x_y_data is not None and self._model.data_data is not None:
+        if self._model.x_y_data is not None and self._model.data_data is not None and self._ui.checkBox_fitting.isChecked():
             self._ui.button_export.setEnabled(True)
 
     ####################################################################
@@ -479,6 +480,13 @@ class MainView(QMainWindow):
             return False
 
         return True
+
+    def enable_fitting(self, checked):
+        self._ui.lineEdit_timeout.setEnabled(checked)
+        if self._model.x_y_data is not None:
+            self._ui.button_export.setEnabled(checked)
+
+
 
 # dont know how this code works but this makes the application
 # more responsive during a long process.

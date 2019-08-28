@@ -272,26 +272,18 @@ class MainController(QObject):
                         with open(file_path, 'w', newline='') as f:
                             writer = csv.writer(f)
                             writer.writerow(["channels", "x", "y", *param_names,
-                                             *list(map(lambda param: "+" + param, param_names)),
-                                             *list(map(lambda param: "-" + param, param_names)),
-                                            "some_calculation",
-                                            "+some_calculation",
-                                            "-some_calculation"]
+                                             *list(map(lambda param: param + "_error", param_names)), "some_calculation"]
                                             )
-                            param_values_plus, param_values_neg = get_param_value_limits(param_values, param_errors)
                             some_calculation, some_calculation_plus, some_calculation_plus_neg = get_some_calculation(
                                 param_names, param_values, param_errors, area, thickness)
-                            writer.writerow([channel_number, x, y, *param_values, *param_values_plus, *param_values_neg,
-                                            some_calculation, some_calculation_plus, some_calculation_plus_neg])
+                            writer.writerow([channel_number, x, y, *param_values, *param_errors, some_calculation])
                             first_time = not first_time
                     else:
                         with open(file_path, 'a', newline='') as f:
                             writer = csv.writer(f)
-                            param_values_plus, param_values_neg = get_param_value_limits(param_values, param_errors)
                             some_calculation, some_calculation_plus, some_calculation_plus_neg = get_some_calculation(
                                 param_names, param_values, param_errors, area, thickness)
-                            writer.writerow([channel_number, x, y, *param_values, *param_values_plus, *param_values_neg,
-                                            some_calculation, some_calculation_plus, some_calculation_plus_neg])
+                            writer.writerow([channel_number, x, y, *param_values, *param_errors, some_calculation])
                 except Exception as e:
                     belated_fitting.append(channel_number)
                     print(e)
