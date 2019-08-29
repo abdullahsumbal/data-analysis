@@ -252,9 +252,6 @@ def get_some_calculation(param_names, param_values, param_errors, area, thicknes
 
 
 
-
-
-
 default_config_single = {
     "tick_params": {
         "axis": "both",
@@ -280,10 +277,10 @@ default_config_single = {
         "figsize": [20, 15]
     },
     "subplot_title": {
-        "fontsize": 10,
-        "position": [0.5, 0.8]
+        "fontsize": 20,
+        "position": [0.5, 1]
     },
-    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"}
+    "axis_label_name": {"x": "Re(Z)/Ohm", "y": "-Im(Z)/Ohm"},
 }
 
 default_config_multiple = {

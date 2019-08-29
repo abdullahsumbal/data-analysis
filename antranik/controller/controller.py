@@ -18,7 +18,7 @@ class MainController(QObject):
         self.temp = None
         self.fitting_params_dict = {}
 
-    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting, model, guess):
+    def plot(self, missing, freq_range_info, freq_range_point_info, selected_channel, limits, timeout, apply_fitting, model, guess, show_title):
         data = self._model.data_data
 
         # validate channel
@@ -54,12 +54,12 @@ class MainController(QObject):
             return
 
         if is_one_channel:
-            self.plot_one(data, int(selected_channel), limits, timeout, apply_fitting, model, guess,config)
+            self.plot_one(data, int(selected_channel), limits, timeout, apply_fitting, model, guess, show_title, config)
         else:
-            self.plot_multiple(data, missing, limits, timeout, apply_fitting, model, guess, config)
+            self.plot_multiple(data, missing, limits, timeout, apply_fitting, model, guess, show_title, config)
         return 
 
-    def plot_multiple(self, data, missing, limits, timeout_time, apply_fitting, model, guess, config):
+    def plot_multiple(self, data, missing, limits, timeout_time, apply_fitting, model, guess, show_title, config):
 
         # get fitting
         # fitting = get_fitting_data(data)
@@ -85,14 +85,18 @@ class MainController(QObject):
             channel_number = channel_index + 1
             channel_data = data[data['channel'] == channel_number]
 
-            if guess_model_data is not None:
-                model = guess_model_data.loc[channel_number, 'model']
-                guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
+            # skip missing channels
+            if channel_number in missing:
+                continue
 
             # get fitting
             if apply_fitting:
                 get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
+                    # loaded file model and guess values take priority
+                    if guess_model_data is not None:
+                        model = guess_model_data.loc[channel_number, 'model']
+                        guess = list(map(float, guess_model_data.loc[channel_number, 'guess'].split(",")))
                     fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data, model, guess)
                     print("processed:", channel_number)
                 except Exception as e:
@@ -102,9 +106,6 @@ class MainController(QObject):
 
             self.task_bar_message.emit("blue", "Procesing Channel {}".format(channel_number))
 
-            # skip missing channels
-            if channel_number in missing:
-                continue
             # get subplot
             ax = axs[channel_index % 8][int(channel_index / 8)]
 
@@ -133,35 +134,38 @@ class MainController(QObject):
             set_plot_limits(ax, x_min, x_max, y_min, y_max)
             ax.ticklabel_format(style='plain')
 
+            if show_title:
+                ax.set_title('Channel {}'.format(channel_number), **config["subplot_title"])
+
         # setup picker. double clicking on the subplot will open
         # a plot with one channel
-        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data, limits, timeout_time, model, guess, apply_fitting))
+        fig.canvas.mpl_connect('button_press_event', lambda event: self.onclick(event, axs, self._model.data_data, limits, timeout_time, model, guess, show_title, apply_fitting))
 
         # plot title and message box
         message = "Figure {}: {}".format(
-            plt.gcf().number,
-            "plot title")
+            plt.gcf().number,  model if apply_fitting else "No fitting")
         self.task_bar_message.emit("green", message)
         fig.suptitle(message, fontsize=25)
         plt.show()
         plt.close()
         self.enabled_plot_button.emit()
 
-    def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, model, guess, config):
+    def plot_one(self, data, channel_number, limits, timeout_time, apply_fitting, model, guess, show_title, config):
 
         # get channel data
         channel_data = data[data['channel'] == channel_number]
-
-        # get fitting info if guess_model file is loaded
-        guess_model_data = self._model.guess_model_data
-        if guess_model_data is not None:
-            model = guess_model_data.loc[channel_number, 'model']
-            guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
 
         # get fitting
         if apply_fitting:
             get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
             try:
+
+                # get fitting info if guess_model file is loaded
+                guess_model_data = self._model.guess_model_data
+                if guess_model_data is not None:
+                    model = guess_model_data.loc[channel_number, 'model']
+                    guess = list(map(float, guess_model_data.loc[channel_number, 'guess'].split(",")))
+
                 fitting, self.param_names, self.param_values, self.param_errors = get_fitting_data_timeout(channel_data, model, guess)
             except Exception as e:
                 self.enabled_plot_button.emit()
@@ -198,10 +202,12 @@ class MainController(QObject):
         zp.zoom_factory(ax, base_scale=1.2)
         zp.pan_factory(ax)
 
+        if show_title:
+            ax.set_title('Channel {}'.format(channel_number), **config["subplot_title"])
+
         # plot title and message box
         message = "Figure {}: {}".format(
-            plt.gcf().number,
-            "plot title")
+            plt.gcf().number, model if apply_fitting else "No fitting")
         self.task_bar_message.emit("green", message)
         fig.suptitle(message, fontsize=25)
         plt.show()
@@ -276,14 +282,14 @@ class MainController(QObject):
                 area = area_thickness_data.loc[channel_number, 'area']
                 thickness = area_thickness_data.loc[channel_number, 'thickness']
 
-            if guess_model_data is not None:
-                model = guess_model_data.loc[channel_number, 'model']
-                guess = list(map(float,guess_model_data.loc[channel_number, 'guess'].split(",")))
-
             # get fitting
             if apply_fitting:
                 get_fitting_data_timeout = timeout(timeout=timeout_time)(get_fitting_data)
                 try:
+                    if guess_model_data is not None:
+                        model = guess_model_data.loc[channel_number, 'model']
+                        guess = list(map(float, guess_model_data.loc[channel_number, 'guess'].split(",")))
+
                     fitting, param_names, param_values, param_errors = get_fitting_data_timeout(channel_data, model, guess)
                     print("processed:", channel_number)
 
@@ -507,7 +513,7 @@ class MainController(QObject):
                 return False
         return True
 
-    def onclick(self, event, axs, data, limits, timeout_time, model, guess,  apply_fitting):
+    def onclick(self, event, axs, data, limits, timeout_time, model, guess,  show_title, apply_fitting):
         #  {None, MouseButton.LEFT, MouseButton.MIDDLE, MouseButton.RIGHT, 'up', 'down'}
         # 3 means right click
         if event.button == 3:
@@ -516,6 +522,7 @@ class MainController(QObject):
             ax = event.inaxes
             show_labels = ax.get_xticklabels() == []
             ax.tick_params(labelleft=show_labels, labelbottom=show_labels)
+            config = self._model.config_data
             event.canvas.draw()
 
 
@@ -531,4 +538,4 @@ class MainController(QObject):
                         config = self._model.config_data
                         if config is None:
                             config = default_config_single
-                        self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, model, guess, config)
+                        self.plot_one(data, channel_number, limits, timeout_time, apply_fitting, model, guess, show_title, config)

@@ -129,6 +129,9 @@ class MainView(QMainWindow):
             # enable model
             self._ui.comboBox_model.setEnabled(enable)
 
+            # enable tile
+            self._ui.checkBox_title.setEnabled(enable)
+
             # update frequency Range
             if enable:
                 min_freq, max_freq, total_points = self._main_controller.get_frequency_range_from_data()
@@ -200,6 +203,9 @@ class MainView(QMainWindow):
             return
         timeout = int(timeout)
 
+        # show title
+        show_title = self._ui.checkBox_title.isChecked()
+
         #get guess and model
         model = self._ui.comboBox_model.currentText()
         valid, guess = self.get_initial_guess()
@@ -216,7 +222,7 @@ class MainView(QMainWindow):
         freq_range_point_info = {"default": self._ui.checkBox_freq_point_range.isChecked(),
                            "range": [int(self._ui.lineEdit_freq_point_min.text()), int(self._ui.lineEdit_freq_point_max.text())]}
 
-        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting, model, guess)
+        self._main_controller.plot(missing, freq_range_info, freq_range_point_info, channels, limits, timeout, apply_fitting, model, guess, show_title)
 
     def export(self):
         file_path = self.save_file_dialog()

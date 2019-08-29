@@ -437,47 +437,8 @@
       </item>
       <item row="10" column="0" colspan="4">
        <layout class="QGridLayout" name="gridLayout_6" columnstretch="0,2,0,2,0,1,1,0,2,0">
-        <item row="3" column="6">
-         <widget class="QCheckBox" name="checkBox_7">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Con</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="5">
-         <widget class="QCheckBox" name="checkBox_4">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>x y</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="6">
-         <widget class="QCheckBox" name="checkBox_6">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>R</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="5">
-         <widget class="QCheckBox" name="checkBox_3">
+         <widget class="QCheckBox" name="checkBox_title">
           <property name="enabled">
            <bool>false</bool>
           </property>
