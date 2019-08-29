@@ -53,7 +53,7 @@ class MainController(QObject):
                         }
                     }
 
-    def plot(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+    def plot(self, selected_type_1, selected_type_2,
              selected_operation, min_color_scale, max_color_scale, is_percentage):
 
         #get config
@@ -64,7 +64,7 @@ class MainController(QObject):
 
         data = self._model.ternary_file_data
         # perform calculation
-        data, title = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
+        data, title = self.calculate(data, selected_type_1, selected_type_2, selected_operation, is_percentage)
         # remove the inf and nan
         inf_nan_indexes = data.index[data['calculated'].isin([np.nan, np.inf, -np.inf])].tolist()
         inf_indexes = data[data['calculated'].isin([np.inf, -np.inf])]
@@ -133,19 +133,19 @@ class MainController(QObject):
         tax.show()
         tax.close()
 
-    def export(self, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+    def export(self, selected_type_1, selected_type_2,
                                    selected_operation, is_percentage, file_name):
 
         data = self._model.ternary_file_data
         # perform calculation
-        data, _ = self.calculate(data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage)
+        data, _ = self.calculate(data, selected_type_1, selected_type_2, selected_operation, is_percentage)
 
         # get basename to show in task bar.
         csv_file_basename = os.path.basename(file_name)
         try:
-            columns_to_export = ["x", "y", selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]
+            columns_to_export = ["x", "y", selected_type_1, "calculated"]
             if selected_type_2 is not None:
-                columns_to_export.insert(3, selected_type_dict[selected_type_2] + selected_cycle_2)
+                columns_to_export.insert(3, selected_type_2)
             data = data[columns_to_export]
             data.to_csv(file_name, index=False)
             self.task_bar_message.emit({"color": "green", "message": "Successfully written to {}".format(csv_file_basename)})
@@ -243,37 +243,35 @@ class MainController(QObject):
             self.task_bar_message.emit({"color": "red", "message": message})
             return [], False
 
-    def calculate(self, data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2, selected_operation, is_percentage):
+    def calculate(self, data, selected_type_1, selected_type_2, selected_operation, is_percentage):
 
         title = ""
         # if compare is not checked
         if selected_operation is None:
-            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]
-            title += "Type: {} and Cycle {}".format(selected_type_1, selected_cycle_1)
+            data["calculated"] = data[selected_type_1]
+            title += "Type: {}".format(selected_type_1)
             # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1, "calculated"]])
             return data, title
 
         # if compare is checked
         if selected_operation == "Subtract (-)":
-            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] - \
-                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+            data["calculated"] = data[selected_type_1] - \
+                                 data[selected_type_2]
         elif selected_operation == "Multiple (*)":
-            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] * \
-                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+            data["calculated"] = data[selected_type_1] * \
+                                 data[selected_type_2]
         elif selected_operation == "Divide (/)":
-            data["calculated"] = data[selected_type_dict[selected_type_1] + selected_cycle_1] / \
-                                 data[selected_type_dict[selected_type_2] + selected_cycle_2]
+            data["calculated"] = data[selected_type_1] / \
+                                 data[selected_type_2]
 
-        title += "Type: {} and Cycle {}  {}  Type {} and Cycle {}".format(
+        title += "Type: {}  {}  Type {}".format(
             selected_type_1,
-            selected_cycle_1,
             selected_operation,
-            selected_type_2,
-            selected_cycle_2)
+            selected_type_2)
         if is_percentage:
             # data["avg"] = data[selected_type_dict[selected_type_1] + selected_cycle_1]/2 + \
             #                      data[selected_type_dict[selected_type_2] + selected_cycle_2]/2
-            data["calculated"] = data["calculated"] / data[selected_type_dict[selected_type_1] + selected_cycle_1]
+            data["calculated"] = data["calculated"] / data[selected_type_1]
             title += "  (Percentage)"
         # print(data[[selected_type_dict[selected_type_1] + selected_cycle_1,
         # selected_type_dict[selected_type_2] + selected_cycle_2, "calculated"]])
