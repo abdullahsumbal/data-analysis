@@ -421,10 +421,19 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 660, 20))
         self.menubar.setObjectName("menubar")
+        self.menuhelp = QtWidgets.QMenu(self.menubar)
+        self.menuhelp.setObjectName("menuhelp")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.action_about = QtWidgets.QAction(MainWindow)
+        self.action_about.setObjectName("action_about")
+        self.action_github = QtWidgets.QAction(MainWindow)
+        self.action_github.setObjectName("action_github")
+        self.menuhelp.addAction(self.action_about)
+        self.menuhelp.addAction(self.action_github)
+        self.menubar.addAction(self.menuhelp.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -487,5 +496,8 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Plot"))
         self.label_8.setText(_translate("MainWindow", "Fitting Timeout (s): "))
         self.lineEdit_timeout.setText(_translate("MainWindow", "5"))
+        self.menuhelp.setTitle(_translate("MainWindow", "Help"))
+        self.action_about.setText(_translate("MainWindow", "About"))
+        self.action_github.setText(_translate("MainWindow", "GitHub"))
 
 

@@ -1,10 +1,12 @@
 from builtins import enumerate
 
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QDialog
 from PyQt5.QtCore import pyqtSlot, QRegExp, Qt, QObject, pyqtSignal, QRunnable, QThreadPool
 from PyQt5.QtGui import QRegExpValidator
 from os import path
 from view.main_view_ui import Ui_MainWindow
+from view.about_view_ui import Ui_AboutWindow
+from view.github_view_ui import Ui_GithubWindow
 
 
 class MainView(QMainWindow):
@@ -13,6 +15,8 @@ class MainView(QMainWindow):
         self._model = model
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
+        self._ui_about = AboutView()
+        self._ui_github = GithubView()
         self._ui.setupUi(self)
         self.threadpool = QThreadPool()
         self.threadpool.setMaxThreadCount(3)
@@ -54,6 +58,12 @@ class MainView(QMainWindow):
 
         # default guess
         self._ui.checkBox_default_guess.stateChanged.connect(lambda checked: self._ui.lineEdit_guess.setEnabled(not checked))
+
+        ####################################################################
+        #   trigger function for UI widgets
+        ####################################################################
+        self._ui.action_about.triggered.connect(lambda: self._ui_about.show())
+        self._ui.action_github.triggered.connect(lambda: self._ui_github.show())
 
         ####################################################################
         #   connect widgets to controllers
@@ -570,3 +580,17 @@ class Worker(QRunnable):
             self.signals.result.emit(result)  # Return the result of the processing
         finally:
             self.signals.finished.emit()  # Done
+
+
+class AboutView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_AboutWindow()
+        self.ui.setupUi(self)
+
+
+class GithubView(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_GithubWindow()
+        self.ui.setupUi(self)

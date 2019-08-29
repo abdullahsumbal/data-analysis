@@ -816,8 +816,26 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuhelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="action_about"/>
+    <addaction name="action_github"/>
+   </widget>
+   <addaction name="menuhelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_about">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="action_github">
+   <property name="text">
+    <string>GitHub</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
