@@ -46,8 +46,6 @@ class MainView(QMainWindow):
         self._ui.checkbox_compare.stateChanged.connect(lambda checked: self.enable_compare(checked))
 
         # calculation signal
-        self._ui.comboBox_cycle_1.currentIndexChanged.connect(self.perform_calculation)
-        self._ui.comboBox_cycle_2.currentIndexChanged.connect(self.perform_calculation)
         self._ui.comboBox_type_1.currentIndexChanged.connect(self.perform_calculation)
         self._ui.comboBox_type_2.currentIndexChanged.connect(self.perform_calculation)
         self._ui.comboBox_operation.currentIndexChanged.connect(self.perform_calculation)
@@ -77,18 +75,17 @@ class MainView(QMainWindow):
         # enable buttons in UI
         if file_type == "master" or file_type == "ternary":
             self._ui.checkbox_default_color.setEnabled(True)
-            self._ui.comboBox_cycle_1.setEnabled(True)
             self._ui.comboBox_type_1.setEnabled(True)
             self._ui.button_plot.setEnabled(True)
             self._ui.checkbox_compare.setEnabled(True)
             self._ui.button_export.setEnabled(True)
 
             # populate combo box cycles
-            cycles_list = self.get_cycle_list()
-            self._ui.comboBox_cycle_1.clear()
-            self._ui.comboBox_cycle_1.addItems(cycles_list)
-            self._ui.comboBox_cycle_2.clear()
-            self._ui.comboBox_cycle_2.addItems(cycles_list)
+            column_list = self.get_columns()
+            self._ui.comboBox_type_1.clear()
+            self._ui.comboBox_type_1.addItems(column_list)
+            self._ui.comboBox_type_2.clear()
+            self._ui.comboBox_type_2.addItems(column_list)
 
         elif file_type == "config":
             self._ui.button_reset_config.setEnabled(True)
@@ -113,24 +110,20 @@ class MainView(QMainWindow):
 
     def perform_calculation(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
-        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
-        selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
 
-        if selected_cycle_1 == "" or selected_cycle_2 == "":
+        if selected_type_1 == "" or selected_type_1 == "":
             return
         selected_type_2 = None
-        selected_cycle_2 = None
         selected_operation = None
         is_percentage = None
 
         if self._ui.checkbox_compare.isChecked():
             selected_type_2 = self._ui.comboBox_type_2.currentText()
-            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
             selected_operation = self._ui.comboBox_operation.currentText()
             is_percentage = self._ui.checkbox_percentage.isChecked()
 
         # perform calculation
-        data, _ = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+        data, _ = self._main_controller.calculate(self._model.ternary_file_data, selected_type_1, selected_type_2,
                               selected_operation, is_percentage)
 
         # remove the inf and nan
@@ -148,9 +141,7 @@ class MainView(QMainWindow):
 
     def export(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
-        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
         selected_type_2 = None
-        selected_cycle_2 = None
         selected_operation = None
         min_color_scale = None
         max_color_scale = None
@@ -158,21 +149,18 @@ class MainView(QMainWindow):
 
         if self._ui.checkbox_compare.isChecked():
             selected_type_2 = self._ui.comboBox_type_2.currentText()
-            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
             selected_operation = self._ui.comboBox_operation.currentText()
             is_percentage = self._ui.checkbox_percentage.isChecked()
 
         file_name = self.save_file_dialog()
         if file_name:
-            self._main_controller.export(selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+            self._main_controller.export(selected_type_1, selected_type_2,
                                        selected_operation, is_percentage, file_name)
 
 
     def plot_ternary(self):
         selected_type_1 = self._ui.comboBox_type_1.currentText()
-        selected_cycle_1 = self._ui.comboBox_cycle_1.currentText()
         selected_type_2 = None
-        selected_cycle_2 = None
         selected_operation = None
         min_color_scale = None
         max_color_scale = None
@@ -180,7 +168,6 @@ class MainView(QMainWindow):
 
         if self._ui.checkbox_compare.isChecked():
             selected_type_2 = self._ui.comboBox_type_2.currentText()
-            selected_cycle_2 = self._ui.comboBox_cycle_2.currentText()
             selected_operation = self._ui.comboBox_operation.currentText()
             is_percentage = self._ui.checkbox_percentage.isChecked()
 
@@ -188,7 +175,7 @@ class MainView(QMainWindow):
             min_color_scale = self._ui.lineEdit_min_color.text()
             max_color_scale = self._ui.lineEdit_max_color.text()
 
-        self._main_controller.plot(selected_type_1, selected_cycle_1, selected_type_2, selected_cycle_2,
+        self._main_controller.plot(selected_type_1, selected_type_2,
                                    selected_operation, min_color_scale, max_color_scale, is_percentage)
 
     # Set one file
@@ -233,6 +220,14 @@ class MainView(QMainWindow):
 
         return cycles
 
+    def get_columns(self):
+        data = self._model.ternary_file_data
+        columns = list(data.columns)
+        columns.remove("x")
+        columns.remove("y")
+        columns.remove("channels")
+        return columns
+
     def enable_color_scale(self, checked):
         self._ui.lineEdit_min_color.setEnabled(not checked)
         self._ui.lineEdit_max_color.setEnabled(not checked)
@@ -240,7 +235,6 @@ class MainView(QMainWindow):
     def enable_compare(self, checked):
         # things to enable or disabled based on the compare checkbox
         self._ui.comboBox_operation.setEnabled(checked)
-        self._ui.comboBox_cycle_2.setEnabled(checked)
         self._ui.comboBox_type_2.setEnabled(checked)
         self._ui.checkbox_percentage.setEnabled(checked)
 
