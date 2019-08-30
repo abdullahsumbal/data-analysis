@@ -1,6 +1,6 @@
 # Template for Model View Controller (MVC) in Python.
 
-![](window.JPG)
+![](../images/impedance.PNG)
 This repository provides a Model View Controller (MVC) design in using PyQt.
 ```ANSI
 model-view-controller-template
