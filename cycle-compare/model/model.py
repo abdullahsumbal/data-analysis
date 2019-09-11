@@ -6,14 +6,19 @@ class Model(QObject):
 
     def __init__(self):
         super().__init__()
-        self._file_name = ''
+        self._master_data = None
+        self._master_name = ""
 
     @property
-    def file_name(self):
-        return self._file_name
+    def master_name(self):
+        return self._master_name
 
-    @file_name.setter
-    def file_name(self, value):
-        self._file_name = value
-        # update in model is reflected in view by sending a signal to view
-        self.file_name_changed.emit(value)
+    @property
+    def master_data(self):
+        return self._master_data
+
+    @master_name.setter
+    def master_name(self, value):
+        self._master_name = value[1]
+        self._master_data = value[0]
+        self.file_name_changed.emit(self._master_name)
