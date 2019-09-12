@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 import pandas as pd
+import random
 from controller.helper import *
 import matplotlib.pyplot as plt
 import json
@@ -12,6 +13,7 @@ class MainController(QObject):
     def __init__(self, model):
         super().__init__()
         self._model = model
+        self.matching = []
         self.config = {
                         "tick_params": {
                             "axis": "both",
@@ -122,12 +124,11 @@ class MainController(QObject):
 
 
         self._model.master_name = ((all_data, "master"))
-        self.test()
-        # self.plot_norm_volt_cur()
-        # self.plot_charge_voltage()
+        self.find_matching_x_y()
+        print(self.matching)
 
 
-    def plot_charge_voltage(self):
+    def plot_charge_voltage(self, selected_cycles_list, show_title):
         fig, axs = plt.subplots(6, 6, figsize=[20, 15])
         colors = ["r", "b", "g"]
 
@@ -139,10 +140,13 @@ class MainController(QObject):
             channels = x_y_data["channel"].values
 
             # calculation
-            selected_cycles_list = medusa_data.Cycle.unique()
+            all_cycles = medusa_data.Cycle.unique()
+            if not all(elem in all_cycles  for elem in selected_cycles_list):
+                continue
             charges_voltage, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_charges(medusa_data, channels, mass_data)
-            print(channels.shape)
-            for channel_index, channel_number in enumerate(channels):
+            # for channel_index, channel_number in enumerate(channels):
+            for channel_index, matching_row in enumerate(self.matching):
+                channel_number = matching_row[row_number]
 
                 for cycle_number in selected_cycles_list:
                     ax = axs[channel_index % 6][int(channel_index / 6)]
@@ -150,17 +154,22 @@ class MainController(QObject):
                     voltage = charges_voltage[channel_number][cycle_number]['voltage']
                     ax.plot(charge, voltage, c=colors[row_number], **self.config["plot"])
 
-                    ax.set_title('Channel {}'.format(channel_number), **config["subplot_title"])
+                if show_title:
+                    x_y_row = x_y_data.loc[x_y_data['channel'] == channel_number]
+                    x_value = round(x_y_row.loc[:, "x"].values[0], 2)
+                    y_value = round(x_y_row.loc[:, "y"].values[0], 2)
+                    existing_title = ax.get_title()
+                    if existing_title == "":
+                        title = "{}, {}: {}".format(x_value, y_value, channel_number)
+                    else:
+                        title = existing_title + ",{}".format(channel_number)
+                    ax.set_title(title, **config["subplot_title"])
 
         fig.suptitle("Charge vs Voltage", fontsize=25)
         plt.show()
 
-
-
-
-
     # plot normalized current vs voltage
-    def plot_norm_volt_cur(self):
+    def plot_norm_volt_cur(self, selected_cycles_list, show_title):
         fig, axs = plt.subplots(6, 6, figsize=[20, 15])
         colors = ["r", "b", "g"]
 
@@ -169,27 +178,36 @@ class MainController(QObject):
             medusa_data = row[0]
             mass_data = row[1]
             config = self.config
-            channels = x_y_data["channels"].values
+            channels = x_y_data["channel"].values
 
             # calculation
-            selected_cycles_list = medusa_data.Cycle.unique()
+            all_cycles = medusa_data.Cycle.unique()
+            if not all(elem in all_cycles  for elem in selected_cycles_list):
+                continue
             norm_cur_voltage, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_norm_cur_voltage(
                 medusa_data, selected_cycles_list, channels, mass_data)
-            print(channels.shape)
-            for channel_index, channel_number in enumerate(channels):
+            # for channel_index, channel_number in enumerate(channels):
+            for channel_index, matching_row in enumerate(self.matching):
+                channel_number = matching_row[row_number]
 
                 for cycle_number in selected_cycles_list:
                     ax = axs[channel_index % 6][int(channel_index / 6)]
                     ax.plot(norm_cur_voltage[channel_number][cycle_number]["voltage"],
                             norm_cur_voltage[channel_number][cycle_number]["current"], c=colors[row_number])
 
-                    ax.set_title('Channel {}'.format(channel_number), **config["subplot_title"])
+                if show_title:
+                    x_y_row = x_y_data.loc[x_y_data['channel'] == channel_number]
+                    x_value = round(x_y_row.loc[:, "x"].values[0], 2)
+                    y_value = round(x_y_row.loc[:, "y"].values[0], 2)
+                    existing_title = ax.get_title()
+                    if existing_title == "":
+                        title = "{}, {}: {}".format(x_value, y_value, channel_number)
+                    else:
+                        title = existing_title + ",{}".format(channel_number)
+                    ax.set_title(title, **config["subplot_title"])
 
         fig.suptitle("Current vs Voltage", fontsize=25)
         plt.show()
-
-
-
 
     def validate_medusa_file(self, name, file_type, mapping="karlie"):
         columns, starting_row = get_medusa_columns(mapping)
@@ -213,7 +231,6 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], False
 
-
     def validate_config_file(self, name, file_type):
         try:
             with open(name) as json_file:
@@ -225,7 +242,7 @@ class MainController(QObject):
             return [], False
 
     def validate_x_y_file(self, name, file_type):
-        columns = {'channels', 'x', 'y'}
+        columns = {'channel', 'x', 'y'}
         try:
             data = pd.read_csv(name, nrows=64)
             diff = columns.difference(set(data.columns.values))
@@ -239,7 +256,7 @@ class MainController(QObject):
             else:
                 x_count = data['x'].count()
                 y_count = data['y'].count()
-                channel_count = data['channels'].count()
+                channel_count = data['channel'].count()
                 # There should be 64 values for x and y and no missing data
                 if x_count != 64 or y_count != 64 or channel_count != 64 or data.isnull().sum().sum() != 0:
                     message = "Error: Invalidate {} file ({}) format. There should be 64 channels, 64 x values and 64 y values".format(
@@ -253,12 +270,12 @@ class MainController(QObject):
                         file_type)
                     self.task_bar_message.emit("red", message)
                     return [], False
-                elif not pd.Series([x for x in range(1, 65)]).isin(data['channels'].values).all():
+                elif not pd.Series([x for x in range(1, 65)]).isin(data['channel'].values).all():
                     message = "Error: Invalidate {} file format. Channel number is not a range between 1 and 64".format(
                         file_type)
                     self.task_bar_message.emit("red", message)
                     return [], False
-                elif not all(isinstance(x, np.int64) for x in data["channels"].values):
+                elif not all(isinstance(x, np.int64) for x in data["channel"].values):
                     message = "Error: Invalidate {} file format. Channel should be integers".format(
                         file_type)
                     self.task_bar_message.emit("red", message)
@@ -288,35 +305,29 @@ class MainController(QObject):
             self.task_bar_message.emit("red", message)
             return [], False
 
-    def test(self):
-        xs = pd.DataFrame()
+    def find_matching_x_y(self):
+        self.matching = []
         master_data = self._model.master_data
         x_y_data = master_data[0][2]
-        xs["x_1"] = self.get_common_x_y(x_y_data)["x"]
-        print(xs["x_1"].shape)
+        xs_1= self.get_common_x_y(x_y_data)
+        # print(xs_1["x"])
         x_y_data = master_data[1][2]
-        xs["x_2"] = self.get_common_x_y(x_y_data)["x"]
-        print(xs["x_2"].shape)
+        xs_2 = self.get_common_x_y(x_y_data)
         x_y_data = master_data[2][2]
-        xs["x_3"] = self.get_common_x_y(x_y_data)["x"]
-        print(xs["x_3"].shape)
-        print(xs[(xs["x_1"].values == xs["x_3"].values)])
+        xs_3 = self.get_common_x_y(x_y_data)
 
-        # x_y_data_1 = master_data[1][2]
-        # for x in x_y_data["x"]:
-        #     if x not in x_y_data_1["x"].values:
-        #         print("not found", x)
-        # xs = pd.DataFrame()
-        # xs["x_1"] = master_data[0][2]["x"]
-        # xs["x_2"] = master_data[2][2]["x"]
-
-
+        for row in xs_1.iterrows():
+            first_channel = int(row[1]["channel"])
+            x = row[1]["x"]
+            y = row[1]["y"]
+            second_channel = xs_2[(xs_2['x'] == x) & (xs_2['y'] == y)]["channel"].values[0]
+            third_channel = xs_3[(xs_3['x'] == x) & (xs_3['y'] == y)]["channel"].values[0]
+            self.matching.append([first_channel, second_channel, third_channel])
 
     def get_common_x_y(self, x_y_data):
-        return x_y_data
-        return x_y_data[(x_y_data["x"]  <= 0.5) &
-                            (   x_y_data["y"] <= 0.5) &
-                            ((1 - - x_y_data["x"] - x_y_data["y"]) <= 0.5)]
+        return x_y_data[(x_y_data["x"] <= 0.5) &
+                        (x_y_data["y"] <= 0.5) &
+                        ((1 - x_y_data["x"] - x_y_data["y"]) <= 0.5)]
 
 
 
