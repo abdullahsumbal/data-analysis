@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Load Files"))
         self.comboBox_cycle.setItemText(0, _translate("MainWindow", "1,2"))
         self.label_3.setText(_translate("MainWindow", "Select Cycles"))
-        self.label_4.setText(_translate("MainWindow", "Plot"))
+        self.label_4.setText(_translate("MainWindow", "Plot (Red, Blue, Green:  This is the order of coloring.)"))
         self.pushButton_charge.setText(_translate("MainWindow", "Voltage vs Charge/Discharge"))
         self.pushButton_current.setText(_translate("MainWindow", "Voltage Vs Current"))
         self.checkBox_x_y.setText(_translate("MainWindow", "X Y"))

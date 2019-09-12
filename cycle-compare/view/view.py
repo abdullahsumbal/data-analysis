@@ -42,16 +42,16 @@ class MainView(QMainWindow):
         self.on_task_bar_message(file_label_color, "Successfully loaded {} file".format(name))
 
         # update cycle dropdown
-        cycle_set = set()
+        all_cycles = []
         master_data = self._model.master_data
-        cycle_1 = master_data[0][0].Cycle.unique()
-        cycle_2 = master_data[1][0].Cycle.unique()
-        cycle_3 = master_data[2][0].Cycle.unique()
-        cycle_set.update(cycle_1)
-        cycle_set.update(cycle_2)
-        cycle_set.update(cycle_3)
+        cycle_1 = master_data[0][0].Cycle.unique().tolist()
+        cycle_2 = master_data[1][0].Cycle.unique().tolist()
+        cycle_3 = master_data[2][0].Cycle.unique().tolist()
+        all_cycles += cycle_1
+        all_cycles += cycle_2
+        all_cycles += cycle_3
 
-        cycle_list = list(cycle_set)
+        cycle_list = list(set(all_cycles))
         sorted(cycle_list)
 
         # assuming there are always even cycles

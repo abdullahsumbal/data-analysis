@@ -107,7 +107,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Plot</string>
+         <string>Plot (Red, Blue, Green:  This is the order of coloring.)</string>
         </property>
        </widget>
       </item>

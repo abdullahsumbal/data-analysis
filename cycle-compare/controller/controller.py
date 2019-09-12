@@ -1,6 +1,5 @@
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
 import pandas as pd
-import random
 from controller.helper import *
 import matplotlib.pyplot as plt
 import json
@@ -29,23 +28,8 @@ class MainController(QObject):
                         "subplot_title": {
                             "fontsize": 10,
                             "position": [0.5, 0.8]
-                        },
-                        "subplot_axis_label_name": {
-                            "norm": {"x": "V vs Li/Li\u207A", "y": "Normalized Current (mA/g)"},
-                            "charge": {"x": "Charge/Discharge Capacity (mAh/g)", "y": "Average Voltage (V)"},
-                            "avg_voltage": {"x": "Cycles Number", "y": "Average Voltage (V)"},
-                            "capacity": {"x": "Cycles Number", "y": "Specific Capacity (mAh/g)"}
-                        },
-                         "subplot_spacing": {"hspace": 0.05, "wspace": 0.05}
+                        }
                     }
-
-    # @pyqtSlot(str)
-    # def file_name_changed(self, name):
-    #     # update model
-    #
-    #     valid = self.validate_master(name)
-    #     self._model.file_name = name
-
 
     def validate_master(self, file_path):
         # read file
@@ -71,6 +55,7 @@ class MainController(QObject):
                 raise Exception(message)
         except Exception as e:
             self.task_bar_message.emit("red", str(e))
+            return
 
         all_data = []
         medusa_index = np.where(master_data.columns.values == "medusa")[0][0]
@@ -105,12 +90,6 @@ class MainController(QObject):
             if not x_y_valid:
                 return
 
-            # this is for testing because I don't have good data
-            # x_y_data = x_y_data.iloc[:36, :]
-            # x_y_data = x_y_data[(x_y_data["x"] + x_y_data["y"] >= 0.5) |
-            #               (x_y_data["x"] + (1 - x_y_data["y"]) >= 0.5) &
-            #               (x_y_data["y"] + (1 - x_y_data["x"]) >= 0.5)]
-            # print(x_y_data.shape)
             all_data[index].append(x_y_data)
 
             # config_file validation
@@ -122,11 +101,9 @@ class MainController(QObject):
             else:
                 all_data[index].append(None)
 
-
-        self._model.master_name = ((all_data, "master"))
+        self._model.master_name = (all_data, "master")
         self.find_matching_x_y()
         print(self.matching)
-
 
     def plot_charge_voltage(self, selected_cycles_list, show_title):
         fig, axs = plt.subplots(6, 6, figsize=[20, 15])
@@ -136,23 +113,25 @@ class MainController(QObject):
             x_y_data = row[2]
             medusa_data = row[0]
             mass_data = row[1]
-            config = self.config
+            config = row[3]
+            if config is None:
+                config = self.config
             channels = x_y_data["channel"].values
 
             # calculation
             all_cycles = medusa_data.Cycle.unique()
-            if not all(elem in all_cycles  for elem in selected_cycles_list):
-                continue
             charges_voltage, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_charges(medusa_data, channels, mass_data)
             # for channel_index, channel_number in enumerate(channels):
             for channel_index, matching_row in enumerate(self.matching):
                 channel_number = matching_row[row_number]
 
                 for cycle_number in selected_cycles_list:
+                    if cycle_number not in all_cycles:
+                        continue
                     ax = axs[channel_index % 6][int(channel_index / 6)]
                     charge = charges_voltage[channel_number][cycle_number]['charge']
                     voltage = charges_voltage[channel_number][cycle_number]['voltage']
-                    ax.plot(charge, voltage, c=colors[row_number], **self.config["plot"])
+                    ax.plot(charge, voltage, c=colors[row_number], **config["plot"])
 
                 if show_title:
                     x_y_row = x_y_data.loc[x_y_data['channel'] == channel_number]
@@ -177,13 +156,13 @@ class MainController(QObject):
             x_y_data = row[2]
             medusa_data = row[0]
             mass_data = row[1]
-            config = self.config
+            config = row[3]
+            if config is None:
+                config = self.config
             channels = x_y_data["channel"].values
 
             # calculation
             all_cycles = medusa_data.Cycle.unique()
-            if not all(elem in all_cycles  for elem in selected_cycles_list):
-                continue
             norm_cur_voltage, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_norm_cur_voltage(
                 medusa_data, selected_cycles_list, channels, mass_data)
             # for channel_index, channel_number in enumerate(channels):
@@ -191,9 +170,11 @@ class MainController(QObject):
                 channel_number = matching_row[row_number]
 
                 for cycle_number in selected_cycles_list:
+                    if cycle_number not in all_cycles:
+                        continue
                     ax = axs[channel_index % 6][int(channel_index / 6)]
                     ax.plot(norm_cur_voltage[channel_number][cycle_number]["voltage"],
-                            norm_cur_voltage[channel_number][cycle_number]["current"], c=colors[row_number])
+                            norm_cur_voltage[channel_number][cycle_number]["current"], c=colors[row_number], **config["plot"])
 
                 if show_title:
                     x_y_row = x_y_data.loc[x_y_data['channel'] == channel_number]
