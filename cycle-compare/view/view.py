@@ -18,6 +18,10 @@ class MainView(QMainWindow):
         # open file buttons
         self._ui.pushButton_master.clicked.connect(self.open_file_name_dialog)
 
+        # plot buttons
+        self._ui.pushButton_current.clicked.connect(lambda: self.plot("current"))
+        self._ui.pushButton_charge.clicked.connect(lambda: self.plot("charge"))
+
         ####################################################################
         #   listen for model event signals
         ####################################################################
@@ -57,7 +61,23 @@ class MainView(QMainWindow):
             discharge = cycle_list[index + 1]
             self._ui.comboBox_cycle.addItem("{},{}".format(charge, discharge))
 
+        # update buttons
+        self._ui.comboBox_cycle.setEnabled(True)
+        self._ui.checkBox_x_y.setEnabled(True)
+        self._ui.pushButton_charge.setEnabled(True)
+        self._ui.pushButton_current.setEnabled(True)
 
+    def plot(self, plot_name):
+        # get cycles
+        cycles = self._ui.comboBox_cycle.currentText()
+        cycle_list = list(map(int, cycles.split(",")))
+        # show title
+        show_title = self._ui.checkBox_x_y.isChecked()
+
+        if plot_name == "current":
+            self._main_controller.plot_norm_volt_cur(cycle_list, show_title)
+        elif plot_name == "charge":
+            self._main_controller.plot_charge_voltage(cycle_list, show_title)
 
     @pyqtSlot(str, str)
     def on_task_bar_message(self, color, message):
@@ -67,13 +87,13 @@ class MainView(QMainWindow):
 
     # Set one file
     def open_file_name_dialog(self):
-        self._main_controller.validate_master("master-template.csv")
-        # # open window to select file
-        # options = QFileDialog.Options()
-        # # options |= QFileDialog.DontUseNativeDialog
-        #
-        # file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-        #                                                "All Files (*)", options=options)
-        #
-        # if file_name:
-        #     self._main_controller.validate_master(file_name)
+        # self._main_controller.validate_master("master-template.csv")
+        # open window to select file
+        options = QFileDialog.Options()
+
+        file_name, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()",
+                                                   "",
+                                                   "All Files (*)", options=options)
+
+        if file_name:
+            self._main_controller.validate_master(file_name)
