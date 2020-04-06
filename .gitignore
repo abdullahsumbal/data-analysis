@@ -14,3 +14,6 @@ dist
 !karlie/config-template.json
 !phase-diagram/config-template.json
 !phase-diagram/master-file-template.csv
+!antranik/guess_model_template.csv
+!antranik/guess_model_template.csv
+!antranik/area_thickness_template.csv
