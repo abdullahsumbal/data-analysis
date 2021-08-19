@@ -173,7 +173,7 @@ class MainController(QObject):
         plot_one_channel = len(selected_channels_list) == 1
         # get colors from config
         colors = self.config["colors"]
-        capacities, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_capacity(data, selected_cycles_list, selected_channels_list, self._model.mass_data)
+        capacities, caps_pos, caps_neg, avg_volts_pos, avg_volts_neg, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_capacity(data, selected_cycles_list, selected_channels_list, self._model.mass_data)
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             color_index = 0
@@ -392,8 +392,9 @@ class MainController(QObject):
         data = get_data_in_voltage_range(data, voltage_range)
 
         # calculate charges
-        capacities, *_ = get_capacity(data, selected_cycles_list, selected_channels_list, self._model.mass_data)
+        capacities, caps_pos, caps_neg, avg_volts_pos, avg_volts_neg, *_ = get_capacity(data, selected_cycles_list, selected_channels_list, self._model.mass_data)
         avg_voltages, *_ = get_avg_voltage(data, selected_cycles_list, selected_channels_list)
+        #true_caps, true_volts = get_compensated_echem_values(data, selected_channels_list, self._model.mass_data)
 
         if csv_file_name[-4:] != ".csv":
             csv_file_name += ".csv"
@@ -405,7 +406,8 @@ class MainController(QObject):
                 csv_writer = csv.writer(csv_file, delimiter=',')
                 header = ["channels", "x", "y"]
                 for cycle_number in selected_cycles_list:
-                    temp = "charge_{cycle},average_voltage_{cycle}".format(cycle=cycle_number)
+                    # temp = "capacity_{cycle},average_voltage_{cycle},pos capacity_{cycle},pos avg voltage_{cycle},neg capacity_{cycle},neg avg voltage_{cycle}".format(cycle=cycle_number)
+                    temp = "pos capacity_{cycle},pos avg voltage_{cycle},neg capacity_{cycle},neg avg voltage_{cycle}".format(cycle=cycle_number)
                     header += temp.split(",")
 
                 csv_writer.writerow(header)
@@ -420,7 +422,18 @@ class MainController(QObject):
                     for cycle_number in selected_cycles_list:
                         capacity = capacities[channel_number][cycle_number]
                         avg_voltage = avg_voltages[channel_number][cycle_number]
-                        row += [str(abs(capacity)), str(avg_voltage)]
+                        cap_pos = caps_pos[channel_number][cycle_number]
+                        cap_neg = caps_neg[channel_number][cycle_number]
+                        try: 
+                            avg_v_pos = avg_volts_pos[channel_number][cycle_number]
+                        except KeyError:
+                            avg_v_pos = 0
+                        try: 
+                            avg_v_neg = avg_volts_neg[channel_number][cycle_number]
+                        except KeyError:
+                            avg_v_neg = 0
+                        #row += [str(abs(capacity)), str(avg_voltage), str(cap_pos), str(avg_v_pos), str(cap_neg), str(avg_v_neg)]
+                        row += [str(cap_pos), str(avg_v_pos), str(cap_neg), str(avg_v_neg)]
                     csv_writer.writerow(row)
 
             self.task_bar_message.emit("green", "Successfully written to {}".format(csv_file_basename))

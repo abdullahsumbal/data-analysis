@@ -189,33 +189,135 @@ def get_capacity(data, selected_cycles_list, selected_channels_list, mass_data):
     x_min, x_max = min(selected_cycles_list), max(selected_cycles_list)
     y_min, y_max = sys.maxsize, -sys.maxsize - 1
     charges = {}
+    charges_pos = {}
+    charges_neg = {}
+    avg_volts_pos = {}
+    avg_volts_neg = {}
     for channel_number in selected_channels_list:
         charges[channel_number] = {}
+        charges_pos[channel_number] = {}
+        charges_neg[channel_number] = {}
+        avg_volts_pos[channel_number] = {}
+        avg_volts_neg[channel_number] = {}
         # get mass data
         mass = 1
         if mass_data is not None:
             mass = mass_data[channel_number - 1]
         for cycle_number in selected_cycles_list:
             charges[channel_number][cycle_number] = 0
+            charges_pos[channel_number][cycle_number] = 0
+            charges_neg[channel_number][cycle_number] = 0
             cycle_data = data[data['Cycle'] == cycle_number]
             current = cycle_data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
             time_h = cycle_data.loc[:, "Time(h)".format(channel_number)].values
+            voltages = cycle_data.loc[:, "Vavg (V)".format(channel_number)].values
             charge = 0
+            charge_pos = 0
+            charge_neg = 0
+            avg_volt_charge_pos = 0
+            avg_volt_charge_neg = 0
             for index in range(len(time_h) - 2):
                 # formula to calculate charges
                 avg_charge = (current[index] + current[index + 1]) / 2
                 time_diff = time_h[index + 1] - time_h[index]
                 charge += avg_charge * time_diff
+                if avg_charge * time_diff >= 0:
+                    charge_pos += avg_charge * time_diff
+                    avg_volt_charge_pos += ((voltages[index + 1] + voltages[index])/2) * avg_charge * time_diff
+                else:
+                    charge_neg += avg_charge * time_diff
+                    avg_volt_charge_neg += ((voltages[index + 1] + voltages[index])/2) * avg_charge * time_diff
             if cycle_number % 2 == 0:
                 charges[channel_number][cycle_number] = charge/(mass * 1000) * -1
             else:
                 charges[channel_number][cycle_number] = charge / (mass * 1000)
-
+            charges_pos[channel_number][cycle_number] = charge_pos/(mass * 1000)
+            charges_neg[channel_number][cycle_number] = charge_neg/(mass * 1000) * -1 
+            if charge_pos != 0:
+                avg_volts_pos[channel_number][cycle_number] = avg_volt_charge_pos/charge_pos
+            if charge_neg != 0:
+                avg_volts_neg[channel_number][cycle_number] = avg_volt_charge_neg/charge_neg
+            
             y_min = min(charges[channel_number][cycle_number], y_min)
             y_max = max(charges[channel_number][cycle_number], y_max)
 
-    return charges, x_min, x_max, y_min, y_max
+    return charges, charges_pos, charges_neg, avg_volts_pos, avg_volts_neg, x_min, x_max, y_min, y_max
 
+# Get "real" capacities and average voltages which include the residual
+# charging/discharging that occurs after a change in step
+def get_compensated_echem_values(data, selected_channels_list, mass_data):
+    true_caps = {}
+    true_avg_volts = {}
+    
+    for channel_number in selected_channels_list:
+        true_avg_volts[channel_number] = {}
+        true_caps[channel_number] = {}
+
+        
+        currents = data.loc[:, "Ch.{}-I (uA)".format(channel_number)].values
+        times = data.loc[:, "Time(h)"].values
+        volts = data.loc[:, "Vavg (V)"].values
+        cycles = data.loc[:, 'Cycle'].values
+
+        mass = 1
+        if mass_data is not None:
+            mass = mass_data[channel_number - 1]
+        
+        is_charging = (volts[3] > volts[0])
+            
+        current = 0
+        sum_Q = 0
+        volt = 0
+        count = 0
+        cycle_number = cycles[0]
+        
+        for i in range(len(currents) - 3):
+            if is_charging:
+                if currents[i] > 0:
+                    d_t = times[i+1] - times[i]
+                    Q = ((currents[i] + currents[i+1])/2)
+                    current += Q * d_t
+                    volt += volts[i] * Q * d_t
+                    count += 1
+                else:
+                    if currents[i+1] < 0 and currents[i+2] < 0 and volts[i+2] < volts[i]: # change from charge to discharge when three consecutive negative values 
+                        print(i, "discharge begin", cycle_number) 
+                        true_caps[channel_number][cycle_number] = current/mass/1000
+                        true_avg_volts[channel_number][cycle_number] = volt/current
+                        count = 1
+                        Q = ((currents[i] + currents[i+1])/2)
+                        current = Q * d_t
+                        volt = volts[i] * Q * d_t
+                        is_charging = False
+                        cycle_number += 1
+
+            else:
+                if currents[i] < 0:
+                    d_t = times[i+1] - times[i]
+                    Q = ((currents[i] + currents[i+1])/2)
+                    current += Q * d_t
+                    volt += volts[i] * Q * d_t
+                    count += 1
+                else:
+                    if currents[i+1] > 0 and currents[i+2] > 0 and volts[i+2] > volts[i]: # change from discharge to charge when three consecutive positive values 
+                        print(i, "charge begin", cycle_number)
+                        true_caps[channel_number][cycle_number] = current/mass/1000 * -1
+                        true_avg_volts[channel_number][cycle_number] = volt/current
+                        count = 1
+                        Q = ((currents[i] + currents[i+1])/2)
+                        current = Q * d_t
+                        volt = volts[i] * Q * d_t
+                        is_charging = True
+                        cycle_number += 1
+
+        
+        true_caps[channel_number][cycle_number] = abs(current/mass/1000)
+        true_avg_volts[channel_number][cycle_number] = volt/current
+
+        is_charging = True
+
+    print(cycle_number)
+    return true_caps, true_avg_volts
 
 def get_norm_cur_voltage(data, selected_cycles_list, selected_channels_list, mass_data):
     # calculate charges
