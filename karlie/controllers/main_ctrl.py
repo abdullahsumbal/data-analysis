@@ -261,7 +261,7 @@ class MainController(QObject):
         # get charge calculation
         # get min max scale for each axis
         charges_voltage, x_cal_min, x_cal_max, y_cal_min, y_cal_max = get_charges(data, selected_channels_list, self._model.mass_data)
-
+        export_points = []
         for channel_index in range(len(selected_channels_list)):
             channel_number = selected_channels_list[channel_index]
             color_index = 0
@@ -275,6 +275,7 @@ class MainController(QObject):
                 charge = charges_voltage[channel_number][cycle_number]['charge']
                 voltage = charges_voltage[channel_number][cycle_number]['voltage']
                 ax.plot(charge, voltage, c=colors[color_index % len(colors)], **self.config["plot"])
+                export_points.append([channel_number, cycle_number, charge[-1], voltage[-1]])
                 color_index += 1
 
             # axis label
@@ -295,6 +296,8 @@ class MainController(QObject):
             set_plot_limits(ax, x_min, x_max, y_min, y_max, x_cal_min, x_cal_max, y_cal_min, y_cal_max)
             # set subplot title
             set_subplot_tile(ax, show_tile, x_y_label_checked, self._model.x_y_data, channel_number, self.config["subplot_title"])
+        endpoints = pd.DataFrame(export_points)
+        endpoints.to_excel("/Users/alexhebert/Downloads/AH_02_31_B_20211121_NMC_Al5_charges_data.xlsx")
 
     # plot normalized current vs voltage
     def plot_norm_volt_cur(self, axs, x_min, x_max, y_min, y_max, selected_cycles_list, selected_channels_list, show_tile, x_y_label_checked, data):
